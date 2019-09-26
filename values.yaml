@@ -35,8 +35,15 @@ ingress:
 tomcat:
   name: chart-example.local
   image:
+    webarchive:
+      repository: magnolia-demo
+      tag: latest
     tomcat:
       tag: "9-jre11-slim"
+  livenessProbe:
+    path: /magnolia
+  readinessProbe:
+    path: /magnolia
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
