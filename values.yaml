@@ -36,7 +36,7 @@ tomcat:
   name: chart-example.local
   image:
     webarchive:
-      repository: magnolia-demo
+      repository: registry.gitlab.com/mathias.seiler/magnolia-demo
       tag: latest
     tomcat:
       tag: "9-jre11-slim"
