@@ -29,7 +29,7 @@ spec:
         {{- range .paths }}
           - path: {{ . }}
             backend:
-              serviceName: {{ $fullName }}
+              serviceName: {{ $.Release.Name }}-tomcat
               servicePort: http
         {{- end }}
   {{- end }}
