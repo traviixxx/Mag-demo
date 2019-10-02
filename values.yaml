@@ -5,17 +5,27 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  tag: stable
-  pullPolicy: IfNotPresent
-
+  webarchive:
+    repository: registry.gitlab.com/mathias.seiler/magnolia-demo
+    tag: latest
+  tomcat:
+    tag: "9-jre11-slim"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+deploy:
+  directory: /usr/local/tomcat/webapps
+
 service:
+  annotations: {}
   type: ClusterIP
-  port: 80
+  clusterIP: None
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
 
 ingress:
   enabled: true
@@ -32,18 +42,10 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-tomcat:
-  name: chart-example.local
-  image:
-    webarchive:
-      repository: registry.gitlab.com/mathias.seiler/magnolia-demo
-      tag: latest
-    tomcat:
-      tag: "9-jre11-slim"
-  livenessProbe:
-    path: /magnolia
-  readinessProbe:
-    path: /magnolia
+livenessProbe:
+  path: /magnolia
+readinessProbe:
+  path: /magnolia
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

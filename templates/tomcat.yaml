@@ -1,29 +1,29 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ template "tomcat.fullname" . }}
+  name: {{ template "magnolia.fullname" . }}
   labels:
-    app: {{ template "tomcat.name" . }}
-    chart: {{ template "tomcat.chart" . }}
+    app: {{ template "magnolia.name" . }}
+    chart: {{ template "magnolia.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "tomcat.name" . }}
+      app: {{ template "magnolia.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "tomcat.name" . }}
+        app: {{ template "magnolia.name" . }}
         release: {{ .Release.Name }}
     spec:
       volumes:
         - name: app-volume
           emptyDir: {}
         {{- with .Values.extraVolumes }}
-{{ toYaml . | indent 8 }}
+{{ toYaml . | indent 4 }}
         {{- end }}
       initContainers:
         - name: war
@@ -37,7 +37,7 @@ spec:
             - name: app-volume
               mountPath: /app
         {{- with .Values.extraInitContainers }}
-{{ toYaml . | indent 8 }}
+{{ toYaml . | indent 4 }}
         {{- end }}
 
       containers:
@@ -54,11 +54,11 @@ spec:
             {{- with .Values.extraVolumeMounts }}
 {{ toYaml . | indent 12 }}
             {{- end }}
-          ports:
-            - containerPort: {{ .Values.service.internalPort }}
-              {{- with .Values.hostPort }}
-              hostPort: {{ . }}
-              {{- end }}
+          # ports:
+          #   - containerPort: {{ .Values.service.internalPort }}
+          #     {{- with .Values.hostPort }}
+          #     hostPort: {{ . }}
+          #     {{- end }}
           # livenessProbe:
           #   httpGet:
           #     path: {{ .Values.livenessProbe.path }}
