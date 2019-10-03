@@ -9,6 +9,7 @@ image:
     repository: registry.gitlab.com/mathias.seiler/magnolia-demo
     tag: latest
   tomcat:
+    repository: tomcat
     tag: "9-jre11-slim"
 imagePullSecrets: []
 nameOverride: ""
@@ -25,7 +26,7 @@ service:
     - name: http
       port: 80
       protocol: TCP
-      targetPort: 80
+      targetPort: 8080
 
 ingress:
   enabled: true
