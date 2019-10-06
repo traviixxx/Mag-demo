@@ -1,3 +1,4 @@
+{{- $magnoliaMode := .Values.magnolia.author | ternary "author" "public" -}}
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -23,9 +24,24 @@ spec:
       volumes:
         - name: app-volume
           emptyDir: {}
-        {{- with .Values.extraVolumes }}
-{{ toYaml . | indent 4 }}
-        {{- end }}
+        - name: jackrabbit-config
+          configMap:
+            defaultMode: 256
+            items:
+            - key: jackrabbit.xml
+              mode: 420
+              path: jackrabbit.xml
+            name: {{ .Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+        - name: magnolia-properties
+          configMap:
+            defaultMode: 256
+            items:
+            - key: magnolia.properties
+              mode: 420
+              path: magnolia.properties
+            name: {{ .Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
       initContainers:
         - name: war
           image: {{ .Values.image.webarchive.repository }}:{{ .Values.image.webarchive.tag }}
@@ -33,14 +49,11 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "cp /*.war /app"
+            # - "cp /*.war /app"
+            - "cp -a /magnolia /app/"
           volumeMounts:
             - name: app-volume
               mountPath: /app
-        {{- with .Values.extraInitContainers }}
-{{ toYaml . | indent 4 }}
-        {{- end }}
-
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.tomcat.repository }}:{{ .Values.image.tomcat.tag }}
@@ -52,9 +65,12 @@ spec:
           volumeMounts:
             - name: app-volume
               mountPath: {{ .Values.deploy.directory }}
-            {{- with .Values.extraVolumeMounts }}
-{{ toYaml . | indent 12 }}
-            {{- end }}
+            - name: jackrabbit-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
+              subPath: jackrabbit.xml
+            - name: magnolia-properties
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/magnolia.properties
+              subPath: magnolia.properties
           # ports:
           #   - containerPort: {{ .Values.service.internalPort }}
           #     {{- with .Values.hostPort }}
