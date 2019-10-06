@@ -18,6 +18,17 @@ fullnameOverride: ""
 deploy:
   directory: /usr/local/tomcat/webapps
 
+magnolia:
+  author: True
+  repository:
+    type: postgres
+
+db:
+  repository: postgres
+  tag: 11.5-alpine
+  type: postgres
+  name: author
+
 service:
   annotations: {}
   type: ClusterIP

@@ -1,0 +1,57 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $name := include "magnolia.name" . -}}
+{{- $chartName := include "magnolia.chart" . -}}
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-{{ .Values.db.name }}-db
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ $name }}-{{ .Values.db.name }}
+    chart: {{ $chartName }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $name }}-{{ .Values.db.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}-{{ .Values.db.name }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: {{ .Values.db.name }}-db
+          emptyDir: {}
+      containers:
+        - name: {{ .Values.db.name }}-db
+          image: "{{ .Values.db.repository }}:{{ .Values.db.tag }}"
+          {{- if eq .Values.magnolia.repository.type "postgres" }}
+          env:
+            - name: POSTGRES_DB
+              value: "{{ .Values.db.name }}"
+          {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ $fullName }}-db
+    namespace: {{ .Release.Namespace }}
+    {{- if .Values.service.annotations }}
+    annotations:
+        {{- toYaml .Values.service.annotations | nindent 4 }}
+    {{- end }}
+spec:
+    type: "{{ .Values.service.type }}"
+    clusterIP: None
+    selector:
+        app: {{ $name }}-{{ .Values.db.name }}
+        release: {{ .Release.Name }}
+    ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
