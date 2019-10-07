@@ -52,6 +52,15 @@ spec:
               path: magnolia.properties
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+        - name: server-xml
+          configMap:
+            defaultMode: 256
+            items:
+            - key: server.xml
+              mode: 420
+              path: server.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
       initContainers:
         - name: war
           image: {{ $.Values.image.webarchive.repository }}:{{ $.Values.image.webarchive.tag }}
@@ -96,6 +105,9 @@ spec:
             - name: magnolia-properties
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/magnolia/magnolia.properties
               subPath: magnolia.properties
+            - name: server-xml
+              mountPath: /usr/local/tomcat/conf/server.xml
+              subPath: server.xml
           resources:
 {{ toYaml $.Values.resources | indent 12 }}
     {{- if $.Values.image.pullSecrets }}

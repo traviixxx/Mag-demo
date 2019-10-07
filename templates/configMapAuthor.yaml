@@ -2,7 +2,8 @@
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $db := .Values.magnoliaAuthor.db -}}
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
-{{- $data := dict "Template" .Template "Values" .Values "dbHost" $dbHost "db" $db -}}
+{{- $name := printf "%s-%s" $fullName "author" -}}
+{{- $data := dict "Template" .Template "Values" .Values "dbHost" $dbHost "db" $db "name" $name -}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -12,6 +13,8 @@ metadata:
   labels:
     {{- template "magnolia.labels" . }}
 data:
+  server.xml: |-
+{{ tpl (.Files.Get "files/server-author.xml") $data | indent 4 }}
   magnolia.properties: |-
 {{ tpl (.Files.Get "files/magnolia-author.properties" ) $data | indent 4 }}
 {{- with $db }}
