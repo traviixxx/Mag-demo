@@ -50,19 +50,24 @@ service:
       targetPort: 8080
 
 ingress:
-  enabled: true
+  enabled: False
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: k8s.local
-      paths:
-        - /
+    # Use these if you want cert-manager to issue let's encrypt certs.
+    #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+  hosts: []
+    # Specify hosts here as an array.
+    # - host: k8s.local
+    #   paths:
+    #     - /
 
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+    # # Specify hosts here if you want to use TLS.
+    # - hosts:
+    #   - k8s.local
+    #   # # Specify a secret name here if you already have a cert stored in the
+    #   # # and know its name. If this is not specified, let's encrypt will be used
+    #   # # to issue a new certificate.
+    #   # secretName: supersecret-cert
 
 livenessProbe:
   path: /magnolia
