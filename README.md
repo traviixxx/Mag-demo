@@ -71,6 +71,23 @@ When run in a Kubernetes environment we expect `cert-manager` to be present and
 the ingress object should contain all annotations necessary for the cert manager
 to issue certificates with Let's Encrypt.
 
+You have to first specify the host names you want certificates for and uncomment
+the annotation used by cert-manager to auto-issue certificates from Let's encrypt:
+
+```yaml
+ingress:
+  enabled: True
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: test.k8s.example.com
+      paths:
+        - /
+  tls:
+    - hosts:
+      - test.k8s.example.com
+```
+
 
 ### Config Maps
 
