@@ -1,4 +1,5 @@
-RELEASES=$(shell helm list -q)
+RELEASE=billowing-shrimp
+LOCAL_YAML=temp/local.yml
 
 # HELP
 # This will output the help for each task
@@ -11,10 +12,13 @@ help:
 .DEFAULT_GOAL := help
 
 values: ## Show generated yaml resources and values.
-	helm install --dry-run --debug .
+	helm install --dry-run --debug . -f $(LOCAL_YAML)
 
 clean: ## Clean up environment.
-	helm del --purge $(RELEASES)
+	helm del --purge $(RELEASE)
 
-install: ## Install helm chart on k8s.
-	helm install --name schni .
+install-local: ## Install helm chart on k8s.
+	helm install --name $(RELEASE) . -f $(LOCAL_YAML)
+
+upgrade-local: ## Upgrade locally deplyed release.
+	helm upgrade $(RELEASE) . -f $(LOCAL_YAML)

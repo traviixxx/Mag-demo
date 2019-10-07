@@ -2,8 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
-
 image:
   webarchive:
     repository: registry.gitlab.com/mathias.seiler/magnolia-demo
@@ -18,16 +16,25 @@ fullnameOverride: ""
 deploy:
   directory: /usr/local/tomcat/webapps
 
-magnolia:
-  author: True
-  repository:
+# This is the author's configuration. It should not use H2 data base (the default).
+magnoliaAuthor:
+  db:
+    repository: postgres
+    tag: 11.5-alpine
     type: postgres
+    name: author
 
-db:
-  repository: postgres
-  tag: 11.5-alpine
-  type: postgres
-  name: author
+# This is the public instance. It can use the H2 data base, but it's also
+# supported to use PostgreSQL / MySQL if needed. In this case the data base name
+# is being counted up to `replicaCount`.
+magnoliaPublic:
+  replicaCount: 1
+  # db:
+  #   repository: postgres
+  #   tag: 11.5-alpine
+  #   type: postgres
+  #   name: public
+
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
@@ -58,7 +65,8 @@ ingress:
     # Specify hosts here as an array.
     # - host: k8s.local
     #   paths:
-    #     - /
+    #     - path: /
+    #       instance: author
 
   tls: []
     # # Specify hosts here if you want to use TLS.

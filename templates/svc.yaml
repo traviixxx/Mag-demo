@@ -1,0 +1,29 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $chartName := include "magnolia.chart" . -}}
+{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- $magnoliaMode := .mode -}}
+{{- $name := printf "%s-%s" $fullName $magnoliaMode }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+    namespace: {{ $.Release.Namespace }}
+    {{- if $.Values.service.annotations }}
+    annotations:
+        {{- toYaml $.Values.service.annotations | nindent 4 }}
+    {{- end }}
+    labels:
+        app.kubernetes.io/name: {{ printf "%s-svc" $name }}
+        helm.sh/chart: {{ printf "%s-%s" $chartName $.Chart.Version }}
+        app.kubernetes.io/managed-by: {{ $.Release.Service }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+    name: {{ printf "%s-svc" $name }}
+spec:
+    type: "{{ $.Values.service.type }}"
+    clusterIP: {{ $.Values.service.clusterIP }}
+    selector:
+        app: {{ $name }}
+        release: {{ $.Release.Name }}
+    ports:
+        {{- toYaml $.Values.service.ports | nindent 4 }}
+{{- end }}

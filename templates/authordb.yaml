@@ -1,45 +1,47 @@
-{{- if .Values.db -}}
+{{- if .Values.magnoliaAuthor.db -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $name := include "magnolia.name" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
+{{- $db := .Values.magnoliaAuthor.db -}}
+{{- $appName := printf "%s-%s-db" $fullName $db.name -}}
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ $fullName }}-{{ .Values.db.name }}-db
+  name: {{ $appName }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ $name }}-{{ .Values.db.name }}
+    app: {{ $appName }}
     chart: {{ $chartName }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   selector:
     matchLabels:
-      app: {{ $name }}-{{ .Values.db.name }}
+      app: {{ $appName }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ $name }}-{{ .Values.db.name }}
+        app: {{ $appName }}
         release: {{ .Release.Name }}
     spec:
       volumes:
-        - name: {{ .Values.db.name }}-db
+        - name: {{ $db.name }}-db
           emptyDir: {}
       containers:
-        - name: {{ .Values.db.name }}-db
-          image: "{{ .Values.db.repository }}:{{ .Values.db.tag }}"
-          {{- if eq .Values.magnolia.repository.type "postgres" }}
+        - name: {{ $db.name }}-db
+          image: "{{ $db.repository }}:{{ $db.tag }}"
+          {{- if eq $db.type "postgres" }}
           env:
             - name: POSTGRES_DB
-              value: "{{ .Values.db.name }}"
+              value: "{{ $db.name }}"
           {{ end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    name: {{ $fullName }}-db
+    name: {{ $appName }}
     namespace: {{ .Release.Namespace }}
     {{- if .Values.service.annotations }}
     annotations:
@@ -49,11 +51,13 @@ spec:
     type: "{{ .Values.service.type }}"
     clusterIP: None
     selector:
-        app: {{ $name }}-{{ .Values.db.name }}
+        app: {{ $appName }}
         release: {{ .Release.Name }}
     ports:
+    {{- if eq $db.type "postgres" }}
     - name: postgres
       port: 5432
       protocol: TCP
       targetPort: 5432
+    {{- end }}
 {{- end -}}

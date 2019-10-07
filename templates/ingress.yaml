@@ -28,9 +28,9 @@ spec:
       http:
         paths:
         {{- range .paths }}
-          - path: {{ . }}
+          - path: {{ .path }}
             backend:
-              serviceName: {{ $fullName }}
+              serviceName: {{ printf "%s-svc" (printf "%s-%s" $fullName .instance) }}
               servicePort: http
         {{- end }}
   {{- end }}

@@ -1,0 +1,113 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $chartName := include "magnolia.chart" . -}}
+{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- $magnoliaMode := .mode -}}
+{{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
+{{- $appVolumeName := printf "%s-app-volume" $name }}
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}
+    chart: {{ $chartName }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  {{- if .values.replicaCount }}
+  replicas: {{ .values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+      release: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        release: {{ $.Release.Name }}
+    spec:
+      volumes:
+        - name: {{ $appVolumeName }}
+          emptyDir: {}
+{{- if .values.db }}
+        - name: jackrabbit-config
+          configMap:
+            defaultMode: 256
+            items:
+            - key: jackrabbit.xml
+              mode: 420
+              path: jackrabbit.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+{{- end }}
+        - name: magnolia-properties
+          configMap:
+            defaultMode: 256
+            items:
+            - key: magnolia.properties
+              mode: 420
+              path: magnolia.properties
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+      initContainers:
+        - name: war
+          image: {{ $.Values.image.webarchive.repository }}:{{ $.Values.image.webarchive.tag }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command:
+            - "sh"
+            - "-c"
+            # - "cp /*.war /app"
+            - "cp -a /magnolia /app/"
+          volumeMounts:
+            - name: {{ $appVolumeName }}
+              mountPath: /app
+{{- range $.Values.jars }}
+        - name: {{ .name }}
+          image: {{ .repository }}:{{ .tag }}
+          command:
+            - {{ .initScript }}
+          volumeMounts:
+            - name: {{ $appVolumeName }}
+              mountPath: /app
+{{- with .env }}
+          env:
+{{ toYaml . | indent 12 }}
+{{- end -}}
+{{- end }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- with $.Values.env }}
+          env:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: {{ $appVolumeName }}
+              mountPath: {{ $.Values.deploy.directory }}
+{{- if .values.db }}
+            - name: jackrabbit-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
+              subPath: jackrabbit.xml
+{{- end }}
+            - name: magnolia-properties
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/magnolia/magnolia.properties
+              subPath: magnolia.properties
+          resources:
+{{ toYaml $.Values.resources | indent 12 }}
+    {{- if $.Values.image.pullSecrets }}
+      imagePullSecrets:
+{{ toYaml $.Values.image.pullSecrets | indent 8 }}
+    {{- end }}
+    {{- if $.Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml $.Values.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if $.Values.tolerations }}
+      tolerations:
+{{ toYaml $.Values.tolerations | indent 8 }}
+    {{- end }}
+{{- end }}
