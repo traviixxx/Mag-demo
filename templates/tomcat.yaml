@@ -24,6 +24,7 @@ spec:
       volumes:
         - name: app-volume
           emptyDir: {}
+{{- if .Values.db }}
         - name: jackrabbit-config
           configMap:
             defaultMode: 256
@@ -33,6 +34,7 @@ spec:
               path: jackrabbit.xml
             name: {{ .Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+{{- end }}
         - name: magnolia-properties
           configMap:
             defaultMode: 256
@@ -54,6 +56,19 @@ spec:
           volumeMounts:
             - name: app-volume
               mountPath: /app
+{{- range .Values.jars }}
+        - name: {{ .name }}
+          image: {{ .repository }}:{{ .tag }}
+          command:
+            - {{ .initScript }}
+          volumeMounts:
+            - name: app-volume
+              mountPath: /app
+{{- with .env }}
+          env:
+{{ toYaml . | indent 12 }}
+{{- end -}}
+{{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.tomcat.repository }}:{{ .Values.image.tomcat.tag }}
@@ -65,11 +80,13 @@ spec:
           volumeMounts:
             - name: app-volume
               mountPath: {{ .Values.deploy.directory }}
+{{- if .Values.db }}
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
+{{- end }}
             - name: magnolia-properties
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/magnolia.properties
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/magnolia/magnolia.properties
               subPath: magnolia.properties
           # ports:
           #   - containerPort: {{ .Values.service.internalPort }}

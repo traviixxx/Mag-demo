@@ -1,3 +1,4 @@
+{{- if .Values.db -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $name := include "magnolia.name" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
@@ -55,3 +56,4 @@ spec:
       port: 5432
       protocol: TCP
       targetPort: 5432
+{{- end -}}

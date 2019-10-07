@@ -29,6 +29,16 @@ db:
   type: postgres
   name: author
 
+# Additional jars which should be loaded into tomcat can be specified here.
+jars:
+  - name: postgres-jdbc
+    repository: registry.gitlab.com/mathias.seiler/magnolia-jar
+    tag: postgres-42.2.8
+    env:
+      - name: INIT_DEST
+        value: /app/magnolia/WEB-INF/lib
+    initScript: /init.sh
+
 service:
   annotations: {}
   type: ClusterIP
