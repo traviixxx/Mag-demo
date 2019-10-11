@@ -37,12 +37,14 @@ magnoliaAuthor:
 # supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
   db:
-    enabled: false # If false, use embedded H2 data base.
-    # repository: postgres
-    # tag: 11.5-alpine
-    # type: postgres
-    # name: public
-
+    enabled: true # If false, use embedded H2 data base.
+    repository: postgres
+    tag: 11.5-alpine
+    type: postgres
+    name: public
+    persistence:
+      enabled: true
+      size: 10Gi
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
@@ -103,7 +105,5 @@ resources: {}
   #   memory: 128Mi
 
 nodeSelector: {}
-
-tolerations: []
 
 affinity: {}

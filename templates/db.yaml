@@ -1,10 +1,10 @@
-{{- if .Values.magnoliaAuthor.db -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $name := include "magnolia.name" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $release := .Release -}}
-{{- $db := .Values.magnoliaAuthor.db -}}
-{{- $appName := printf "%s-%s-db" $fullName $db.name -}}
+{{- range list .Values.magnoliaAuthor.db .Values.magnoliaPublic.db -}}
+{{- $appName := printf "%s-%s-db" $fullName .name -}}
+{{- $dbName := printf "%s-db" .name }}
 ---
 apiVersion: apps/v1beta2
 kind: StatefulSet
@@ -16,6 +16,7 @@ metadata:
     chart: {{ $chartName }}
     release: {{ $release.Name }}
     heritage: {{ $release.Service }}
+    component: {{ .name }}
 spec:
   replicas: 1
   selector:
@@ -29,42 +30,43 @@ spec:
         release: {{ $release.Name }}
     spec:
       containers:
-        - name: {{ $db.name }}-db
-          image: "{{ $db.repository }}:{{ $db.tag }}"
-{{- if eq $db.type "postgres" }}
+        - name: {{ $dbName }}
+          image: "{{ .repository }}:{{ .tag }}"
+{{- if eq .type "postgres" }}
           env:
             - name: POSTGRES_DB
-              value: "{{ $db.name }}"
+              value: "{{ .name }}"
 {{- end }}
           volumeMounts:
-            - name: {{ $db.name }}-db
+            - name: data
               mountPath: /var/lib/postgresql/data
-{{- if and $db.persistence.enabled $db.persistence.existingClaim }}
+{{- if and .persistence.enabled .persistence.existingClaim }}
       volumes:
-        - name: {{ $db.name }}-db
+        - name: data
           persistentVolumeClaim:
-            claimName: {{ $db.persistence.existingClaim }}
-{{- else if not $db.persistence.enabled }}
+            claimName: {{ .persistence.existingClaim }}
+{{- else if not .persistence.enabled }}
       volumes:
-        - name: {{ $db.name }}-db
+        - name: data
           emptyDir: {}
-{{- else if and $db.persistence.enabled (not $db.persistence.existingClaim) }}
+{{- else if and .persistence.enabled (not .persistence.existingClaim) }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ $db.name }}-db
+        name: data
         labels:
           app: {{ $appName }}
           chart: {{ $chartName }}
           release: {{ $release.Name }}
           heritage: {{ $release.Service }}
+          component: {{ .name }}
       spec:
         resources:
           requests:
-            storage: {{ $db.persistence.size | default "10Gi" | quote }}
-        storageClassName: {{ $db.persistence.storageClassName }}
+            storage: {{ .persistence.size | default "10Gi" | quote }}
+        storageClassName: {{ .persistence.storageClassName }}
         accessModes:
-      {{- if $db.persistence.accessModes }}
-          {{- toYaml $db.persistence.accessModes | nindent 10 }}
+      {{- if .persistence.accessModes }}
+          {{- toYaml .persistence.accessModes | nindent 10 }}
       {{- else }}
           - ReadWriteOnce
       {{- end }}
@@ -80,16 +82,16 @@ metadata:
         {{- toYaml $.Values.service.annotations | nindent 4 }}
     {{- end }}
 spec:
-    type: "{{ .Values.service.type }}"
+    type: "{{ $.Values.service.type }}"
     clusterIP: None
     selector:
         app: {{ $appName }}
         release: {{ $release.Name }}
     ports:
-    {{- if eq $db.type "postgres" }}
+    {{- if eq .type "postgres" }}
     - name: postgres
       port: 5432
       protocol: TCP
       targetPort: 5432
     {{- end }}
-{{- end -}}
+{{- end }}
