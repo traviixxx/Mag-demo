@@ -28,7 +28,24 @@ spec:
       labels:
         app: {{ $appName }}
         release: {{ $release.Name }}
+        tier: database
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                - key: tier
+                  operator: In
+                  values:
+                    - database
+                - key: release
+                  operator: In
+                  values:
+                    - {{ $.Release.Name }}
       containers:
         - name: {{ $dbName }}
           image: "{{ .repository }}:{{ .tag }}"

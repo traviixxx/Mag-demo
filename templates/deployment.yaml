@@ -3,6 +3,7 @@
 {{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
 {{- $magnoliaMode := .mode -}}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
+{{- $dbName := printf "%s-db" $name -}}
 {{- $appVolumeName := printf "%s-app-volume" $name }}
 ---
 apiVersion: apps/v1beta2
@@ -27,6 +28,14 @@ spec:
         release: {{ $.Release.Name }}
     spec:
       restartPolicy: {{ .values.restartPolicy | default "Always" }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app: {{ $dbName }}
+                release: {{ $.Release.Name }}
       volumes:
         - name: {{ $appVolumeName }}
           emptyDir: {}
