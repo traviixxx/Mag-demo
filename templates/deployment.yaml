@@ -26,6 +26,7 @@ spec:
         app: {{ $name }}
         release: {{ $.Release.Name }}
     spec:
+      restartPolicy: {{ .values.restartPolicy | default "Always" }}
       volumes:
         - name: {{ $appVolumeName }}
           emptyDir: {}

@@ -64,6 +64,23 @@ called as the only command. As of now the only tasks expected from init
 containers is to copy some files to a target directory specified by the env var
 `INIT_DEST`.
 
+## Monitoring / Liveness
+
+As a default, we monitor the public instance via a call to `/` for liveness. You
+can change these settings in the `magnoliaPublic/Author` dicts:
+
+```yaml
+magnoliaPublic:
+  #...
+  livenessProbe:
+    path: /author
+    port: 8080
+    failureThreshold: 4
+    initialDelaySeconds: 120
+    timeoutSeconds: 10
+    periodSeconds: 30
+```
+
 ## TLS
 
 When run in a Kubernetes environment we expect `cert-manager` to be present and
