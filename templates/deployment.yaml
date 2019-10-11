@@ -16,9 +16,6 @@ metadata:
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
 spec:
-  {{- if .values.replicaCount }}
-  replicas: {{ .values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       app: {{ $name }}
@@ -32,7 +29,7 @@ spec:
       volumes:
         - name: {{ $appVolumeName }}
           emptyDir: {}
-{{- if .values.db }}
+{{- if .values.db.enabled }}
         - name: jackrabbit-config
           configMap:
             defaultMode: 256
@@ -97,7 +94,7 @@ spec:
           volumeMounts:
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
-{{- if .values.db }}
+{{- if .values.db.enabled }}
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml

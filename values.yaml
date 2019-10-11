@@ -19,21 +19,29 @@ deploy:
 # This is the author's configuration. It should not use H2 data base (the default).
 magnoliaAuthor:
   db:
+    enabled: true
     repository: postgres
     tag: 11.5-alpine
     type: postgres
     name: author
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClassName: local-path
+      # accessModes:
+      #   - ReadWriteOnce
+      #existingClaim: test  # Use this claim if you want to reuse an existing one.
+
 
 # This is the public instance. It can use the H2 data base, but it's also
-# supported to use PostgreSQL / MySQL if needed. In this case the data base name
-# is being counted up to `replicaCount`.
+# supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
-  replicaCount: 1
-  # db:
-  #   repository: postgres
-  #   tag: 11.5-alpine
-  #   type: postgres
-  #   name: public
+  db:
+    enabled: false # If false, use embedded H2 data base.
+    # repository: postgres
+    # tag: 11.5-alpine
+    # type: postgres
+    # name: public
 
 
 # Additional jars which should be loaded into tomcat can be specified here.

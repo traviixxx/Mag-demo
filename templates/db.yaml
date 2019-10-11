@@ -1,0 +1,95 @@
+{{- if .Values.magnoliaAuthor.db -}}
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $name := include "magnolia.name" . -}}
+{{- $chartName := include "magnolia.chart" . -}}
+{{- $release := .Release -}}
+{{- $db := .Values.magnoliaAuthor.db -}}
+{{- $appName := printf "%s-%s-db" $fullName $db.name -}}
+---
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: {{ $appName }}
+  namespace: {{ $release.Namespace }}
+  labels:
+    app: {{ $appName }}
+    chart: {{ $chartName }}
+    release: {{ $release.Name }}
+    heritage: {{ $release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $appName }}
+      release: {{ $release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $appName }}
+        release: {{ $release.Name }}
+    spec:
+      containers:
+        - name: {{ $db.name }}-db
+          image: "{{ $db.repository }}:{{ $db.tag }}"
+{{- if eq $db.type "postgres" }}
+          env:
+            - name: POSTGRES_DB
+              value: "{{ $db.name }}"
+{{- end }}
+          volumeMounts:
+            - name: {{ $db.name }}-db
+              mountPath: /var/lib/postgresql/data
+{{- if and $db.persistence.enabled $db.persistence.existingClaim }}
+      volumes:
+        - name: {{ $db.name }}-db
+          persistentVolumeClaim:
+            claimName: {{ $db.persistence.existingClaim }}
+{{- else if not $db.persistence.enabled }}
+      volumes:
+        - name: {{ $db.name }}-db
+          emptyDir: {}
+{{- else if and $db.persistence.enabled (not $db.persistence.existingClaim) }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ $db.name }}-db
+        labels:
+          app: {{ $appName }}
+          chart: {{ $chartName }}
+          release: {{ $release.Name }}
+          heritage: {{ $release.Service }}
+      spec:
+        resources:
+          requests:
+            storage: {{ $db.persistence.size | default "10Gi" | quote }}
+        storageClassName: {{ $db.persistence.storageClassName }}
+        accessModes:
+      {{- if $db.persistence.accessModes }}
+          {{- toYaml $db.persistence.accessModes | nindent 10 }}
+      {{- else }}
+          - ReadWriteOnce
+      {{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ $appName }}
+    namespace: {{ $release.Namespace }}
+    {{- if $.Values.service.annotations }}
+    annotations:
+        {{- toYaml $.Values.service.annotations | nindent 4 }}
+    {{- end }}
+spec:
+    type: "{{ .Values.service.type }}"
+    clusterIP: None
+    selector:
+        app: {{ $appName }}
+        release: {{ $release.Name }}
+    ports:
+    {{- if eq $db.type "postgres" }}
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    {{- end }}
+{{- end -}}
