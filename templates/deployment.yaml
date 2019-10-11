@@ -105,6 +105,18 @@ spec:
             - name: server-xml
               mountPath: /usr/local/tomcat/conf/server.xml
               subPath: server.xml
+{{- with .values.livenessProbe }}
+          livenessProbe:
+            httpGet:
+              path: {{ .path }}
+              port: {{ .port }}
+            failureThreshold: {{ .failureThreshold | default 4 }}
+            periodSeconds: {{ .periodSeconds | default 30 }}
+            timeoutSeconds: {{ .timeoutSeconds | default 10 }}
+            initialDelaySeconds: {{ .initialDelaySeconds | default 120 }}
+{{- end }}
+{{- with .values.startupProbe }}
+{{- end }}
           resources:
 {{ toYaml $.Values.resources | indent 12 }}
     {{- if $.Values.image.pullSecrets }}

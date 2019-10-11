@@ -27,11 +27,10 @@ magnoliaAuthor:
     persistence:
       enabled: true
       size: 10Gi
-      storageClassName: local-path
       # accessModes:
       #   - ReadWriteOnce
-      #existingClaim: test  # Use this claim if you want to reuse an existing one.
 
+      # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
 
 # This is the public instance. It can use the H2 data base, but it's also
 # supported to use PostgreSQL / MySQL if needed.
@@ -45,6 +44,11 @@ magnoliaPublic:
     persistence:
       enabled: true
       size: 10Gi
+  livenessProbe:
+    path: /author
+    port: 8080
+    failureThreshold: 4
+    periodSeconds: 30
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
@@ -87,10 +91,8 @@ ingress:
     #   # # to issue a new certificate.
     #   # secretName: supersecret-cert
 
-livenessProbe:
-  path: /magnolia
-readinessProbe:
-  path: /magnolia
+
+
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

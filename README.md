@@ -5,8 +5,8 @@ Helm Chart for Magnolia CMS.
 This chart deploys a Magnolia CMS instance (author or public) and if desired
 configures it to use a data base for its backend storage.
 
-> **NOTE:** This chart just deploys **one single** instance of Magnolia. Usually you want
-two instances, an author and a public instance.
+It's designed for one signle author and one single public instance. Multiple
+public instances are work in progress.
 
 ## Configuration
 
@@ -35,25 +35,24 @@ image:
 The init container is expected to have an already "exploded" webapp in
 `/magnolia`. Files in there will be copied into the `webapps` when starting tomcat.
 
-In the `magnolia:` section of the values you can configure the Magnolia instance
-itself. This is an example with PostgreSQL as a backend data base and it's the default.
+In the `magnoliaPublic/Author:` sections of the values you can configure the
+Magnolia instances (public and author). This is an example with PostgreSQL as a
+backend data base and it's the default.
 
 ```yaml
-magnolia:
-  author: True
-  repository:
+magnoliaAuthor:
+  db:
+    enabled: true
+    repository: postgres
+    tag: 11.5-alpine
     type: postgres
+    name: author
+    persistence:
+      enabled: true
+      size: 10Gi
 ```
-
-You can configure the data base specifics here:
-
-```yaml
-db:
-  repository: postgres
-  tag: 11.5-alpine
-  type: postgres
-  name: author
-```
+If you enable persistence a PVC is created and you can also specify the
+StorageClass. Each instance (author and public) only gets one single db.
 
 If you need additional libraries (jars) you can specify them in the `jars:`
 array.
@@ -91,5 +90,6 @@ ingress:
 
 ### Config Maps
 
-`magnolia.properties` and a corresponding XML file for the persistence layer is
-generated and stored as a ConfigMap. It will be mounted in the container when run.
+`magnolia.properties` and a corresponding `server.xml` file for the persistence
+layer is generated and stored as a ConfigMap. It will be mounted in the
+container when run.
