@@ -47,7 +47,7 @@ magnoliaPublic:
       enabled: true
       size: 10Gi
   livenessProbe:
-    path: /author
+    path: /
     port: 8080
     failureThreshold: 4
     periodSeconds: 30
@@ -92,9 +92,6 @@ ingress:
     #   # # and know its name. If this is not specified, let's encrypt will be used
     #   # # to issue a new certificate.
     #   # secretName: supersecret-cert
-
-
-
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
