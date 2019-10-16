@@ -4,7 +4,7 @@
 
 image:
   webarchive:
-    repository: registry.gitlab.com/fastforward-websolutions/k8s/next-deployment
+    repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   tomcat:
     repository: tomcat
@@ -55,7 +55,7 @@ magnoliaPublic:
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
   - name: postgres-jdbc
-    repository: registry.gitlab.com/mathias.seiler/magnolia-jar
+    repository: registry.gitlab.com/mironet/magnolia-jar
     tag: postgres-42.2.8
     env:
       - name: INIT_DEST

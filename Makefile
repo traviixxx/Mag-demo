@@ -1,4 +1,4 @@
-RELEASE=billowing-shrimp
+RELEASE=pruning-molly
 LOCAL_YAML=temp/local.yml
 
 # HELP
@@ -23,5 +23,17 @@ clean-pvc: ## Clean disks (PVCs) too.
 install-local: ## Install helm chart on k8s.
 	helm install --name $(RELEASE) . -f $(LOCAL_YAML)
 
-upgrade-local: ## Upgrade locally deplyed release.
+install-remote: check-env ## Install helm chart on k8s.
+	helm install --name $(RELEASE) . -f $(REMOTE_YAML)
+
+upgrade-local: ## Upgrade locally deployed release.
 	helm upgrade $(RELEASE) . -f $(LOCAL_YAML)
+
+upgrade-remote: ## Upgrade remotely deployed release.
+	helm upgrade $(RELEASE) . -f $(REMOTE_YAML)
+
+
+check-env:
+ifndef REMOTE_YAML
+	$(error REMOTE_YAML_FILE env var is undefined)
+endif
