@@ -21,9 +21,9 @@
     <LoginModule class="info.magnolia.jaas.sp.jcr.JackrabbitAuthenticationModule">
     </LoginModule>
   </Security>
-  <DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
-    <param name="path" value="${rep.home}/repository/datastore"/>
-    <param name="minRecordLength" value="1024"/>
+  <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+    <param name="dataSourceName" value="magnolia"/>
+    <param name="schemaObjectPrefix" value="ds_"/>
   </DataStore>
   <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default" />
   <Workspace name="default">

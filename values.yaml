@@ -4,12 +4,12 @@
 
 image:
   webarchive:
-    repository: registry.gitlab.com/mathias.seiler/magnolia-demo
+    repository: registry.gitlab.com/fastforward-websolutions/k8s/next-deployment
     tag: latest
   tomcat:
     repository: tomcat
-    tag: "9-jre11-slim"
-imagePullSecrets: []
+    tag: 9-jre11-slim
+  pullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 

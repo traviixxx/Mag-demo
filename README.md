@@ -17,10 +17,10 @@ You can specify the tomcat image and tag in the values:
 
 ```yaml
 image:
-  #...
   tomcat:
     repository: tomcat
     tag: "9-jre11-slim"
+  #...
 ```
 
 The actual webapp is specified here:
@@ -28,12 +28,28 @@ The actual webapp is specified here:
 ```yaml
 image:
   webarchive:
-    repository: registry.gitlab.com/mathias.seiler/magnolia-demo
+    repository: registry.gitlab.com/fastforward-websolutions/k8s/next-deployment
     tag: latest
+  #...
 ```
 
 The init container is expected to have an already "exploded" webapp in
 `/magnolia`. Files in there will be copied into the `webapps` when starting tomcat.
+
+To pull from private Docker registry (e.g. GitLab), you have to create a docker-registry secret:
+
+```bash
+kubectl create secret docker-registry gitlab-registry --docker-server=https://registry.gitlab.com --docker-username=<username> --docker-password=<password or token>
+```
+
+To use the token from above, specify `pullSecrets` inside `image:` section like the following:
+
+```yaml
+image:
+  #...
+  pullSecrets: 
+    - name: gitlab-registry
+```
 
 In the `magnoliaPublic/Author:` sections of the values you can configure the
 Magnolia instances (public and author). This is an example with PostgreSQL as a
