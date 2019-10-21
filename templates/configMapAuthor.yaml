@@ -13,10 +13,14 @@ metadata:
   labels:
     {{- template "magnolia.labels" . }}
 data:
+{{- with .Values.magnoliaAuthor.setenv }}
+  JVM_RAM_MIN_PERCENTAGE: {{ default 25 .memory.minPercentage | quote }}
+  JVM_RAM_MAX_PERCENTAGE: {{ default 80 .memory.maxPercentage | quote }}
+  MGNL_AUTO_UPDATE: {{ default "true" .update.auto | quote }}
+{{- end }}
+  MGNL_AUTHOR_INSTANCE: "true"
   server.xml: |-
 {{ tpl (.Files.Get "files/server-author.xml") $data | indent 4 }}
-  magnolia.properties: |-
-{{ tpl (.Files.Get "files/magnolia-author.properties" ) $data | indent 4 }}
 {{- with $db }}
   jackrabbit.xml: |-
 {{ tpl (printf "files/%s.xml" .type | $.Files.Get) $data | indent 4 }}

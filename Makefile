@@ -35,5 +35,5 @@ upgrade-remote: ## Upgrade remotely deployed release.
 
 check-env:
 ifndef REMOTE_YAML
-	$(error REMOTE_YAML_FILE env var is undefined)
+	$(error REMOTE_YAML env var is undefined)
 endif

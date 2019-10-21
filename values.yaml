@@ -19,6 +19,16 @@ deploy:
 # This is the author's configuration. It should not use H2 data base (the default).
 magnoliaAuthor:
   restartPolicy: Always # ... or OnFailure, Never
+  setenv:
+    memory:
+      minPercentage: 25
+      maxPercentage: 80
+    update:
+      auto: "true"
+  resources:
+    limits:
+      #cpu: 1000m
+      memory: 512Mi
   db:
     enabled: true
     repository: postgres
@@ -37,6 +47,16 @@ magnoliaAuthor:
 # supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
   restartPolicy: Always # ... or OnFailure, Never
+  setenv:
+    memory:
+      minPercentage: 25
+      maxPercentage: 80
+    update:
+      auto: "true"
+  resources:
+    limits:
+      #cpu: 1000m
+      memory: 512Mi
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres

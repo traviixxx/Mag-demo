@@ -1,0 +1,12 @@
+{{- $data := dict "Template" .Template "Values" .Values -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s" .Release.Name "configmap-setenv" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ (include "magnolia.labels" .) | indent 4 }}
+data:
+  setenv.sh: |-
+{{ tpl (.Files.Get "files/setenv.sh") $data | indent 4 }}

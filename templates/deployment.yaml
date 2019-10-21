@@ -50,14 +50,14 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- end }}
-        - name: magnolia-properties
+        - name: setenv
           configMap:
             defaultMode: 256
             items:
-            - key: magnolia.properties
+            - key: setenv.sh
               mode: 420
-              path: magnolia.properties
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+              path: setenv.sh
+            name: {{ $.Release.Name }}-configmap-setenv
             optional: False
         - name: server-xml
           configMap:
@@ -93,10 +93,18 @@ spec:
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          {{- with $.Values.env }}
+{{- with .values.resources }}
+          resources:
+{{ toYaml . | indent 12 }}
+{{- end }}
+{{- with .values.env }}
           env:
 {{ toYaml . | indent 12 }}
-          {{- end }}
+{{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
+                optional: false
           volumeMounts:
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
@@ -105,9 +113,9 @@ spec:
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
 {{- end }}
-            - name: magnolia-properties
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/magnolia/magnolia.properties
-              subPath: magnolia.properties
+            - name: setenv
+              mountPath: /usr/local/tomcat/bin/setenv.sh
+              subPath: setenv.sh
             - name: server-xml
               mountPath: /usr/local/tomcat/conf/server.xml
               subPath: server.xml
@@ -119,12 +127,10 @@ spec:
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
             timeoutSeconds: {{ .timeoutSeconds | default 10 }}
-            initialDelaySeconds: {{ .initialDelaySeconds | default 120 }}
+            initialDelaySeconds: {{ .initialDelaySeconds | default 240 }}
 {{- end }}
 {{- with .values.startupProbe }}
 {{- end }}
-          resources:
-{{ toYaml $.Values.resources | indent 12 }}
     {{- if $.Values.image.pullSecrets }}
       imagePullSecrets:
 {{ toYaml $.Values.image.pullSecrets | indent 8 }}
