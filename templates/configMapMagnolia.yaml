@@ -22,7 +22,7 @@ data:
   JVM_RAM_MAX_PERCENTAGE: {{ default 80 .memory.maxPercentage | quote }}
   MGNL_AUTO_UPDATE: {{ default "true" .update.auto | quote }}
 {{- end }}
-  MGNL_AUTHOR_INSTANCE: {{ eq $magnoliaMode "false" | ternary "false" "true" | quote }}
+  MGNL_AUTHOR_INSTANCE: {{ eq $magnoliaMode "public" | ternary "false" "true" | quote }}
   server.xml: |-
 {{ tpl (printf "files/server-%s.xml" $magnoliaMode | $.Files.Get) $data | indent 4 }}
 {{- with $db }}
