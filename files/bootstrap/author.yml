@@ -1,0 +1,40 @@
+---
+steps:
+  - remove_default_subscriber
+  - add_new_subscriber
+  - change_superuser_pw
+
+remove_sub:
+  step: remove_default_subscriber
+  method: delete
+  path: "config/modules/publishing-core/config/receivers/magnoliaPublic8080"
+
+add_new_subs:
+  step: add_new_subscriber
+  method: put
+  path: "config/modules/publishing-core/config/receivers"
+  data:
+    name: "magnoliaPublic"
+    type: "mgnl:contentNode"
+    properties:
+      - name: url
+        type: String
+        values:
+          - {{ printf "%s" .Env.MGNLBOOT_ADDR | quote }}
+      - name: enabled
+        type: String
+        values:
+          - "true"
+
+updateSuperuserPw:
+  step: change_superuser_pw
+  method: "post"
+  path: "users/system/superuser"
+  allow_failure: false
+  data:
+    properties:
+      - name: pswd
+        type: String
+        values: [
+          {{ bcrypt (.Env.MGNLBOOT_NEW_SUPERUSER_PW) | quote }}
+        ]

@@ -1,0 +1,63 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $chartName := include "magnolia.chart" . -}}
+{{- $name := $fullName -}}
+{{- $labels := include "magnolia.labels" . -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-bootstrap-%s" $.Release.Name "author" }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+{{ $labels | indent 4 }}
+data:
+  instructions.yml: |-
+{{ $.Files.Get "files/bootstrap/author.yml" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $name }}-boot-author
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}-boot-author
+    chart: {{ $chartName }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  template:
+    spec:
+      volumes:
+      - name: instructions
+        configMap:
+          defaultMode: 256
+          items:
+          - key: instructions.yml
+            mode: 420
+            path: instructions.yml
+          name: {{ printf "%s-bootstrap-%s" $.Release.Name "author" }}
+          optional: False
+      containers:
+      - name: bootstrapper
+        image: registry.gitlab.com/mironet/magnolia-bootstrap
+        command:
+          - /app
+          - boot
+          - -w
+          - 3m
+          - -m
+          - http://{{ $name }}-author-svc:8080/author
+          - -i
+          - /data/instructions.yml
+          - -vvv
+        env:
+        - name: MGNLBOOT_NEW_SUPERUSER_PW
+          value: supersecretpassword1234
+        - name: MGNLBOOT_ADDR
+          value: http://{{ $name }}-public-svc:8080/
+        volumeMounts:
+        - name: instructions
+          mountPath: /data/instructions.yml
+          subPath: instructions.yml
+      restartPolicy: Never
+  backoffLimit: 16
