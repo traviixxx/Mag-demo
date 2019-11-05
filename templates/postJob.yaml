@@ -1,3 +1,4 @@
+{{- if .Values.bootstrap.enabled -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $name := $fullName -}}
@@ -61,3 +62,4 @@ spec:
           subPath: instructions.yml
       restartPolicy: Never
   backoffLimit: 16
+{{- end -}}

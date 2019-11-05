@@ -16,6 +16,9 @@ fullnameOverride: ""
 deploy:
   directory: /usr/local/tomcat/webapps
 
+bootstrap:
+  enabled: false
+
 # This is the author's configuration. It should not use H2 data base (the default).
 magnoliaAuthor:
   restartPolicy: Always # ... or OnFailure, Never
