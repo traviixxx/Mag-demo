@@ -26,9 +26,11 @@ magnoliaAuthor:
     update:
       auto: "true"
   resources:
+    requests:
+      memory: 128Mi
     limits:
       #cpu: 1000m
-      memory: 512Mi
+      memory: 1Gi
   db:
     enabled: true
     repository: postgres
@@ -54,9 +56,11 @@ magnoliaPublic:
     update:
       auto: "true"
   resources:
+    requests:
+      memory: 128Mi
     limits:
       #cpu: 1000m
-      memory: 512Mi
+      memory: 1Gi
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres

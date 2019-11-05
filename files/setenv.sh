@@ -9,6 +9,11 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -XX:+UseContainerSupport \
  -XX:MinRAMPercentage=${JVM_RAM_MIN_PERCENTAGE:-25} \
  -XX:MaxRAMPercentage=${JVM_RAM_MAX_PERCENTAGE:-80} \
+ -XX:MaxHeapFreeRatio=10 \
+ -XX:MinHeapFreeRatio=5 \
+ -XX:+UseParallelGC \
+ -XX:GCTimeRatio=4 \
+ -XX:AdaptiveSizePolicyWeight=90 \
  -XX:ThreadStackSize=512k \
  -XX:+ExitOnOutOfMemoryError \
  -XshowSettings:vm"
