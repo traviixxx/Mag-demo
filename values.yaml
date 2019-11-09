@@ -33,7 +33,7 @@ magnoliaAuthor:
       memory: 128Mi
     limits:
       #cpu: 1000m
-      memory: 1Gi
+      memory: 512Mi
   db:
     enabled: true
     repository: postgres
@@ -63,7 +63,7 @@ magnoliaPublic:
       memory: 128Mi
     limits:
       #cpu: 1000m
-      memory: 1Gi
+      memory: 512Mi
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres
