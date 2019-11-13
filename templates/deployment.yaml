@@ -50,6 +50,15 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- end }}
+        - name: log4j-config
+          configMap:
+            defaultMode: 256
+            items:
+              - key: log4j2.xml
+                mode: 420
+                path: log4j2.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
         - name: setenv
           configMap:
             defaultMode: 256
@@ -113,6 +122,9 @@ spec:
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
 {{- end }}
+            - name: log4j-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/log4j2.xml
+              subPath: log4j2.xml
             - name: setenv
               mountPath: /usr/local/tomcat/bin/setenv.sh
               subPath: setenv.sh

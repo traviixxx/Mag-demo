@@ -8,6 +8,7 @@
 {{- $db := .values.db -}}
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
 {{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "name" $name -}}
+{{- $logging := dict "Template" $.Template "Values" $.Values "pattern" .values.logging.pattern "level" .values.logging.level -}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -28,5 +29,7 @@ data:
 {{- with $db }}
   jackrabbit.xml: |-
 {{ tpl (printf "files/%s.xml" .type | $.Files.Get) $data | indent 4 }}
+  log4j2.xml: |-
+{{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}
 {{ end -}}
 {{- end }}

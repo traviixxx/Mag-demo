@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="{{ .pattern }}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- Magnolia categories -->
+        <Logger name="info.magnolia" level="INFO"/>
+        <!-- Custom log categories -->
+        <Logger name="log-access" level="ALL"/>
+        <Logger name="log-audit" level="ALL"/>
+        <Logger name="log-form" level="ALL"/>
+        <!-- External libraries -->
+        <Logger name="org" level="WARN"/>
+        <Logger name="org.apache.jackrabbit" level="WARN"/>
+        <!-- Reflections library spoils logs with hundreds of harmless warnings; tries to look into native libs but none of its DefaultUrlTypes can handle them. -->
+        <Logger name="org.reflections" level="ERROR"/>
+        <Logger name="com" level="WARN"/>
+        <Logger name="net" level="WARN"/>
+        <Logger name="freemarker" level="WARN"/>
+        <Logger name="httpclient" level="WARN"/>
+        <Logger name="openwfe.org.log" level="WARN"/>
+        <Logger name="openwfe" level="WARN"/>
+        <Root level="{{ .level }}">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+</Configuration>
