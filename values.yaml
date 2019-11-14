@@ -35,9 +35,8 @@ magnoliaAuthor:
       #cpu: 1000m
       memory: 512Mi
   logging:
-    level: "DEBUG"
+    level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
-    #pattern: "{"level":"%p","timestamp":"%d{ISO8601}","file":"%c:%L","message":"%m"}%n"
   db:
     enabled: true
     repository: postgres
@@ -69,9 +68,8 @@ magnoliaPublic:
       #cpu: 1000m
       memory: 512Mi
   logging:
-    level: "DEBUG"
+    level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
-    #pattern: "{"level":"%p","timestamp":"%d{ISO8601}","file":"%c:%L","message":"%m"}%n"
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres
