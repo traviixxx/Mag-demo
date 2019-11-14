@@ -34,6 +34,9 @@ magnoliaAuthor:
     limits:
       #cpu: 1000m
       memory: 512Mi
+  logging:
+    level: DEBUG
+    pattern: "%d %-5p %-50.50c: %m%n"
   db:
     enabled: true
     repository: postgres
@@ -64,6 +67,9 @@ magnoliaPublic:
     limits:
       #cpu: 1000m
       memory: 512Mi
+  logging:
+    level: DEBUG
+    pattern: "%d %-5p %-50.50c: %m%n"
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres

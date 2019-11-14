@@ -73,6 +73,19 @@ StorageClass. Each instance (author and public) only gets one single db.
 If you need additional libraries (jars) you can specify them in the `jars:`
 array.
 
+To configure logging, you can use the following section:
+```yaml
+magnoliaAuthor:
+  logging:
+    level: DEBUG
+    pattern: '{"level":"%p","timestamp":"%d{ISO8601}","file":"%c:%L","message":"%m"}%n'
+    loggers:
+      - name: my-logger 
+        level: ERROR
+```
+Under `loggers` it's possible to define additional loggers with the respective value.
+
+
 ### Convention expected from init containers
 
 This chart expects the init container to contain an `/init.sh` script which is
