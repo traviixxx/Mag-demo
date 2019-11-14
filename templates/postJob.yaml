@@ -3,25 +3,28 @@
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $name := $fullName -}}
 {{- $labels := include "magnolia.labels" . -}}
+{{- $data := include "magnolia.labels" . -}}
+{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- $magnoliaMode := .mode -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ printf "%s-bootstrap-%s" $.Release.Name "author" }}
+  name: {{ printf "%s-bootstrap-%s" $.Release.Name $magnoliaMode }}
   namespace: {{ $.Release.Namespace }}
   labels:
 {{ $labels | indent 4 }}
 data:
   instructions.yml: |-
-{{ $.Files.Get "files/bootstrap/author.yml" | indent 4 }}
+{{ $.Files.Get (printf "files/bootstrap/%s.yml" $magnoliaMode) | indent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ $name }}-boot-author
+  name: {{ $name }}-boot-{{ $magnoliaMode }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ $name }}-boot-author
+    app: {{ $name }}-boot-{{ $magnoliaMode }}
     chart: {{ $chartName }}
     release: {{ $.Release.Name }}
     heritage: {{ $.Release.Service }}
@@ -36,7 +39,7 @@ spec:
           - key: instructions.yml
             mode: 420
             path: instructions.yml
-          name: {{ printf "%s-bootstrap-%s" $.Release.Name "author" }}
+          name: {{ printf "%s-bootstrap-%s" $.Release.Name $magnoliaMode }}
           optional: False
       containers:
       - name: bootstrapper
@@ -47,13 +50,13 @@ spec:
           - -w
           - 3m
           - -m
-          - http://{{ $name }}-author-svc:8080/author
+          - http://{{ $name }}-{{ $magnoliaMode }}-svc:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
           - -i
           - /data/instructions.yml
           - -vvv
         env:
         - name: MGNLBOOT_NEW_SUPERUSER_PW
-          value: supersecretpassword1234
+          value: {{ .values.bootstrap.password }}
         - name: MGNLBOOT_ADDR
           value: http://{{ $name }}-public-svc:8080/
         volumeMounts:
@@ -62,4 +65,5 @@ spec:
           subPath: instructions.yml
       restartPolicy: Never
   backoffLimit: 16
-{{- end -}}
+{{ end -}}
+{{- end }}

@@ -1,0 +1,16 @@
+---
+steps:
+  - change_superuser_pw
+
+updateSuperuserPw:
+  step: change_superuser_pw
+  method: "post"
+  path: "users/system/superuser"
+  allow_failure: false
+  data:
+    properties:
+      - name: pswd
+        type: String
+        values: [
+          {{ bcrypt (.Env.MGNLBOOT_NEW_SUPERUSER_PW) | quote }}
+        ]

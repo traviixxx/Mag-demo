@@ -37,6 +37,8 @@ magnoliaAuthor:
   logging:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
+  bootstrap:
+    password: supersecretsuperuser
   db:
     enabled: true
     repository: postgres
@@ -70,6 +72,8 @@ magnoliaPublic:
   logging:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
+  bootstrap:
+    password: supersecretsuperuser
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres
