@@ -56,7 +56,10 @@ spec:
           - -vvv
         env:
         - name: MGNLBOOT_NEW_SUPERUSER_PW
-          value: {{ .values.bootstrap.password }}
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
         - name: MGNLBOOT_ADDR
           value: http://{{ $name }}-public-svc:8080/
         volumeMounts:
