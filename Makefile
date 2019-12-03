@@ -12,7 +12,7 @@ help:
 .DEFAULT_GOAL := help
 
 values: ## Show generated yaml resources and values.
-	helm install --dry-run --debug . -f $(LOCAL_YAML)
+	helm install --dry-run --debug -f $(LOCAL_YAML) --generate-name .
 
 clean: ## Clean up environment.
 	helm del --purge $(RELEASE)

@@ -18,6 +18,7 @@ metadata:
     heritage: {{ $release.Service }}
     component: {{ .name }}
 spec:
+  serviceName: {{ $appName }}
   replicas: 1
   selector:
     matchLabels:
