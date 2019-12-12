@@ -45,6 +45,7 @@ magnoliaAuthor:
     tag: 11.5-alpine
     type: postgres
     name: author
+    clustering: false
     persistence:
       enabled: true
       size: 10Gi
@@ -80,6 +81,7 @@ magnoliaPublic:
     tag: 11.5-alpine
     type: postgres
     name: public
+    clustering: false
     persistence:
       enabled: true
       size: 10Gi

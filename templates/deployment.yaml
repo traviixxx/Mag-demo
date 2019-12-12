@@ -49,6 +49,17 @@ spec:
               path: jackrabbit.xml
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+{{- if .values.db.clustering }}
+        - name: jackrabbit-shared-config
+          configMap:
+            defaultMode: 256
+            items:
+              - key: jackrabbit-shared.xml
+                mode: 420
+                path: jackrabbit-shared.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+{{- end }}
 {{- end }}
         - name: log4j-config
           configMap:
@@ -121,6 +132,11 @@ spec:
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
+{{- if .values.db.clustering }}
+            - name: jackrabbit-shared-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit-shared.xml
+              subPath: jackrabbit-shared.xml
+{{- end }}
 {{- end }}
             - name: log4j-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/log4j2.xml
