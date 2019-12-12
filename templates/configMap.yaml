@@ -7,7 +7,7 @@
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $db := .values.db -}}
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
-{{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "name" $name -}}
+{{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "name" $name "magnoliaMode" $magnoliaMode -}}
 {{- $logging := dict "Template" $.Template "Values" $.Values "pattern" .values.logging.pattern "level" .values.logging.level "loggers" .values.logging.loggers -}}
 ---
 apiVersion: v1
@@ -25,7 +25,7 @@ data:
 {{- end }}
   MGNL_AUTHOR_INSTANCE: {{ eq $magnoliaMode "public" | ternary "false" "true" | quote }}
   server.xml: |-
-{{ tpl (printf "files/server-%s.xml" $magnoliaMode | $.Files.Get) $data | indent 4 }}
+{{ tpl ($.Files.Get "files/server.xml") $data | indent 4 }}
 {{- with $db }}
   jackrabbit.xml: |-
 {{ tpl (printf "files/%s.xml" .type | $.Files.Get) $data | indent 4 }}
@@ -35,5 +35,7 @@ data:
 {{- end }}
   log4j2.xml: |-
 {{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}
+  setenv.sh: |-
+{{ tpl ($.Files.Get "files/setenv.sh") $data | indent 4 }}
 {{ end -}}
 {{- end }}

@@ -77,7 +77,7 @@ spec:
             - key: setenv.sh
               mode: 420
               path: setenv.sh
-            name: {{ $.Release.Name }}-configmap-setenv
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
         - name: server-xml
           configMap:
