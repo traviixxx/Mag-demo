@@ -2,7 +2,8 @@
 {{- $name := include "magnolia.name" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $release := .Release -}}
-{{- range list .Values.magnoliaAuthor.db .Values.magnoliaPublic.db -}}
+{{- range list .Values.magnoliaAuthor.db .Values.magnoliaPublic.db (.Values.jcrClustering.enabled | ternary .Values.jcrClustering.db nil)  -}}
+{{- if . -}}
 {{- $appName := printf "%s-%s-db" $fullName .name -}}
 {{- $dbName := printf "%s-db" .name }}
 ---
@@ -113,3 +114,4 @@ spec:
       targetPort: 5432
     {{- end }}
 {{- end }}
+{{- end -}}

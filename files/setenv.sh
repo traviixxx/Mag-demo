@@ -26,7 +26,7 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.update.auto=${MGNL_AUTO_UPDATE:-true} \
  -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-blue}"
 
-{{ if .db.clustering -}}
+{{ if .Values.jcrClustering.enabled -}}
 CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.repositories.jackrabbit.cluster.config=WEB-INF/config/repo-conf/jackrabbit-shared.xml \
  -Dmagnolia.repositories.jackrabbit.cluster.master={{ eq .magnoliaMode "public" | ternary "true" "false" }} \
