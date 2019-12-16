@@ -19,6 +19,21 @@ deploy:
 bootstrap:
   enabled: false
 
+sharedDb:
+  enabled: false
+  workspaces: []
+  db:
+    enabled: true
+    repository: postgres
+    tag: 11.5-alpine
+    type: postgres
+    name: cluster
+    persistence:
+      enabled: true
+      size: 10Gi
+      # accessModes:
+      #   - ReadWriteOnce
+
 # This is the author's configuration. It should not use H2 data base (the default).
 magnoliaAuthor:
   restartPolicy: Always # ... or OnFailure, Never

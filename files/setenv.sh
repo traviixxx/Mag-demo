@@ -20,11 +20,17 @@ CATALINA_OPTS="$CATALINA_OPTS \
 
 # Magnolia settings
 CATALINA_OPTS="$CATALINA_OPTS \
- -Dmagnolia.develop=${MGNL_DEVELOPER_MODE:-false} \
- -Dmagnolia.bootstrap.authorInstance=${MGNL_AUTHOR_INSTANCE:-true} \
  -Dmagnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/jackrabbit.xml \
- -Dmagnolia.update.auto=${MGNL_AUTO_UPDATE:-true}"
-#  -Dmagnolia.ui.sticker.environment=${MGNL_UI_STICKER_ENV:-} \
-#  -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-red}"
+ -Dmagnolia.bootstrap.authorInstance=${MGNL_AUTHOR_INSTANCE:-true} \
+ -Dmagnolia.develop=${MGNL_DEVELOPER_MODE:-false} \
+ -Dmagnolia.update.auto=${MGNL_AUTO_UPDATE:-true} \
+ -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-blue}"
+
+{{ if .Values.sharedDb.enabled -}}
+CATALINA_OPTS="$CATALINA_OPTS \
+ -Dmagnolia.repositories.jackrabbit.cluster.config=WEB-INF/config/repo-conf/jackrabbit-shared.xml \
+ -Dmagnolia.repositories.jackrabbit.cluster.master={{ eq .magnoliaMode "public" | ternary "true" "false" }} \
+ -Dmagnolia.clusterid=cid_{{ .magnoliaMode }}"
+{{- end }}
 
 CATALINA_OPTS="$CATALINA_OPTS $CATALINA_OPTS_EXTRA"

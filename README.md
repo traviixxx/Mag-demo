@@ -51,6 +51,8 @@ image:
     - name: gitlab-registry
 ```
 
+### Persistence
+
 In the `magnoliaPublic/Author:` sections of the values you can configure the
 Magnolia instances (public and author). This is an example with PostgreSQL as a
 backend data base and it's the default.
@@ -69,6 +71,20 @@ magnoliaAuthor:
 ```
 If you enable persistence a PVC is created and you can also specify the
 StorageClass. Each instance (author and public) only gets one single db.
+
+If you like to enable shared database (aka [Jackrabbit Clustering](https://wiki.magnolia-cms.com/display/WIKI/Setting+up+a+Jackrabbit+Clustering)), you can configure the shared workspaces and db connection (same as above) like the following:
+
+```yaml
+sharedDb:
+  enabled: false
+  workspaces: 
+    - form2db
+    - shop
+  db:
+    ...
+```
+
+### Libraries
 
 If you need additional libraries (jars) you can specify them in the `jars:`
 array.

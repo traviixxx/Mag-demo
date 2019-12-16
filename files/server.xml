@@ -85,8 +85,8 @@
               deployXML="true"
               name="localhost"
               unpackWARs="false">
-
-         <Context path="/author"
+<!--TODO: Parameterize context path -->
+         <Context path="{{ eq .magnoliaMode "author" | ternary "/author" "/" }}"
                   docBase="magnolia"
                   containerSciFilter="WsSci" />
 

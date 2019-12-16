@@ -49,6 +49,26 @@ spec:
               path: jackrabbit.xml
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+{{- if $.Values.sharedDb.enabled }}
+        - name: jackrabbit-shared-config
+          configMap:
+            defaultMode: 256
+            items:
+              - key: jackrabbit-shared.xml
+                mode: 420
+                path: jackrabbit-shared.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+        - name: jcr-repositories
+          configMap:
+            defaultMode: 256
+            items:
+              - key: jcr-repositories.xml
+                mode: 420
+                path: jcr-repositories.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+{{- end }}
 {{- end }}
         - name: log4j-config
           configMap:
@@ -66,7 +86,7 @@ spec:
             - key: setenv.sh
               mode: 420
               path: setenv.sh
-            name: {{ $.Release.Name }}-configmap-setenv
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
         - name: server-xml
           configMap:
@@ -121,6 +141,14 @@ spec:
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
+{{- if $.Values.sharedDb.enabled }}
+            - name: jackrabbit-shared-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit-shared.xml
+              subPath: jackrabbit-shared.xml
+            - name: jcr-repositories
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/repositories.xml
+              subPath: jcr-repositories.xml
+{{- end }}
 {{- end }}
             - name: log4j-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/log4j2.xml
