@@ -49,7 +49,7 @@ spec:
               path: jackrabbit.xml
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
-{{- if $.Values.jcrClustering.enabled }}
+{{- if $.Values.sharedDb.enabled }}
         - name: jackrabbit-shared-config
           configMap:
             defaultMode: 256
@@ -141,7 +141,7 @@ spec:
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
-{{- if $.Values.jcrClustering.enabled }}
+{{- if $.Values.sharedDb.enabled }}
             - name: jackrabbit-shared-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit-shared.xml
               subPath: jackrabbit-shared.xml

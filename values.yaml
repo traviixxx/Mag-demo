@@ -19,7 +19,7 @@ deploy:
 bootstrap:
   enabled: false
 
-jcrClustering:
+sharedDb:
   enabled: false
   workspaces: []
   db:
