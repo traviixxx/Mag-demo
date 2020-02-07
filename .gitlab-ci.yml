@@ -1,0 +1,21 @@
+stages:
+  - test
+  - deploy
+
+lint:
+  stage: test
+  image: alpine/helm:3.0.3
+  script:
+    - helm lint
+
+upload:
+  stage: deploy
+  image: alpine/helm:3.0.3
+  before_script:
+    - apk add curl
+  script:
+    - helm dep build
+    - helm package .
+    - ls -1 magnolia-helm*.tgz | while read i; do curl -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @$i https://charts.mirohost.ch/api/charts; done
+  only:
+    - master

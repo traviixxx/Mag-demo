@@ -3,3 +3,4 @@ charts/*
 !charts/tomcat
 *.iml
 .idea
+*.tgz
