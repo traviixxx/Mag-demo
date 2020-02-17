@@ -16,13 +16,17 @@ stages:
 
 lint:
   stage: test
-  image: alpine/helm:3.0.3
+  image:
+    name: alpine/helm:3.0.3
+    entrypoint: [""]
   script:
     - helm lint
 
 upload:
   stage: deploy
-  image: alpine/helm:3.0.3
+  image:
+    name: alpine/helm:3.0.3
+    entrypoint: [""]
   before_script:
     - apk add curl
   script:
