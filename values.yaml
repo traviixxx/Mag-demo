@@ -54,6 +54,9 @@ magnoliaAuthor:
     pattern: "%d %-5p %-50.50c: %m%n"
   bootstrap:
     password: ""
+  activation:
+    privateKey: null
+    publicKey: null
   db:
     enabled: true
     repository: postgres
