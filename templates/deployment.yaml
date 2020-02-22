@@ -97,6 +97,17 @@ spec:
               path: server.xml
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+{{- if eq $magnoliaMode "author" }}
+        - name: activation-keypair
+          secret:
+            secretName: {{ printf "%s-activation-secret" $.Release.Name }}
+            defaultMode: 256
+            optional: false
+            items:
+              - key: magnolia-activation-keypair.properties
+                path: magnolia-activation-keypair.properties
+                mode: 420
+{{- end }}
       initContainers:
         - name: war
           image: {{ $.Values.image.webarchive.repository }}:{{ $.Values.image.webarchive.tag }}
@@ -159,6 +170,11 @@ spec:
             - name: server-xml
               mountPath: /usr/local/tomcat/conf/server.xml
               subPath: server.xml
+{{- if eq $magnoliaMode "author" }}
+            - name: activation-keypair
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/magnolia-activation-keypair.properties
+              subPath: magnolia-activation-keypair.properties
+{{- end }}
 {{- with .values.livenessProbe }}
           livenessProbe:
             httpGet:

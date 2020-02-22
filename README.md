@@ -13,6 +13,24 @@ public instances are work in progress.
 The tomcat setup is derived from the public tomcat helm chart and uses init
 containers the copy the actual webapp to the `webapps` folder.
 
+### Activation keypair generation
+This chart requires RSA keypair properties for the publication mechanism. You
+can generate a keypair e.g. with `openssl`. **Magnolia can handle at most 1024 bit key length:**
+
+
+    $ openssl genrsa -out temp/key.pem 1024
+    $ openssl rsa -in temp/key.pem -pubout -out temp/pubkey.pem
+
+
+This will store the keys in PEM format and you can use them as Hex-encoded Helm Chart values:
+
+	 --set magnoliaAuthor.activation.privateKey=`cat temp/key.pem | hexdump -e '"%X"'`
+	 --set magnoliaAuthor.activation.publicKey=`cat temp/pubkey.pem | hexdump -e '"%X"'`
+
+
+**It's not recommended to store the keys inside any source controlled value files!**
+
+### Docker Image configuration
 You can specify the tomcat image and tag in the values:
 
 ```yaml

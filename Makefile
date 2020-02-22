@@ -12,7 +12,12 @@ help:
 .DEFAULT_GOAL := help
 
 values: ## Show generated yaml resources and values.
-	helm install --dry-run --debug -f $(LOCAL_YAML) --generate-name .
+	openssl genrsa -out temp/key.pem 1024 && openssl rsa -in temp/key.pem -pubout -out temp/pubkey.pem
+
+	helm install --dry-run --debug -f $(LOCAL_YAML) \
+	 --set magnoliaAuthor.activation.privateKey=`cat temp/key.pem | hexdump -e '"%X"'` \
+	 --set magnoliaAuthor.activation.publicKey=`cat temp/pubkey.pem | hexdump -e '"%X"'` \
+	 --generate-name .
 
 clean: ## Clean up environment.
 	helm del $(RELEASE)
@@ -21,7 +26,12 @@ clean-pvc: ## Clean disks (PVCs) too.
 	kubectl get persistentvolumeclaims -l 'release=$(RELEASE)' -o json | kubectl delete -f -
 
 install-local: ## Install helm chart on k8s.
-	helm install $(RELEASE) . -f $(LOCAL_YAML)
+	openssl genrsa -out temp/key.pem 1024 && openssl rsa -in temp/key.pem -pubout -out temp/pubkey.pem
+
+	helm install $(RELEASE) \
+	 --set magnoliaAuthor.activation.privateKey=`cat temp/key.pem | hexdump -e '"%X"'` \
+	 --set magnoliaAuthor.activation.publicKey=`cat temp/pubkey.pem | hexdump -e '"%X"'` \
+	 . -f $(LOCAL_YAML)
 
 install-remote: check-env ## Install helm chart on k8s.
 	helm install $(RELEASE) . -f $(REMOTE_YAML)
