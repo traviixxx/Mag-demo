@@ -5,7 +5,8 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Djava.awt.headless=true \
  -Djava.security.egd=file:/dev/./urandom \
  -Dfile.encoding=UTF-8 \
- -Dsun.jnu.encoding=UTF-8
+ -Dsun.jnu.encoding=UTF-8 \
+ -Duser.timezone={{ .Values.timezone }} \
  -XX:+UseContainerSupport \
  -XX:MinRAMPercentage=${JVM_RAM_MIN_PERCENTAGE:-25} \
  -XX:MaxRAMPercentage=${JVM_RAM_MAX_PERCENTAGE:-80} \

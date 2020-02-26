@@ -13,6 +13,8 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
+timezone: Europe/Zurich
+
 deploy:
   directory: /usr/local/tomcat/webapps
 
