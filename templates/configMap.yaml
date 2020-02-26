@@ -27,6 +27,8 @@ data:
   MGNL_AUTHOR_INSTANCE: {{ eq $magnoliaMode "public" | ternary "false" "true" | quote }}
   server.xml: |-
 {{ tpl ($.Files.Get "files/server.xml") $data | indent 4 }}
+  logging.properties: |-
+{{ tpl ($.Files.Get "files/logging.properties") $data | indent 4 }}
 {{- with $db }}
   jackrabbit.xml: |-
 {{ tpl (printf "files/%s.xml" .type | $.Files.Get) $data | indent 4 }}

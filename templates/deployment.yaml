@@ -97,6 +97,15 @@ spec:
               path: server.xml
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+        - name: logging-properties
+          configMap:
+            defaultMode: 256
+            items:
+            - key: logging.properties
+              mode: 420
+              path: logging.properties
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
 {{- if eq $magnoliaMode "author" }}
         - name: activation-keypair
           secret:
@@ -170,6 +179,9 @@ spec:
             - name: server-xml
               mountPath: /usr/local/tomcat/conf/server.xml
               subPath: server.xml
+            - name: logging-properties
+              mountPath: /usr/local/tomcat/conf/logging.properties
+              subPath: logging.properties
 {{- if eq $magnoliaMode "author" }}
             - name: activation-keypair
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/magnolia-activation-keypair.properties
