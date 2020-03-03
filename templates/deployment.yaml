@@ -37,6 +37,9 @@ spec:
                 app: {{ $dbName }}
                 release: {{ $.Release.Name }}
       volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/{{ $.Values.timezone }}
         - name: {{ $appVolumeName }}
           emptyDir: {}
 {{- if .values.db.enabled }}
@@ -97,6 +100,15 @@ spec:
               path: server.xml
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+        - name: logging-properties
+          configMap:
+            defaultMode: 256
+            items:
+            - key: logging.properties
+              mode: 420
+              path: logging.properties
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
 {{- if eq $magnoliaMode "author" }}
         - name: activation-keypair
           secret:
@@ -114,6 +126,8 @@ spec:
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ["sh", "-c", "cp -a /magnolia /app/"]
           volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
             - name: {{ $appVolumeName }}
               mountPath: /app
 {{- range $.Values.jars }}
@@ -122,6 +136,8 @@ spec:
           command:
             - {{ .initScript }}
           volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
             - name: {{ $appVolumeName }}
               mountPath: /app
 {{- with .env }}
@@ -146,6 +162,8 @@ spec:
                 name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
                 optional: false
           volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
 {{- if .values.db.enabled }}
@@ -170,6 +188,9 @@ spec:
             - name: server-xml
               mountPath: /usr/local/tomcat/conf/server.xml
               subPath: server.xml
+            - name: logging-properties
+              mountPath: /usr/local/tomcat/conf/logging.properties
+              subPath: logging.properties
 {{- if eq $magnoliaMode "author" }}
             - name: activation-keypair
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/magnolia-activation-keypair.properties
