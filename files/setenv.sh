@@ -25,7 +25,8 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.bootstrap.authorInstance=${MGNL_AUTHOR_INSTANCE:-true} \
  -Dmagnolia.develop=${MGNL_DEVELOPER_MODE:-false} \
  -Dmagnolia.update.auto=${MGNL_AUTO_UPDATE:-true} \
- -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-blue}"
+ -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-blue} \
+ -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-modules}"
 
 {{ if .Values.sharedDb.enabled -}}
 CATALINA_OPTS="$CATALINA_OPTS \
