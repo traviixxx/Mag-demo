@@ -122,7 +122,7 @@ spec:
 {{- end }}
       initContainers:
         - name: war
-          image: {{ $.Values.image.webarchive.repository }}:{{ $.Values.image.webarchive.tag }}
+          image: {{ .values.webarchive.repository }}:{{ .values.webarchive.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ["sh", "-c", "cp -a /magnolia /app/"]
           volumeMounts:

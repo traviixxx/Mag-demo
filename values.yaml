@@ -3,9 +3,6 @@
 # Declare variables to be passed into your templates.
 
 image:
-  webarchive:
-    repository: registry.gitlab.com/mironet/magnolia-demo
-    tag: latest
   tomcat:
     repository: tomcat
     tag: 9-jre11-slim
@@ -39,6 +36,9 @@ sharedDb:
 # This is the author's configuration. It should not use H2 data base (the default).
 magnoliaAuthor:
   restartPolicy: Always # ... or OnFailure, Never
+  webarchive:
+    repository: registry.gitlab.com/mironet/magnolia-demo
+    tag: latest
   setenv:
     memory:
       minPercentage: 25
@@ -77,6 +77,9 @@ magnoliaAuthor:
 # supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
   restartPolicy: Always # ... or OnFailure, Never
+  webarchive:
+    repository: registry.gitlab.com/mironet/magnolia-demo
+    tag: latest
   setenv:
     memory:
       minPercentage: 25
