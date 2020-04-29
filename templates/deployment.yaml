@@ -26,6 +26,8 @@ spec:
       labels:
         app: {{ $name }}
         release: {{ $.Release.Name }}
+      annotations:
+        timestamp: "{{ date "20060102150405" now }}"
     spec:
       restartPolicy: {{ .values.restartPolicy | default "Always" }}
       affinity:
