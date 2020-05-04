@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         metadata-complete="true">
+    <description>Magnolia</description>
+    <display-name>magnolia</display-name>
+    <distributable/>
+    <servlet>
+        <servlet-name>Vaadin</servlet-name>
+        <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+        <init-param>
+            <description>Groovy Rescue App</description>
+            <param-name>UI</param-name>
+            <param-value>info.magnolia.module.groovy.rescue.MgnlGroovyRescueApp</param-value>
+        </init-param>
+        <init-param>
+            <param-name>widgetset</param-name>
+            <param-value>info.magnolia.widgetset.MagnoliaWidgetSet</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Vaadin</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <listener>
+        <listener-class>info.magnolia.init.MagnoliaServletContextListener</listener-class>
+    </listener>
+    <context-param>
+        <description>Vaadin production mode</description>
+        <param-name>productionMode</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>heartbeatInterval</param-name>
+        <param-value>90</param-value>
+    </context-param>
+</web-app>

@@ -72,6 +72,17 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- end }}
+{{- if .values.rescueMode }}
+        - name: rescue-web-xml
+          configMap:
+            defaultMode: 256
+            items:
+              - key: rescue-web.xml
+                mode: 420
+                path: rescue-web.xml
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+{{- end }}
 {{- end }}
         - name: log4j-config
           configMap:
@@ -170,6 +181,11 @@ spec:
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
+{{- if .values.rescueMode }}
+            - name: rescue-web-xml
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/web.xml
+              subPath: rescue-web.xml
+{{- end }}
 {{- if $.Values.sharedDb.enabled }}
             - name: jackrabbit-shared-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit-shared.xml

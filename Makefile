@@ -39,10 +39,10 @@ install-remote: check-env ## Install helm chart on k8s.
 	helm install $(RELEASE) . -f $(REMOTE_YAML)
 
 upgrade-local: ## Upgrade locally deployed release.
-	helm upgrade $(RELEASE) . -f $(LOCAL_YAML)
+	helm upgrade $(RELEASE) . --reuse-values -f $(LOCAL_YAML)
 
 upgrade-remote: ## Upgrade remotely deployed release.
-	helm upgrade $(RELEASE) . -f $(REMOTE_YAML)
+	helm upgrade $(RELEASE) . --reuse-values -f $(REMOTE_YAML)
 
 release: ## Release helm repo to chartmuseum
 	helm dep build

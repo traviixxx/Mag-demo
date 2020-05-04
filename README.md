@@ -30,6 +30,20 @@ This will store the keys in PEM format and you can use them as Hex-encoded Helm 
 
 **It's not recommended to store the keys inside any source controlled value files!**
 
+
+### Rescue mode
+
+To enable the [Groovy Rescue Console](https://documentation.magnolia-cms.com/display/DOCS61/Groovy+module#Groovymodule-RescueApp), deploy your Helm 
+release with the following flag:
+
+```yaml
+magnoliaAuthor:
+    rescueMode: true
+```
+
+This only takes effect if Magnolia is already installed. 
+
+
 ### Docker Image configuration
 You can specify the tomcat image and tag in the values:
 
