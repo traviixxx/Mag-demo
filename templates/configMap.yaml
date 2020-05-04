@@ -4,6 +4,7 @@
 {{- $labels := include "magnolia.labels" . -}}
 {{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
 {{- $magnoliaMode := .mode -}}
+{{- $rescueMode := .values.rescueMode }}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $db := .values.db -}}
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
@@ -35,6 +36,10 @@ data:
 {{ if $.Values.sharedDb.enabled }}
   jackrabbit-shared.xml: |-
 {{ tpl (printf "files/%s-shared.xml" .type | $.Files.Get) $data | indent 4 }}
+{{- end }}
+{{ if $rescueMode }}
+  rescue-web.xml: |-
+{{ tpl ($.Files.Get "files/rescue-web.xml") $data | indent 4 }}
 {{- end }}
   log4j2.xml: |-
 {{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}

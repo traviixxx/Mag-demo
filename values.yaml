@@ -39,6 +39,7 @@ magnoliaAuthor:
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
+  rescueMode: false
   setenv:
     memory:
       minPercentage: 25
@@ -80,6 +81,7 @@ magnoliaPublic:
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
+  rescueMode: false
   setenv:
     memory:
       minPercentage: 25
