@@ -36,6 +36,6 @@ upload:
     - cat Chart.yaml
     - helm dep build
     - helm package .
-    - ls -1 magnolia-helm*.tgz | while read i; do curl -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @$i https://charts.mirohost.ch/api/charts; done
+    - curl -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @magnolia-helm-${CHART_VERSION}.tgz https://charts.mirohost.ch/api/charts
   only:
     - tags
