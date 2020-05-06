@@ -25,13 +25,17 @@ lint:
 upload:
   stage: deploy
   image:
-    name: alpine/helm:3.0.3
+    name: registry.gitlab.com/mironet/helm-kubectl-gomplate
     entrypoint: [""]
   before_script:
     - apk add curl
+    - export GIT_TAG=$(git describe --always)
+    - export CHART_VERSION=$GIT_TAG
   script:
+    - cat .Chart.tpl | gomplate > Chart.yaml
+    - cat Chart.yaml
     - helm dep build
     - helm package .
     - ls -1 magnolia-helm*.tgz | while read i; do curl -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @$i https://charts.mirohost.ch/api/charts; done
   only:
-    - master
+    - tags
