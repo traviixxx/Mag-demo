@@ -1,5 +1,4 @@
-# Default values for ..
-# This is a YAML-formatted file.
+# Default values for magnolia-helm.
 # Declare variables to be passed into your templates.
 
 image:
@@ -33,7 +32,8 @@ sharedDb:
       # accessModes:
       #   - ReadWriteOnce
 
-# This is the author's configuration. It should not use H2 data base (the default).
+# This is the author's configuration. It should not use H2 data base (the
+# default).
 magnoliaAuthor:
   restartPolicy: Always # ... or OnFailure, Never
   webarchive:
@@ -60,6 +60,13 @@ magnoliaAuthor:
   activation:
     privateKey: null
     publicKey: null
+    # Set this to `true` in case you want to use an existing activation key
+    # stored as a secret and provide its name.
+    useExistingSecret: False
+    keyLocation: /keys/activation/magnolia-activation-keypair.properties
+    secret:
+      name: my-activation-secret
+      key: my-activation-secret-key # The name of they inside the secret to use.
   db:
     enabled: true
     repository: postgres
@@ -139,7 +146,7 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 512m
     # Use these if you want cert-manager to issue let's encrypt certs.
-    #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    #cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts: []
     # Specify hosts here as an array.
     # - host: k8s.local
@@ -156,17 +163,14 @@ ingress:
     #   # # to issue a new certificate.
     #   # secretName: supersecret-cert
 
+# Configuration for the bootstrapper. The idea is to fix the specific version
+# tested with this chart.
+postjob:
+  image: registry.gitlab.com/mironet/magnolia-bootstrap
+  tag: v0.1.2
+
+
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
 nodeSelector: {}
 

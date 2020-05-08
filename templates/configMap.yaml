@@ -9,7 +9,7 @@
 {{- $db := .values.db -}}
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
 {{- $clusterDbHost := printf "%s-%s-db" $fullName $.Values.sharedDb.db.name -}}
-{{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "clusterDbHost" $clusterDbHost "clusterDb" $.Values.sharedDb.db "name" $name "magnoliaMode" $magnoliaMode -}}
+{{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "clusterDbHost" $clusterDbHost "clusterDb" $.Values.sharedDb.db "name" $name "magnoliaMode" $magnoliaMode "activation" .values.activation -}}
 {{- $logging := dict "Template" $.Template "Values" $.Values "pattern" .values.logging.pattern "level" .values.logging.level "loggers" .values.logging.loggers -}}
 ---
 apiVersion: v1

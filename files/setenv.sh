@@ -26,6 +26,9 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.develop=${MGNL_DEVELOPER_MODE:-false} \
  -Dmagnolia.update.auto=${MGNL_AUTO_UPDATE:-true} \
  -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-blue} \
+{{- if eq .magnoliaMode "author" }}
+ -Dmagnolia.author.key.location={{ .activation.keyLocation }} \
+{{- end }}
  -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-modules}"
 
 {{ if .Values.sharedDb.enabled -}}

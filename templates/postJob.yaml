@@ -43,7 +43,7 @@ spec:
           optional: False
       containers:
       - name: bootstrapper
-        image: registry.gitlab.com/mironet/magnolia-bootstrap
+        image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
         command:
           - /app
           - boot
@@ -53,7 +53,8 @@ spec:
           - http://{{ $name }}-{{ $magnoliaMode }}-svc:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
           - -i
           - /data/instructions.yml
-          - -vvv
+          - --allow-fail-401
+          - -vv
         env:
         - name: MGNLBOOT_NEW_SUPERUSER_PW
           valueFrom:
@@ -67,6 +68,6 @@ spec:
           mountPath: /data/instructions.yml
           subPath: instructions.yml
       restartPolicy: Never
-  backoffLimit: 16
+  backoffLimit: 1
 {{ end -}}
 {{- end }}
