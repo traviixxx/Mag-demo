@@ -29,7 +29,7 @@ CATALINA_OPTS="$CATALINA_OPTS \
 {{- if eq .magnoliaMode "author" }}
  -Dmagnolia.author.key.location={{ .activation.keyLocation }} \
 {{- end }}
- -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-modules}"
+ -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-\$\{magnolia.home\}/modules}"
 
 {{ if .Values.sharedDb.enabled -}}
 CATALINA_OPTS="$CATALINA_OPTS \
