@@ -4,10 +4,10 @@
 {{- $magnoliaMode := .mode -}}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $dbName := printf "%s-db" $name -}}
-{{- $appVolumeName := printf "%s-app-volume" $name }}
+{{- $appVolumeName := printf "%s-app-volume" $name -}}
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ $name }}
   namespace: {{ $.Release.Namespace }}
@@ -21,26 +21,6 @@ spec:
     matchLabels:
       app: {{ $name }}
       release: {{ $.Release.Name }}
-  serviceName: {{ $name }}
-{{- if eq $magnoliaMode "author" }}
-{{- if and (not .values.activation.useExistingSecret) (empty .values.activation.privateKey) }}
-  volumeClaimTemplates:
-    - metadata:
-        name: activation-keypair
-        labels:
-          app: {{ $name }}
-          chart: {{ $chartName }}
-          release: {{ $.Release.Name }}
-          heritage: {{ $.Release.Service }}
-          component: activation-key
-      spec:
-        resources:
-          requests:
-            storage: "1Mi"
-        accessModes:
-          - ReadWriteOnce
-{{- end }}
-{{- end }}
   template:
     metadata:
       labels:
@@ -49,7 +29,7 @@ spec:
       annotations:
         timestamp: "{{ date "20060102150405" now }}"
     spec:
-      restartPolicy: {{ .values.restartPolicy | default "Always" }}
+      restartPolicy: {{ .values.restartPolicy | default "OnFailure" }}
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -144,8 +124,7 @@ spec:
             items:
               - key: magnolia-activation-keypair.properties
                 path: magnolia-activation-keypair.properties
-{{- end }}
-{{- if .values.activation.useExistingSecret }}
+{{- else if .values.activation.useExistingSecret }}
         - name: activation-keypair
           secret:
             secretName: {{ .values.activation.secret.name | quote }}
@@ -154,8 +133,19 @@ spec:
             items:
               - key: {{ .values.activation.secret.key | quote }}
                 path: magnolia-activation-keypair.properties
+{{- else }}
+        - name: activation-keypair
+          emptyDir: {}
 {{- end }}
 {{- end }}
+        - name: instructions
+          configMap:
+            items:
+            - key: instructions.yml
+              mode: 420
+              path: instructions.yml
+            name: {{ printf "%s-bootstrap-%s" $.Release.Name $magnoliaMode }}
+            optional: False
       initContainers:
         - name: war
           image: {{ .values.webarchive.repository }}:{{ .values.webarchive.tag }}
@@ -166,6 +156,13 @@ spec:
               mountPath: /etc/localtime
             - name: {{ $appVolumeName }}
               mountPath: /app
+        - name: bootstrapper
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: Always
+          command: ["sh", "-c", "cp -a /app /magnolia/bootstrap"]
+          volumeMounts:
+            - name: {{ $appVolumeName }}
+              mountPath: /magnolia
 {{- range $.Values.jars }}
         - name: {{ .name }}
           image: {{ .repository }}:{{ .tag }}
@@ -197,6 +194,25 @@ spec:
             - configMapRef:
                 name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
                 optional: false
+          - name: MGNLBOOT_NEW_SUPERUSER_PW
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /app
+                  - boot
+                  - -w
+                  - 3m
+                  - -m
+                  - http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
+                  - -i
+                  - /data/instructions.yml
+                  - --allow-fail-401
+                  - -vv
           volumeMounts:
             - name: tz-config
               mountPath: /etc/localtime
@@ -241,6 +257,9 @@ spec:
               {{- end}}
               subPath: magnolia-activation-keypair.properties
 {{- end }}
+            - name: instructions
+              mountPath: /data/instructions.yml
+              subPath: instructions.yml
 {{- with .values.livenessProbe }}
           livenessProbe:
             httpGet:

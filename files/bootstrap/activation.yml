@@ -1,0 +1,19 @@
+---
+steps:
+  - putPubkey
+
+remove_pubkey:
+  step: putPubkey
+  method: post
+  path: "config/server/activation"
+  allow_failure: false
+  data:
+    properties:
+      - name: class
+        type: String
+        values:
+         - "info.magnolia.publishing.manager.ActivationManagerAdapter"
+      - name: publicKey
+        type: String
+        values:
+          - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
