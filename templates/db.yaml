@@ -64,6 +64,14 @@ spec:
               command: ["psql", "-w", "-U", "postgres", "-d", "{{ .name }}", "-c", "SELECT 1"]
             initialDelaySeconds: 5
             timeoutSeconds: 2
+{{- if .backup.enabled }}
+        - name: backup
+          image: {{ printf "%s:%s" .backup.image .backup.tag }}
+          {{- with .backup.env }}
+          env:
+{{ toYaml .  | indent 10 }}
+          {{- end }}
+{{- end }}
 {{- if and .persistence.enabled .persistence.existingClaim }}
       volumes:
         - name: data

@@ -8,6 +8,8 @@ configures it to use a data base for its backend storage.
 It's designed for one signle author and one single public instance. Multiple
 public instances are work in progress.
 
+[[_TOC_]]
+
 ## Configuration
 
 The tomcat setup is derived from the public tomcat helm chart and uses init
@@ -146,7 +148,7 @@ magnoliaPublic:
 
 When run in a Kubernetes environment we expect `cert-manager` to be present and
 the ingress object should contain all annotations necessary for the cert manager
-to issue certificates with Let's Encrypt.
+to issue certificates with eg. Let's Encrypt.
 
 You have to first specify the host names you want certificates for and uncomment
 the annotation used by cert-manager to auto-issue certificates from Let's encrypt:
@@ -170,6 +172,73 @@ ingress:
 `magnolia.properties` and a corresponding `server.xml` file for the persistence
 layer is generated and stored as a ConfigMap. It will be mounted in the
 container when run.
+
+### Backups / DB Dumps
+
+The magnolia to s3 backup agent can be used for regular dumps and backups of the data bases.
+
+#### Prerequisites
+
+* S3 bucket with credentials (accesskey and secretkey)
+* Secret in Kubernetes
+
+#### Backup Configuration
+
+You need to set at least the following values according to your environment. Please have a look at the [magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for an explanation of all settings.
+
+```yaml
+magnoliaAuthor:
+  db:
+    backup:
+      enabled: True
+      env:
+      - name: MGNLBACKUP_CMD
+        value: pg_dumpall
+      - name: MGNLBACKUP_ARGS
+        value: --host localhost --user postgres
+      - name: MGNLBACKUP_S3_BUCKET
+        value: magnoliabackups
+      - name: MGNLBACKUP_S3_ACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: s3-backup-key
+            key: accesskey
+      - name: MGNLBACKUP_S3_SECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: s3-backup-key
+            key: secretkey
+      - name: MGNLBACKUP_S3_ENDPOINT
+        value: s3.example.com
+      - name: MGNLBACKUP_S3_CYCLE
+        value: "15,4,3"
+```
+
+The referenced secret needs to exist before rolling this out. Here's an example of how to create one:
+
+```bash
+# Create files needed for the rest of the example.
+echo -n 's3user' > accesskey.txt
+ echo -n 'supersecrets3pass' > secretkey.txt
+
+kubectl create secret generic s3-backup-key --from-file=accesskey=./accesskey.txt --from-file=secretkey=./secretkey.txt
+
+rm -f accesskey.txt secretkey.txt
+```
+
+(Also see the [official Kubernetes documentation about secrets](https://kubernetes.io/docs/concepts/configuration/secret/).)
+
+This creates a new sidecar which takes backups every 24h each day. The backups are streamed directly to S3 without temporarily storing them locally, so this backup mechanism can be used for very large data base dumps without having to worry about local storage or memory.
+
+#### Backup inspection
+
+You can port-forward the backup service and see a list of current backups and also get direct download links for the S3 server:
+
+```bash
+ kubectl port-forward <your-release-name>-author-db-0 9999:9999
+```
+
+After the port forwarding is established, visit [http://localhost:9999/list](http://localhost:9999/list) for a list of backups.
 
 ### Activation keypair generation
 

@@ -138,6 +138,7 @@ spec:
           emptyDir: {}
 {{- end }}
 {{- end }}
+        {{- if $.Values.bootstrap.enabled }}
         - name: instructions
           configMap:
             items:
@@ -146,6 +147,7 @@ spec:
               path: instructions.yml
             name: {{ printf "%s-bootstrap-%s" $.Release.Name $magnoliaMode }}
             optional: False
+        {{- end }}
       initContainers:
         - name: war
           image: {{ .values.webarchive.repository }}:{{ .values.webarchive.tag }}
@@ -221,6 +223,7 @@ spec:
             - configMapRef:
                 name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
                 optional: false
+          {{- if $.Values.bootstrap.enabled }}
           lifecycle:
             postStart:
               exec:
@@ -235,6 +238,7 @@ spec:
                   - /data/instructions.yml
                   - --allow-fail-401
                   - -vv
+          {{- end }}
           volumeMounts:
             - name: tz-config
               mountPath: /etc/localtime
@@ -279,9 +283,11 @@ spec:
               {{- end}}
               subPath: magnolia-activation-keypair.properties
 {{- end }}
+            {{- if $.Values.bootstrap.enabled }}
             - name: instructions
               mountPath: /data/instructions.yml
               subPath: instructions.yml
+            {{- end }}
 {{- with .values.livenessProbe }}
           livenessProbe:
             exec:
