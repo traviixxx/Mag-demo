@@ -200,6 +200,7 @@ spec:
 {{- with .values.env }}
 {{ toYaml . | indent 10 }}
 {{- end }}
+          {{- if $.Values.bootstrap.enabled }}
           - name: MGNLBOOT_NEW_SUPERUSER_PW
             valueFrom:
               secretKeyRef:
@@ -219,6 +220,7 @@ spec:
               secretKeyRef:
                 name:  {{ .values.activation.secret.name | quote }}
                 key:  {{ .values.activation.secret.key| quote }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
