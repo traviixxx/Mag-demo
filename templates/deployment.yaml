@@ -29,7 +29,7 @@ spec:
       annotations:
         timestamp: "{{ date "20060102150405" now }}"
     spec:
-      restartPolicy: {{ .values.restartPolicy | default "OnFailure" }}
+      restartPolicy: {{ .values.restartPolicy | default "Always" }}
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -178,6 +178,14 @@ spec:
 {{ toYaml . | indent 12 }}
 {{- end -}}
 {{- end }}
+        - name: waitfor-db
+          image: busybox:1.31
+          command: ['sh', '-c', "until nslookup {{ $dbName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"]
+{{- if eq $magnoliaMode "public" }}
+        - name: waitfor-author
+          image: busybox:1.31
+          command: ['sh', '-c', "until nslookup {{ printf "%s-author-svc" $fullName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for author; sleep 2; done"]
+{{- end }}
       containers:
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
@@ -186,24 +194,38 @@ spec:
           resources:
 {{ toYaml . | indent 12 }}
 {{- end }}
-{{- with .values.env }}
           env:
-{{ toYaml . | indent 12 }}
+{{- with .values.env }}
+{{ toYaml . | indent 10 }}
 {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
-                optional: false
           - name: MGNLBOOT_NEW_SUPERUSER_PW
             valueFrom:
               secretKeyRef:
                 key: password
                 name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
+          - name: MGNLBOOT_AUTHOR_SUPERUSER_PW
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
+          - name: MGNLBOOT_AUTHOR_INSTANCE
+            value: {{ printf "http://%s-%s-svc:8080" $fullName "author" }}
+          - name: MGNLBOOT_PUBLIC_INSTANCE
+            value: {{ printf "http://%s-%s-svc:8080" $fullName "public" }}
+          - name: MGNL_ACTIVATION_PUBKEY
+            valueFrom:
+              secretKeyRef:
+                name:  {{ .values.activation.secret.name | quote }}
+                key:  {{ .values.activation.secret.key| quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
+                optional: false
           lifecycle:
             postStart:
               exec:
                 command:
-                  - /app
+                  - {{ $.Values.deploy.directory }}/bootstrap
                   - boot
                   - -w
                   - 3m
@@ -262,13 +284,21 @@ spec:
               subPath: instructions.yml
 {{- with .values.livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: {{ .path }}
-              port: {{ .port }}
+            exec:
+              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}", "--code", "200-399,401", "-vv" ]
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
             timeoutSeconds: {{ .timeoutSeconds | default 10 }}
             initialDelaySeconds: {{ .initialDelaySeconds | default 240 }}
+{{- end }}
+{{- if eq $magnoliaMode "author" }}
+          readinessProbe:
+            exec:
+              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/author", "--code", "200-399,401", "-vv" ]
+            initialDelaySeconds: 2
+            #periodSeconds: 120
+            timeoutSeconds: 2
+            successThreshold: 3
 {{- end }}
 {{- with .values.startupProbe }}
 {{- end }}
@@ -284,4 +314,4 @@ spec:
       tolerations:
 {{ toYaml $.Values.tolerations | indent 8 }}
     {{- end }}
-{{- end }}
+{{ end -}}

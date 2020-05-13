@@ -1,11 +1,11 @@
-{{- if .Values.bootstrap.enabled -}}
+{{- if .Values.bootstrap.enabled }}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $name := $fullName -}}
 {{- $labels := include "magnolia.labels" . -}}
 {{- $data := include "magnolia.labels" . -}}
 {{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
-{{- $magnoliaMode := .mode -}}
+{{- $magnoliaMode := .mode }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -17,81 +17,5 @@ metadata:
 data:
   instructions.yml: |-
 {{ $.Files.Get (printf "files/bootstrap/%s.yml" $magnoliaMode) | indent 4 }}
-{{- if eq $magnoliaMode "public" }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ printf "%s-activation-%s" $.Release.Name $magnoliaMode }}
-  namespace: {{ $.Release.Namespace }}
-  labels:
-{{ $labels | indent 4 }}
-data:
-  activation.yml: |-
-{{ $.Files.Get "files/bootstrap/activation.yml" | indent 4 }}
-{{- end }}
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: {{ $name }}-boot-{{ $magnoliaMode }}
-  namespace: {{ $.Release.Namespace }}
-  labels:
-    app: {{ $name }}-boot-{{ $magnoliaMode }}
-    chart: {{ $chartName }}
-    release: {{ $.Release.Name }}
-    heritage: {{ $.Release.Service }}
-spec:
-  template:
-    spec:
-      volumes:
-      - name: instructions
-        configMap:
-          defaultMode: 256
-          items:
-          - key: instructions.yml
-            mode: 420
-            path: instructions.yml
-          name: {{ printf "%s-bootstrap-%s" $.Release.Name $magnoliaMode }}
-          optional: False
-      {{- if eq $magnoliaMode "public" }}
-      - name: activation
-        configMap:
-          items:
-          - key: activation.yml
-            mode: 420
-            path: activation.yml
-          name: {{ printf "%s-activation-%s" $.Release.Name $magnoliaMode }}
-          optional: False
-      {{- end }}
-      containers:
-      - name: bootstrapper
-        image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
-        command:
-          - /app
-          - boot
-          - -w
-          - 3m
-          - -m
-          - http://{{ $name }}-{{ $magnoliaMode }}-svc:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
-          - -i
-          - /data/instructions.yml
-          - --allow-fail-401
-          - -vv
-        env:
-        - name: MGNLBOOT_NEW_SUPERUSER_PW
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
-        - name: MGNLBOOT_ADDR
-          value: http://{{ $name }}-public-svc:8080/
-        volumeMounts:
-        - name: instructions
-          mountPath: /data/instructions.yml
-          subPath: instructions.yml
-
-      restartPolicy: Never
-  backoffLimit: 1
 {{- end }}
 {{- end }}

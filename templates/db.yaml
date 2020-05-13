@@ -59,6 +59,11 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["psql", "-w", "-U", "postgres", "-d", "{{ .name }}", "-c", "SELECT 1"]
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
 {{- if and .persistence.enabled .persistence.existingClaim }}
       volumes:
         - name: data

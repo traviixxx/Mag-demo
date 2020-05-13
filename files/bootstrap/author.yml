@@ -2,6 +2,7 @@
 steps:
   - remove_default_subscriber
   - add_new_subscriber
+  - pubkey
   - change_superuser_pw
 
 remove_sub:
@@ -9,22 +10,21 @@ remove_sub:
   method: delete
   path: "config/modules/publishing-core/config/receivers/magnoliaPublic8080"
 
-add_new_subs:
-  step: add_new_subscriber
-  method: put
-  path: "config/modules/publishing-core/config/receivers"
+set_pubkey:
+  step: pubkey
+  method: post
+  path: "config/server/activation"
+  allow_failure: false
   data:
-    name: "magnoliaPublic"
-    type: "mgnl:contentNode"
     properties:
-      - name: url
+      - name: class
         type: String
         values:
-          - {{ printf "%s" .Env.MGNLBOOT_ADDR | quote }}
-      - name: enabled
+         - "info.magnolia.publishing.manager.ActivationManagerAdapter"
+      - name: publicKey
         type: String
         values:
-          - "true"
+          - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
 
 updateSuperuserPw:
   step: change_superuser_pw
