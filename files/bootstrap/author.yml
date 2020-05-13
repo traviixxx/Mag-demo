@@ -10,6 +10,7 @@ remove_sub:
   method: delete
   path: "config/modules/publishing-core/config/receivers/magnoliaPublic8080"
 
+{{- if .Env.MGNL_ACTIVATION_PUBKEY }}
 set_pubkey:
   step: pubkey
   method: post
@@ -25,6 +26,7 @@ set_pubkey:
         type: String
         values:
           - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
+{{- end }}
 
 updateSuperuserPw:
   step: change_superuser_pw

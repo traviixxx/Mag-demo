@@ -24,6 +24,7 @@ add_new_subs:
         values:
           - "true"
 
+{{- if .Env.MGNL_ACTIVATION_PUBKEY }}
 set_pubkey:
   step: pubkey
   method: post
@@ -39,6 +40,7 @@ set_pubkey:
         type: String
         values:
           - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
+{{- end }}
 
 updateSuperuserPw:
   step: change_superuser_pw

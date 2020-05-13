@@ -215,11 +215,13 @@ spec:
             value: {{ printf "http://%s-%s-svc:8080" $fullName "author" }}
           - name: MGNLBOOT_PUBLIC_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080" $fullName "public" }}
+          {{- if .values.activation.useExistingSecret }}
           - name: MGNL_ACTIVATION_PUBKEY
             valueFrom:
               secretKeyRef:
                 name:  {{ .values.activation.secret.name | quote }}
                 key:  {{ .values.activation.secret.key| quote }}
+          {{- end }}
           {{- end }}
           envFrom:
             - configMapRef:
