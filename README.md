@@ -272,7 +272,7 @@ Now you can create the `activation.properties` secret:
 
 ```bash
 echo key.private=$(cat temp/key.pem | hexdump  -e '"%X"') > temp/secret.yml
-echo key.public=$(cat temp/pubkey.pem | hexdump  -e '"%X"') >> temp/secret.yml
+echo -n key.public=$(cat temp/pubkey.pem | hexdump  -e '"%X"') >> temp/secret.yml
 kubectl create secret generic activation-key --from-file=activation-secret=temp/secret.yml
 ```
 

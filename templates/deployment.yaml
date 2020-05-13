@@ -295,7 +295,7 @@ spec:
 {{- with .values.livenessProbe }}
           livenessProbe:
             exec:
-              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}", "--code", "200-399,401", "-vv" ]
+              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}", "--code", "{{ .expectedCodes }}", "-vv" ]
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
             timeoutSeconds: {{ .timeoutSeconds | default 10 }}
