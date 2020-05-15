@@ -265,14 +265,15 @@ can generate a keypair e.g. with `openssl`. **Magnolia can handle at most 1024 b
 ```bash
 mkdir temp
 openssl genrsa -out temp/key.pem 1024
-openssl rsa -in temp/key.pem -pubout -out temp/pubkey.pem
+openssl rsa -in temp/key.pem -pubout -outform der -out temp/pubkey.der
+openssl pkcs8 -topk8 -inform PEM -outform DER -in temp/key.pem -out temp/key.der -nocrypt
 ```
 
 Now you can create the `activation.properties` secret:
 
 ```bash
-echo key.private=$(cat temp/key.pem | hexdump  -e '"%X"') > temp/secret.yml
-echo -n key.public=$(cat temp/pubkey.pem | hexdump  -e '"%X"') >> temp/secret.yml
+echo key.private=$(cat temp/key.der | hexdump  -e '"%X"') > temp/secret.yml
+echo -n key.public=$(cat temp/pubkey.der | hexdump  -e '"%X"') >> temp/secret.yml
 kubectl create secret generic activation-key --from-file=activation-secret=temp/secret.yml
 ```
 

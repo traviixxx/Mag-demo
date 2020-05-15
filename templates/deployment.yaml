@@ -215,6 +215,8 @@ spec:
             value: {{ printf "http://%s-%s-svc:8080" $fullName "author" }}
           - name: MGNLBOOT_PUBLIC_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080" $fullName "public" }}
+          - name: MGNL_PODNAME
+            value: {{ $name }}
           {{- if .values.activation.useExistingSecret }}
           - name: MGNL_ACTIVATION_PUBKEY
             valueFrom:

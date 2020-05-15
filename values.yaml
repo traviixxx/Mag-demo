@@ -83,7 +83,7 @@ magnoliaAuthor:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.1.1
+      tag: v0.1.2
       env:
       - name: MGNLBACKUP_CMD
         value: pg_dumpall
@@ -154,7 +154,7 @@ magnoliaPublic:
       size: 10Gi
     backup:
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.1.1
+      tag: v0.1.2
       enabled: False
   livenessProbe:
     path: /

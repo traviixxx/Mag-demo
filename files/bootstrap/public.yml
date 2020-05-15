@@ -12,7 +12,7 @@ add_new_subs:
   password: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_PW | quote }}
   path: "config/modules/publishing-core/config/receivers"
   data:
-    name: {{ .Env.HOSTNAME | quote }}
+    name: {{ .Env.MGNL_PODNAME | quote }}
     type: "mgnl:contentNode"
     properties:
       - name: url
