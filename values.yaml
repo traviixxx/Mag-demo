@@ -107,6 +107,11 @@ magnoliaAuthor:
         value: minio:9000
       - name: MGNLBACKUP_S3_CYCLE
         value: "15,4,3"
+  livenessProbe:
+    enabled: True
+    failureThreshold: 4
+    periodSeconds: 10
+    expectedCodes: "200-399,401,404"
 
 # This is the public instance. It can use the H2 data base, but it's also
 # supported to use PostgreSQL / MySQL if needed.
@@ -157,8 +162,7 @@ magnoliaPublic:
       tag: v0.1.2
       enabled: False
   livenessProbe:
-    path: /
-    port: 8080
+    enabled: True
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"

@@ -294,15 +294,17 @@ spec:
               mountPath: /data/instructions.yml
               subPath: instructions.yml
             {{- end }}
-{{- with .values.livenessProbe }}
+          {{- if .values.livenessProbe.enabled }}
+          {{- with .values.livenessProbe }}
           livenessProbe:
             exec:
-              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}", "--code", "{{ .expectedCodes }}", "-vv" ]
+              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}", "--code", "{{ default "200-399,401,404" .expectedCodes }}", "-vv" ]
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
             timeoutSeconds: {{ .timeoutSeconds | default 10 }}
             initialDelaySeconds: {{ .initialDelaySeconds | default 240 }}
-{{- end }}
+          {{- end }}
+          {{- end }}
 {{- if eq $magnoliaMode "author" }}
           readinessProbe:
             exec:
