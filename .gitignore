@@ -4,3 +4,4 @@ charts/*
 *.iml
 .idea
 *.tgz
+secret.yml
