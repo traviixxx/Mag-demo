@@ -107,6 +107,11 @@ magnoliaAuthor:
         value: minio:9000
       - name: MGNLBACKUP_S3_CYCLE
         value: "15,4,3"
+    restore:
+      enabled: False
+      # # where to get the dump from
+      # dump_url: https://s3...
+
   livenessProbe:
     enabled: True
     failureThreshold: 4
@@ -161,6 +166,9 @@ magnoliaPublic:
       image: registry.gitlab.com/mironet/magnolia-backup
       tag: v0.1.3
       enabled: False
+    restore:
+      enabled: False
+      dump_url: https://s3...
   livenessProbe:
     enabled: True
     failureThreshold: 4

@@ -56,6 +56,18 @@ spec:
             - name: POSTGRES_DB
               value: "{{ .name }}"
 {{- end }}
+          {{- if and .restore.enabled (eq .type "postgres") }}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - su
+                  - -c
+                  - sh
+                  - -c
+                  - psql -c "DROP DATABASE {{ .name }}" && wget {{ .restore.dump_url | quote }} -O - | gunzip | psql postgres
+                  - postgres
+          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
