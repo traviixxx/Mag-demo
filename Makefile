@@ -22,7 +22,7 @@ clean-pvc: ## Clean disks (PVCs) too.
 	kubectl get persistentvolumeclaims -l 'release=$(RELEASE)' -o json | kubectl delete -f -
 
 install-local: ## Install helm chart on k8s.
-	helm install $(RELEASE) \
+	helm upgrade --install $(RELEASE) \
 	 . -f $(LOCAL_YAML)
 
 install-remote: check-env ## Install helm chart on k8s.

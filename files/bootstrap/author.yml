@@ -3,6 +3,7 @@ steps:
   - remove_default_subscriber
   - add_new_subscriber
   - pubkey
+  - baseURL
   - change_superuser_pw
 
 remove_sub:
@@ -26,6 +27,19 @@ set_pubkey:
         type: String
         values:
           - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
+{{- end }}
+
+{{- if .Env.MGNL_DEFAULT_BASE_URL }}
+setDefaultBaseURL:
+  step: baseURL
+  method: "post"
+  path: "config/server"
+  data:
+    properties:
+      - name: defaultBaseUrl
+        type: String
+        values:
+          - {{ .Env.MGNL_DEFAULT_BASE_URL | quote }}
 {{- end }}
 
 updateSuperuserPw:

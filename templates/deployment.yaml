@@ -32,12 +32,14 @@ spec:
       restartPolicy: {{ .values.restartPolicy | default "Always" }}
       affinity:
         podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - topologyKey: "kubernetes.io/hostname"
-            labelSelector:
-              matchLabels:
-                app: {{ $dbName }}
-                release: {{ $.Release.Name }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: {{ $dbName }}
+                  release: {{ $.Release.Name }}
       volumes:
         - name: tz-config
           hostPath:
@@ -217,6 +219,10 @@ spec:
             value: {{ printf "http://%s-%s-svc:8080" $fullName "public" }}
           - name: MGNL_PODNAME
             value: {{ $name }}
+          {{- if .values.base_url }}
+          - name: MGNL_DEFAULT_BASE_URL
+            value: {{ .values.base_url | quote }}
+          {{- end }}
           {{- if .values.activation.useExistingSecret }}
           - name: MGNL_ACTIVATION_PUBKEY
             valueFrom:
