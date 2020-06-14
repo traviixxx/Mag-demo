@@ -32,6 +32,39 @@ sharedDb:
       # accessModes:
       #   - ReadWriteOnce
 
+        # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
+      backup:
+        enabled: False
+        image: registry.gitlab.com/mironet/magnolia-backup
+        tag: v0.1.3
+        env:
+          - name: MGNLBACKUP_CMD
+            value: pg_dumpall
+          - name: MGNLBACKUP_ARGS
+            value: --host localhost --user postgres
+          - name: MGNLBACKUP_LOGLEVEL
+            value: debug
+          - name: MGNLBACKUP_S3_BUCKET
+            value: backup
+          - name: MGNLBACKUP_S3_ACCESSKEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-backup-key
+                key: accesskey
+          - name: MGNLBACKUP_S3_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-backup-key
+                key: secretkey
+          - name: MGNLBACKUP_S3_ENDPOINT
+            value: minio:9000
+          - name: MGNLBACKUP_S3_CYCLE
+            value: "15,4,3"
+      restore:
+        enabled: False
+        # # where to get the dump from
+        # dump_url: https://s3...
+
 # This is the author's configuration. It should not use H2 data base (the
 # default).
 magnoliaAuthor:
