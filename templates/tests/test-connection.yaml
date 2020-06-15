@@ -1,15 +1,39 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $chartName := include "magnolia.chart" . -}}
+{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- $magnoliaMode := .mode -}}
+{{- $name := printf "%s-%s" $fullName $magnoliaMode }}
+---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "magnolia.fullname" . }}-test-connection"
+  name: "{{ $fullName }}-test-{{ $magnoliaMode }}"
   labels:
-{{ include "magnolia.labels" . | indent 4 }}
+    app.kubernetes.io/name: {{ printf "%s-svc" $name }}
+    helm.sh/chart: {{ $chartName | quote }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    component: test
   annotations:
-    "helm.sh/hook": test-success
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args:  ['{{ include "magnolia.fullname" . }}:{{ .Values.service.port }}']
+    - name: healthz
+      image: registry.gitlab.com/mironet/magnolia-bootstrap:latest
+      command:
+        - /app
+      args:
+        - httpget
+        - http://{{ $name }}-svc:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
+        - --code
+        - 200-399,401,404
+        - -vv
+        - -i
+        - 15s
+        - -t
+        - 5m
+        - -r
+        - "100"
   restartPolicy: Never
+{{- end }}

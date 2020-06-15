@@ -1,26 +1,46 @@
-variables:
-  DOCKER_HOST: tcp://docker:2375/
-  DOCKER_DRIVER: overlay2
-  # See https://github.com/docker-library/docker/pull/166
-  DOCKER_TLS_CERTDIR: ""
-
-# https://forum.gitlab.com/t/docker-dind-stops-working-after-12-1-0-update/28664/3
-services:
-  - name: docker:dind
-    entrypoint: ["env", "-u", "DOCKER_HOST"]
-    command: ["dockerd-entrypoint.sh"]
+variables: {}
 
 stages:
+  - lint
   - test
   - deploy
 
+.test_before: &test_before
+    - export GIT_TAG=$(git describe --always)
+    - export CHART_VERSION=$GIT_TAG
+    - cat .Chart.tpl | gomplate > Chart.yaml
+    - cat Chart.yaml
+
+.test_after: &test_after
+    - helm del ${RELEASE}
+    - kubectl get pods -l component=test -l app.kubernetes.io/instance=${RELEASE} -o json | kubectl delete -f -
+    - kubectl get persistentvolumeclaims -l "release=${RELEASE}" -o json | kubectl delete -f -
+
 lint:
-  stage: test
+  stage: lint
   image:
-    name: alpine/helm:3.0.3
+    name: registry.gitlab.com/mironet/helm-kubectl-gomplate
     entrypoint: [""]
+  before_script:
+    - *test_before
   script:
     - helm lint
+
+test-simple:
+  stage: test
+  image:
+    name: registry.gitlab.com/mironet/helm-kubectl-gomplate
+    entrypoint: [""]
+  before_script:
+    - *test_before
+    - export RELEASE=simple
+  script:
+    - helm install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yml
+    - helm test --logs ${RELEASE}
+    - *test_after
+  environment:
+    name: simple
+    url: https://${RELEASE}.test.magnolia-helm.mirohost.ch
 
 upload:
   stage: deploy
@@ -29,11 +49,8 @@ upload:
     entrypoint: [""]
   before_script:
     - apk add curl
-    - export GIT_TAG=$(git describe --always)
-    - export CHART_VERSION=$GIT_TAG
+    - *test_before
   script:
-    - cat .Chart.tpl | gomplate > Chart.yaml
-    - cat Chart.yaml
     - helm dep build
     - helm package .
     - curl -f -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @magnolia-helm-${CHART_VERSION}.tgz https://charts.mirohost.ch/api/charts

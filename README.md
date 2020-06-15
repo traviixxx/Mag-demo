@@ -1,11 +1,11 @@
-# magnolia-helm
+# Magnolia CMS Helm Chart
 
-Helm Chart for Magnolia CMS.
+Helm Chart for [Magnolia CMS](https://www.magnolia-cms.com/).
 
 This chart deploys a Magnolia CMS instance (author or public) and if desired
 configures it to use a data base for its backend storage.
 
-It's designed for one signle author and one single public instance. Multiple
+It's designed for one single author and one single public instance. Multiple
 public instances are work in progress.
 
 [[_TOC_]]
@@ -206,6 +206,8 @@ magnoliaAuthor:
         value: s3.example.com
       - name: MGNLBACKUP_S3_CYCLE
         value: "15,4,3"
+      - name: MGNLBACKUP_HERITAGE
+        value: "my_backup_tag" # Backups will be marked with this tag in object storage.
 ```
 
 The referenced secret needs to exist before rolling this out. Here's an example of how to create one:
@@ -229,7 +231,7 @@ This creates a new sidecar which takes backups every 24h each day. The backups a
 You can port-forward the backup service and see a list of current backups and also get direct download links for the S3 server:
 
 ```bash
- kubectl port-forward <your-release-name>-author-db-0 9999:9999
+kubectl port-forward <your-release-name>-author-db-0 9999:9999
 ```
 
 After the port forwarding is established, visit [http://localhost:9999/list](http://localhost:9999/list) for a list of backups.
