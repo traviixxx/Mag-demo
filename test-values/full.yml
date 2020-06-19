@@ -1,0 +1,119 @@
+---
+ingress:
+  enabled: True
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: test.magnolia-helm.mirohost.ch
+      paths:
+        - path: /
+          instance: public
+        - path: /author
+          instance: author
+  tls:
+    - hosts:
+      - test.magnolia-helm.mirohost.ch
+      secretName: helmdev-cert
+
+bootstrap:
+  enabled: True
+
+magnoliaAuthor:
+  base_url: https://test.magnolia-helm.mirohost.ch/magnoliaAuthor
+  extraContainers:
+    - name: test
+      image: nginx
+  bootstrap:
+    password: Magnolia1234
+  activation:
+    useExistingSecret: False
+    secret:
+      name: activation-key
+      key: activation-secret
+  resources:
+    requests:
+      memory: 2Gi
+    limits:
+      #cpu: 1000m
+      memory: 2Gi
+  db:
+    restore:
+      enabled: False
+    backup:
+      enabled: True
+      env:
+      - name: MGNLBACKUP_CMD
+        value: pg_dumpall
+      - name: MGNLBACKUP_ARGS
+        value: --host localhost --user postgres
+      - name: MGNLBACKUP_LOGLEVEL
+        value: debug
+      - name: MGNLBACKUP_S3_BUCKET
+        value: magnolia-test
+      - name: MGNLBACKUP_S3_ACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: full-s3-backup-key
+            key: accesskey
+      - name: MGNLBACKUP_S3_SECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: full-s3-backup-key
+            key: secretkey
+      - name: MGNLBACKUP_S3_ENDPOINT
+        value: full-minio:9000
+      - name: MGNLBACKUP_S3_CYCLE
+        value: "15,4,3"
+      - name: MGNLBACKUP_CRON
+        value: "@every 24h"
+      - name: MGNLBACKUP_PREFIX
+        value: author-
+      - name: MGNLBACKUP_S3_INSECURE
+        value: "true"
+
+magnoliaPublic:
+  bootstrap:
+    password: Magnolia1234
+  activation:
+    useExistingSecret: False
+    secret:
+      name: activation-key
+      key: activation-secret
+  resources:
+    requests:
+      memory: 2Gi
+    limits:
+      #cpu: 1000m
+      memory: 2Gi
+  db:
+    backup:
+      enabled: True
+      env:
+      - name: MGNLBACKUP_CMD
+        value: pg_dumpall
+      - name: MGNLBACKUP_ARGS
+        value: --host localhost --user postgres
+      - name: MGNLBACKUP_LOGLEVEL
+        value: debug
+      - name: MGNLBACKUP_S3_BUCKET
+        value: magnolia-test
+      - name: MGNLBACKUP_S3_ACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: full-s3-backup-key
+            key: accesskey
+      - name: MGNLBACKUP_S3_SECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: full-s3-backup-key
+            key: secretkey
+      - name: MGNLBACKUP_S3_ENDPOINT
+        value: full-minio:9000
+      - name: MGNLBACKUP_S3_CYCLE
+        value: "15,4,3"
+      - name: MGNLBACKUP_CRON
+        value: "@every 24h"
+      - name: MGNLBACKUP_PREFIX
+        value: public-
+      - name: MGNLBACKUP_S3_INSECURE
+        value: "true"

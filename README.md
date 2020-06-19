@@ -167,6 +167,19 @@ ingress:
       - test.k8s.example.com
 ```
 
+## Extra sidecar containers
+
+Additional sidecar containers can be injected in the `magnoliaAuthor/magnoliaPublic:` sections in the `values.yml`:
+
+```yaml
+magnoliaPublic:
+  #...
+  extraContainers:
+    - name: ohhai
+      image: nginx:latest
+      # ... further configuration according to the k8s containers section syntax.
+```
+
 ## Backups / DB Dumps
 
 The magnolia to s3 backup agent can be used for regular dumps and backups of the data bases.

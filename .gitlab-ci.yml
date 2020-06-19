@@ -42,6 +42,26 @@ test-simple:
     name: simple
     url: https://${RELEASE}.test.magnolia-helm.mirohost.ch
 
+test-full:
+  stage: test
+  image:
+    name: registry.gitlab.com/mironet/helm-kubectl-gomplate
+    entrypoint: [ "" ]
+  before_script:
+    - *test_before
+    - export RELEASE=full
+    - helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+    - helm repo update
+    - helm install ${RELEASE}-minio --set accessKey=fulltest,secretKey=fulltest stable/minio
+  script:
+    - helm install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yml
+    - helm test --logs ${RELEASE}
+    - *test_after
+    - helm del ${RELEASE}-minio
+  environment:
+    name: full
+    url: https://${RELEASE}.test.magnolia-helm.mirohost.ch
+
 upload:
   stage: deploy
   image:

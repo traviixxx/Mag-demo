@@ -191,6 +191,9 @@ spec:
           command: ['sh', '-c', "until nslookup {{ printf "%s-author-svc" $fullName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for author; sleep 2; done"]
 {{- end }}
       containers:
+        {{- with .values.extraContainers }}
+{{ toYaml . | indent 8 }}
+        {{- end }}
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
