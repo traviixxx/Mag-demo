@@ -31,7 +31,7 @@ spec:
           - path: {{ .path }}
             backend:
               serviceName: {{ printf "%s-svc" (printf "%s-%s" $fullName .instance) }}
-              servicePort: http
+              servicePort: {{ .port | default "http" }}
         {{- end }}
   {{- end }}
 {{- end }}

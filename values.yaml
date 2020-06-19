@@ -241,6 +241,7 @@ ingress:
     #   paths:
     #     - path: /
     #       instance: author
+    #       port: http # can be changed to e.g. "9090"
 
   tls: []
     # # Specify hosts here if you want to use TLS.
