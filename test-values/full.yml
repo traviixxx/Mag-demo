@@ -1,10 +1,11 @@
+{{- $hostName := printf "%s.%s.magnolia-helm.mirohost.ch" .Env.CI_COMMIT_REF_SLUG .Env.RELEASE }}
 ---
 ingress:
   enabled: True
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: test.magnolia-helm.mirohost.ch
+    - host: {{ $hostName }}
       paths:
         - path: /
           instance: public
@@ -12,14 +13,14 @@ ingress:
           instance: author
   tls:
     - hosts:
-      - test.magnolia-helm.mirohost.ch
+      - {{ $hostName }}
       secretName: helmdev-cert
 
 bootstrap:
   enabled: True
 
 magnoliaAuthor:
-  base_url: https://test.magnolia-helm.mirohost.ch/magnoliaAuthor
+  base_url: https://{{ $hostName }}/author
   extraContainers:
     - name: test
       image: nginx

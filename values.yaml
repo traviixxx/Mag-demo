@@ -228,6 +228,10 @@ service:
       port: 80
       protocol: TCP
       targetPort: 8080
+    # - name: spa
+    #   port: 9090
+    #   protocol: TCP
+    #   targetPort: 9090
 
 ingress:
   enabled: False
