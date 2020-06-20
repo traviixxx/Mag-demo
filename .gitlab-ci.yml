@@ -11,6 +11,9 @@ stages:
     - cat .Chart.tpl | gomplate > Chart.yaml
     - cat Chart.yaml
 
+.test_gomplate: &test_gomplate
+    - cat test-values/${RELEASE}.yml | gomplate > test-values/${RELEASE}.yaml
+
 .test_after: &test_after
     - helm del ${RELEASE}
     - kubectl get pods -l component=test -l app.kubernetes.io/instance=${RELEASE} -o json | kubectl delete -f -
@@ -32,15 +35,29 @@ test-simple:
     name: registry.gitlab.com/mironet/helm-kubectl-gomplate
     entrypoint: [""]
   before_script:
+    - export RELEASE=simple
     - *test_before
+    - *test_gomplate
+  script:
+    - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
+    - helm test --logs ${RELEASE}
+  environment:
+    name: simple/$CI_COMMIT_REF_NAME
+    url: https://$CI_COMMIT_REF_SLUG.simple.magnolia-helm.mirohost.ch
+    on_stop: stop-test-simple
+    auto_stop_in: 1 days
+
+stop-test-simple:
+  stage: test
+  image: registry.gitlab.com/mironet/helm-kubectl-gomplate
+  environment:
+      name: simple/$CI_COMMIT_REF_NAME
+      action: stop
+  before_script:
     - export RELEASE=simple
   script:
-    - helm install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yml
-    - helm test --logs ${RELEASE}
     - *test_after
-  environment:
-    name: simple
-    url: https://${RELEASE}.test.magnolia-helm.mirohost.ch
+  when: manual
 
 test-full:
   stage: test
@@ -48,19 +65,33 @@ test-full:
     name: registry.gitlab.com/mironet/helm-kubectl-gomplate
     entrypoint: [ "" ]
   before_script:
-    - *test_before
     - export RELEASE=full
+    - *test_before
+    - *test_gomplate
     - helm repo add stable https://kubernetes-charts.storage.googleapis.com/
     - helm repo update
-    - helm install ${RELEASE}-minio --set accessKey=fulltest,secretKey=fulltest stable/minio
+    - helm upgrade --install ${RELEASE}-minio --set accessKey=fulltest,secretKey=fulltest stable/minio
   script:
-    - helm install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yml
+    - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
     - helm test --logs ${RELEASE}
+  environment:
+    name: full/$CI_COMMIT_REF_NAME
+    url: https://$CI_COMMIT_REF_SLUG.full.magnolia-helm.mirohost.ch
+    on_stop: stop-test-full
+    auto_stop_in: 1 days
+
+stop-test-full:
+  stage: test
+  image: registry.gitlab.com/mironet/helm-kubectl-gomplate
+  environment:
+      name: full/$CI_COMMIT_REF_NAME
+      action: stop
+  before_script:
+    - export RELEASE=full
+  script:
     - *test_after
     - helm del ${RELEASE}-minio
-  environment:
-    name: full
-    url: https://${RELEASE}.test.magnolia-helm.mirohost.ch
+  when: manual
 
 upload:
   stage: deploy

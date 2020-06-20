@@ -1,1 +1,17 @@
+{{- $hostName := printf "%s.%s.magnolia-helm.mirohost.ch" .Env.CI_COMMIT_REF_SLUG .Env.RELEASE }}
 ---
+ingress:
+  enabled: True
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: {{ $hostName }}
+      paths:
+        - path: /
+          instance: public
+        - path: /author
+          instance: author
+  tls:
+    - hosts:
+      - {{ $hostName }}
+      secretName: helmdev-cert
