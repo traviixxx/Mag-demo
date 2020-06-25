@@ -38,6 +38,8 @@ release: ## Release helm repo to chartmuseum
 	helm package .
 	find . -name "magnolia-helm-*.tgz" | xargs -I {} curl -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @$i https://charts.mirohost.ch/api/charts
 
+test: ## Start helm tests.
+	helm test --logs $(RELEASE)
 
 check-env:
 ifndef REMOTE_YAML

@@ -25,7 +25,7 @@ spec:
         - /app
       args:
         - httpget
-        - http://{{ $name }}-svc:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
+        - http://{{ $name }}-svc:8080{{ .values.contextPath }}
         - --code
         - 200-399,401,404
         - -vv

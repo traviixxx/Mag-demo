@@ -8,7 +8,7 @@ steps:
 add_new_subs:
   step: add_new_subscriber
   method: put
-  host: {{ printf "%s/author" .Env.MGNLBOOT_AUTHOR_INSTANCE }}
+  host: {{ printf "%s" .Env.MGNLBOOT_AUTHOR_INSTANCE }}
   username: superuser  # TODO: make this a variable
   password: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_PW | quote }}
   path: "config/modules/publishing-core/config/receivers"

@@ -21,6 +21,8 @@ spec:
     matchLabels:
       app: {{ $name }}
       release: {{ $.Release.Name }}
+  strategy:
+    {{ toYaml .values.strategy | indent 4 }}
   template:
     metadata:
       labels:
@@ -217,9 +219,9 @@ spec:
                 key: password
                 name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
           - name: MGNLBOOT_AUTHOR_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080" $fullName "author" }}
+            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" .values.contextPath }}
           - name: MGNLBOOT_PUBLIC_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080" $fullName "public" }}
+            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" .values.contextPath }}
           - name: MGNL_PODNAME
             value: {{ $name }}
           {{- if .values.base_url }}
@@ -248,7 +250,7 @@ spec:
                   - -w
                   - 3m
                   - -m
-                  - http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}
+                  - http://localhost:8080{{ .values.contextPath }}
                   - -i
                   - /data/instructions.yml
                   - --allow-fail-401
@@ -304,10 +306,11 @@ spec:
               subPath: instructions.yml
             {{- end }}
           {{- if .values.livenessProbe.enabled }}
+          {{- $contextPath := .values.contextPath }}
           {{- with .values.livenessProbe }}
           livenessProbe:
             exec:
-              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/{{ eq $magnoliaMode "author" | ternary "author" "" }}", "--code", "{{ default "200-399,401,404" .expectedCodes }}", "-vv" ]
+              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080{{ $contextPath }}", "--code", "{{ default "200-399,401,404" .expectedCodes }}", "-vv" ]
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
             timeoutSeconds: {{ .timeoutSeconds | default 10 }}
@@ -317,7 +320,7 @@ spec:
 {{- if eq $magnoliaMode "author" }}
           readinessProbe:
             exec:
-              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080/author", "--code", "200-399,401", "-vv" ]
+              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080{{ .values.contextPath }}", "--code", "200-399,401", "-vv" ]
             initialDelaySeconds: 2
             #periodSeconds: 120
             timeoutSeconds: 2
