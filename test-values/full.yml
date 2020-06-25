@@ -9,7 +9,7 @@ ingress:
       paths:
         - path: /
           instance: public
-        - path: /author
+        - path: /magnoliaAuthor
           instance: author
   tls:
     - hosts:
@@ -20,7 +20,8 @@ bootstrap:
   enabled: True
 
 magnoliaAuthor:
-  base_url: https://{{ $hostName }}/author
+  base_url: https://{{ $hostName }}/magnoliaAuthor
+  contextPath: /magnoliaAuthor
   extraContainers:
     - name: test
       image: nginx

@@ -69,11 +69,14 @@ sharedDb:
 # default).
 magnoliaAuthor:
   restartPolicy: Always
+  contextPath: /author # Always use a leading slash.
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   extraContainers: []
   rescueMode: false
+  strategy:
+    type: Recreate
   setenv:
     memory:
       minPercentage: 25
@@ -155,11 +158,14 @@ magnoliaAuthor:
 # This is the public instance. It can use the H2 data base, but it's also
 # supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
-  restartPolicy: Always
+  restartPolicy: Always # Always use a leading slash.
+  contextPath: /
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   rescueMode: false
+  strategy:
+    type: Recreate
   setenv:
     memory:
       minPercentage: 25

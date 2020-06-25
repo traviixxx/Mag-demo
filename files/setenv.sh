@@ -27,7 +27,7 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.update.auto=${MGNL_AUTO_UPDATE:-true} \
  -Dmagnolia.ui.sticker.color=${MGNL_UI_STICKER_COLOR:-blue} \
 {{- if eq .magnoliaMode "author" }}
- -Dmagnolia.author.key.location={{ .activation.keyLocation }} \
+ -Dmagnolia.author.key.location={{ .values.activation.keyLocation }} \
 {{- end }}
  -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-\$\{magnolia.home\}/modules}"
 

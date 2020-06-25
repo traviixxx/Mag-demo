@@ -72,25 +72,24 @@
                proxyPort="443"
                URIEncoding="UTF-8" />
 
-     <Engine defaultHost="localhost" name="Catalina">
+    <Engine defaultHost="localhost" name="Catalina">
 
-       <Realm className="org.apache.catalina.realm.LockOutRealm">
-         <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
-                resourceName="UserDatabase" />
-       </Realm>
+      <Realm className="org.apache.catalina.realm.LockOutRealm">
+        <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+              resourceName="UserDatabase" />
+      </Realm>
 
-       <Host appBase="webapps"
-              autoDeploy="false"
-              deployOnStartup="false"
-              deployXML="true"
-              name="localhost"
-              unpackWARs="false">
-<!--TODO: Parameterize context path -->
-         <Context path="{{ eq .magnoliaMode "author" | ternary "/author" "/" }}"
-                  docBase="magnolia"
-                  containerSciFilter="WsSci" />
+      <Host appBase="webapps"
+            autoDeploy="false"
+            deployOnStartup="false"
+            deployXML="true"
+            name="localhost"
+            unpackWARs="false">
+        <Context path="{{ .values.contextPath }}"
+                docBase="magnolia"
+                containerSciFilter="WsSci" />
 
-        </Host>
+      </Host>
     </Engine>
   </Service>
 </Server>
