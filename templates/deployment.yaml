@@ -219,9 +219,9 @@ spec:
                 key: password
                 name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
           - name: MGNLBOOT_AUTHOR_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" .values.contextPath }}
+            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
           - name: MGNLBOOT_PUBLIC_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" .values.contextPath }}
+            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" $.Values.magnoliaPublic.contextPath }}
           - name: MGNL_PODNAME
             value: {{ $name }}
           {{- if .values.base_url }}
