@@ -46,6 +46,8 @@ spec:
         - name: tz-config
           hostPath:
             path: /usr/share/zoneinfo/{{ $.Values.timezone }}
+        - name: magnolia-home
+          emptyDir: {}
         - name: {{ $appVolumeName }}
           emptyDir: {}
 {{- if .values.db.enabled }}
@@ -259,6 +261,8 @@ spec:
           volumeMounts:
             - name: tz-config
               mountPath: /etc/localtime
+            - name: magnolia-home
+              mountPath: /mgnl-home
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
 {{- if .values.db.enabled }}
