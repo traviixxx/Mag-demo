@@ -36,7 +36,7 @@ sharedDb:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.1.4
+      tag: v0.1.5
       env:
         - name: MGNLBACKUP_CMD
           value: pg_dumpall
@@ -80,7 +80,7 @@ magnoliaAuthor:
   setenv:
     memory:
       minPercentage: 25
-      maxPercentage: 80
+      maxPercentage: 60
     update:
       auto: "true"
   resources:
@@ -120,7 +120,7 @@ magnoliaAuthor:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.1.4
+      tag: v0.1.5
       env:
       - name: MGNLBACKUP_CMD
         value: pg_dumpall
@@ -204,7 +204,7 @@ magnoliaPublic:
       size: 10Gi
     backup:
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.1.4
+      tag: v0.1.5
       enabled: False
     restore:
       enabled: False
