@@ -250,7 +250,7 @@ spec:
                   - {{ $.Values.deploy.directory }}/bootstrap
                   - boot
                   - -w
-                  - 3m
+                  - {{ $.Values.postjob.waitFor | default "3m" }}
                   - -m
                   - http://localhost:8080{{ .values.contextPath }}
                   - -i
