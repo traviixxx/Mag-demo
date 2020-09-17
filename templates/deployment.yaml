@@ -43,11 +43,16 @@ spec:
                   app: {{ $dbName }}
                   release: {{ $.Release.Name }}
       volumes:
+        - name: magnolia-home
+        {{- if .values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .values.persistence.existingClaim | default "magnolia-home" }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
         - name: tz-config
           hostPath:
             path: /usr/share/zoneinfo/{{ $.Values.timezone }}
-        - name: magnolia-home
-          emptyDir: {}
         - name: {{ $appVolumeName }}
           emptyDir: {}
 {{- if .values.db.enabled }}
@@ -262,7 +267,7 @@ spec:
             - name: tz-config
               mountPath: /etc/localtime
             - name: magnolia-home
-              mountPath: /mgnl-home
+              mountPath: {{ .values.persistence.mountPath | default "/mgnl-home" }}
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
 {{- if .values.db.enabled }}
