@@ -30,6 +30,7 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.author.key.location={{ .values.activation.keyLocation }} \
 {{- end }}
  -Dmagnolia.home=${MGNL_HOME_DIR:-/mgnl-home} \
+ -Dmagnolia.repositories.home=${MGNL_REPOSITORIES_HOME:-\$\{magnolia.home\}/repositories} \
  -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-\$\{magnolia.home\}/modules}"
 
 {{ if .Values.sharedDb.enabled -}}
