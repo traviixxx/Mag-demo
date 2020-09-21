@@ -1,3 +1,4 @@
+{{- $count := 0 -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
@@ -5,6 +6,28 @@
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $dbName := printf "%s-db" $name -}}
 {{- $appVolumeName := printf "%s-app-volume" $name -}}
+{{- if .values.persistence.enabled }}
+{{- if eq "-" .values.persistence.existingClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "magnolia-home-%s-%d" $magnoliaMode $count }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}
+    chart: {{ $chartName }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .values.persistence.size }}
+  storageClassName: local-path
+{{- end }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -44,11 +67,14 @@ spec:
                   release: {{ $.Release.Name }}
       volumes:
         - name: magnolia-home
-        {{- if .values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .values.persistence.existingClaim | default "magnolia-home" }}
+        {{- if .values.persistence.enabled }}
+        {{- if eq "-" .values.persistence.existingClaim }}
+            claimName: {{ printf "magnolia-home-%s-%d" $magnoliaMode $count }}
+            {{- $count = add1 $count }}
         {{- else }}
-          emptyDir: {}
+            claimName: {{ .values.persistence.existingClaim }}
+        {{- end }}
         {{- end }}
         - name: tz-config
           hostPath:
