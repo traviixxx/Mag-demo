@@ -12,7 +12,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ printf "magnolia-home-%s-%d" $magnoliaMode $count }}
+  name: {{ printf "home-%s-%d" $name $count }}
   namespace: {{ $.Release.Namespace }}
   labels:
     app: {{ $name }}
@@ -70,7 +70,7 @@ spec:
           persistentVolumeClaim:
         {{- if .values.persistence.enabled }}
         {{- if eq "-" .values.persistence.existingClaim }}
-            claimName: {{ printf "magnolia-home-%s-%d" $magnoliaMode $count }}
+            claimName: {{ printf "home-%s-%d" $name $count }}
             {{- $count = add1 $count }}
         {{- else }}
             claimName: {{ .values.persistence.existingClaim }}
