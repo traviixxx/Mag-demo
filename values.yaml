@@ -111,7 +111,7 @@ magnoliaAuthor:
     enabled: true
     # Existing volumes can be mounted into the container. If not specified, helm
     # will create a new PVC.
-    existingClaim: "-"
+    existingClaim:
     size: 10Gi # In case of local-path provisioners this is not enforced.
     mountPath: /mgnl-home
   db:
@@ -210,7 +210,7 @@ magnoliaPublic:
     enabled: true
     # Existing volumes can be mounted into the container. If not specified, helm
     # will create a new PVC.
-    existingClaim: "-"
+    existingClaim:
     size: 10Gi # In case of local-path provisioners this is not enforced.
     mountPath: /mgnl-home
   db:

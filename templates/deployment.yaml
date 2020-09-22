@@ -7,7 +7,7 @@
 {{- $dbName := printf "%s-db" $name -}}
 {{- $appVolumeName := printf "%s-app-volume" $name -}}
 {{- if .values.persistence.enabled }}
-{{- if eq "-" .values.persistence.existingClaim }}
+{{- if not .values.persistence.existingClaim }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -69,11 +69,11 @@ spec:
         - name: magnolia-home
           persistentVolumeClaim:
         {{- if .values.persistence.enabled }}
-        {{- if eq "-" .values.persistence.existingClaim }}
+        {{- if .values.persistence.existingClaim }}
+            claimName: {{ .values.persistence.existingClaim }}
+        {{- else }}
             claimName: {{ printf "home-%s-%d" $name $count }}
             {{- $count = add1 $count }}
-        {{- else }}
-            claimName: {{ .values.persistence.existingClaim }}
         {{- end }}
         {{- end }}
         - name: tz-config
