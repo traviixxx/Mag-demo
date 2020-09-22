@@ -1,3 +1,4 @@
+{{- $count := 0 -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
@@ -5,6 +6,28 @@
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $dbName := printf "%s-db" $name -}}
 {{- $appVolumeName := printf "%s-app-volume" $name -}}
+{{- if .values.persistence.enabled }}
+{{- if not .values.persistence.existingClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "home-%s-%d" $name $count }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}
+    chart: {{ $chartName }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .values.persistence.size }}
+  storageClassName: local-path
+{{- end }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -43,11 +66,19 @@ spec:
                   app: {{ $dbName }}
                   release: {{ $.Release.Name }}
       volumes:
+        - name: magnolia-home
+          persistentVolumeClaim:
+        {{- if .values.persistence.enabled }}
+        {{- if .values.persistence.existingClaim }}
+            claimName: {{ .values.persistence.existingClaim }}
+        {{- else }}
+            claimName: {{ printf "home-%s-%d" $name $count }}
+            {{- $count = add1 $count }}
+        {{- end }}
+        {{- end }}
         - name: tz-config
           hostPath:
             path: /usr/share/zoneinfo/{{ $.Values.timezone }}
-        - name: magnolia-home
-          emptyDir: {}
         - name: {{ $appVolumeName }}
           emptyDir: {}
 {{- if .values.db.enabled }}
@@ -262,7 +293,7 @@ spec:
             - name: tz-config
               mountPath: /etc/localtime
             - name: magnolia-home
-              mountPath: /mgnl-home
+              mountPath: {{ .values.persistence.mountPath | default "/mgnl-home" }}
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
 {{- if .values.db.enabled }}

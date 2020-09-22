@@ -104,6 +104,16 @@ magnoliaAuthor:
     secret:
       name: my-activation-secret
       key: my-activation-secret-key # The name of they inside the secret to use.
+  # Enable persistence for indexes, cache, tmp files. If this is enabled the
+  # MGNL_HOME_DIR env var will be set and a volume will be mounted to the
+  # default location unless it's specified here as mountPath.
+  persistence:
+    enabled: true
+    # Existing volumes can be mounted into the container. If not specified, helm
+    # will create a new PVC.
+    existingClaim:
+    size: 10Gi # In case of local-path provisioners this is not enforced.
+    mountPath: /mgnl-home
   db:
     enabled: true
     repository: postgres
@@ -193,6 +203,16 @@ magnoliaPublic:
     secret:
       name: my-activation-secret
       key: my-activation-secret-key # The name of they inside the secret to use.
+  # Enable persistence for indexes, cache, tmp files. If this is enabled the
+  # MGNL_HOME_DIR env var will be set and a volume will be mounted to the
+  # default location unless it's specified here as mountPath.
+  persistence:
+    enabled: true
+    # Existing volumes can be mounted into the container. If not specified, helm
+    # will create a new PVC.
+    existingClaim:
+    size: 10Gi # In case of local-path provisioners this is not enforced.
+    mountPath: /mgnl-home
   db:
     enabled: true # If false, use embedded H2 data base.
     repository: postgres
