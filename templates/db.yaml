@@ -83,17 +83,23 @@ spec:
           env:
 {{ toYaml .  | indent 10 }}
           {{- end }}
+          {{- with .backup.volumeMounts }}
+          volumeMounts:
+{{ toYaml . | indent 10 }}
+          {{- end }}
 {{- end }}
-{{- if and .persistence.enabled .persistence.existingClaim }}
       volumes:
+{{- if and .persistence.enabled .persistence.existingClaim }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ .persistence.existingClaim }}
 {{- else if not .persistence.enabled }}
-      volumes:
         - name: data
           emptyDir: {}
 {{- else if and .persistence.enabled (not .persistence.existingClaim) }}
+        {{- with .backup.volumes }}
+{{ toYaml . | indent 10 }}
+        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: data
