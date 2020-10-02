@@ -140,7 +140,7 @@ magnoliaAuthor:
 
       # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
     backup:
-      enabled: True
+      enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.0-rc2"
       pg_wal_archive: "/archive"
