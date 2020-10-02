@@ -79,6 +79,8 @@ spec:
           env:
             - name: POSTGRES_DB
               value: "{{ .name }}"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/mydata"
 {{- end }}
           {{- if and .restore.enabled (eq .type "postgres") }}
           lifecycle:
