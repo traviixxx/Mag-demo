@@ -253,6 +253,9 @@ magnoliaPublic:
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.0-rc2"
       enabled: False
+      pg_wal_archive: "/archive"
+      pg_wal_scratch: "/scratch"
+      pg_wal_archive_size: "50Gi"
     restore:
       enabled: False
       dump_url: https://s3...
