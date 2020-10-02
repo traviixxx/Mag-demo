@@ -14,7 +14,7 @@ ingress:
   tls:
     - hosts:
       - {{ $hostName }}
-      secretName: helmdev-cert
+      secretName: full-test-cert
 
 bootstrap:
   enabled: True
