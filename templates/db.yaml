@@ -2,6 +2,19 @@
 {{- $name := include "magnolia.name" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $release := .Release -}}
+{{- $labels := include "magnolia.labels" . -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-postgres-conf" $.Release.Name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+{{ $labels | indent 4 }}
+data:
+  postgres.conf: |-
+{{ tpl ($.Files.Get "files/archive-postgres.conf") . | indent 4 }}
+---
 {{- range list .Values.magnoliaAuthor.db .Values.magnoliaPublic.db (.Values.sharedDb.enabled | ternary .Values.sharedDb.db nil)  -}}
 {{- if . -}}
 {{- $appName := printf "%s-%s-db" $fullName .name -}}
@@ -48,13 +61,28 @@ spec:
                   operator: In
                   values:
                     - {{ $.Release.Name }}
+      securityContext:
+        runAsUser: 70
+        runAsGroup: 70
+        fsGroup: 70
       containers:
         - name: {{ $dbName }}
           image: "{{ .repository }}:{{ .tag }}"
 {{- if eq .type "postgres" }}
+          {{- if .backup.enabled }}
+          command:
+          - "docker-entrypoint.sh"
+          - "postgres"
+          - "-c"
+          - "config_file=/etc/postgresql/postgres.conf"
+          {{- end }}
           env:
             - name: POSTGRES_DB
               value: "{{ .name }}"
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: "trust"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/mydata"
 {{- end }}
           {{- if and .restore.enabled (eq .type "postgres") }}
           lifecycle:
@@ -71,6 +99,13 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+            - name: archive
+              mountPath: /archive
+            {{- if .backup.enabled }}
+            - name: postgres-conf
+              mountPath: /etc/postgresql/postgres.conf
+              subPath: postgres.conf
+            {{- end }}
           readinessProbe:
             exec:
               command: ["psql", "-w", "-U", "postgres", "-d", "{{ .name }}", "-c", "SELECT 1"]
@@ -81,19 +116,44 @@ spec:
           image: {{ printf "%s:%s" .backup.image .backup.tag }}
           {{- with .backup.env }}
           env:
-{{ toYaml .  | indent 10 }}
+{{ toYaml .  | indent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: archive
+              mountPath: {{ .backup.pg_wal_archive }}
+            - name: scratch
+              mountPath: {{ .backup.pg_wal_scratch }}
+          {{- with .backup.volumeMounts }}
+{{ toYaml . | indent 12 }}
           {{- end }}
 {{- end }}
-{{- if and .persistence.enabled .persistence.existingClaim }}
       volumes:
+{{- if and .persistence.enabled .persistence.existingClaim }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ .persistence.existingClaim }}
 {{- else if not .persistence.enabled }}
-      volumes:
         - name: data
           emptyDir: {}
 {{- else if and .persistence.enabled (not .persistence.existingClaim) }}
+        {{- if .backup.enabled }}
+        - name: archive
+          persistentVolumeClaim:
+            claimName: archive
+        - name: scratch
+          emptyDir: {}
+        - name: postgres-conf
+          configMap:
+            items:
+              - key: postgres.conf
+                mode: 420
+                path: postgres.conf
+            name: {{ $.Release.Name }}-postgres-conf
+            optional: False
+        {{- with .backup.volumes }}
+{{ toYaml . | indent 8 }}
+        {{- end }}
+        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -106,14 +166,29 @@ spec:
       spec:
         resources:
           requests:
-            storage: {{ .persistence.size | default "10Gi" | quote }}
-        storageClassName: {{ .persistence.storageClassName }}
+            storage: {{ .persistence.size | default "10Gi" }}
+        storageClassName: {{ .persistence.storageClassName | default "" }}
         accessModes:
       {{- if .persistence.accessModes }}
           {{- toYaml .persistence.accessModes | nindent 10 }}
       {{- else }}
           - ReadWriteOnce
       {{- end }}
+    - metadata:
+        name: archive
+        labels:
+          app: {{ $appName }}
+          chart: {{ $chartName }}
+          release: {{ $release.Name }}
+          heritage: {{ $release.Service }}
+          component: {{ .name }}
+      spec:
+        resources:
+          requests:
+            storage: {{ .backup.pg_wal_archive_size | default "50Gi" }}
+        storageClassName: {{ .backup.pg_wal_storageClassName | default "" }}
+        accessModes:
+          - ReadWriteOnce
 {{- end }}
 ---
 apiVersion: v1
