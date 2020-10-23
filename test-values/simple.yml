@@ -14,4 +14,4 @@ ingress:
   tls:
     - hosts:
       - {{ $hostName }}
-      secretName: helmdev-cert
+      secretName: simple-test-cert

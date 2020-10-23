@@ -41,6 +41,12 @@ release: ## Release helm repo to chartmuseum
 test: ## Start helm tests.
 	helm test --logs $(RELEASE)
 
+template: ## Template out, do not send to k8s.
+	helm template .
+
+template-local: ## Template out, do not send to k8s.
+	helm template -f $(LOCAL_YAML) .
+
 check-env:
 ifndef REMOTE_YAML
 	$(error REMOTE_YAML env var is undefined)
