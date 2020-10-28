@@ -1,56 +1,68 @@
 ---
-steps:
-  - remove_default_subscriber
-  - add_new_subscriber
-  - pubkey
-  - baseURL
-  - change_superuser_pw
+endpoints:
+  - name: magnolia-public
+    url: {{ .Env.MGNLBOOT_PUBLIC_INSTANCE }}
+  - name: magnolia-author
+    url: http://localhost:8080{{ .Env.MGNL_CONTEXT_PATH | default "/author" }}
 
-remove_sub:
-  step: remove_default_subscriber
-  method: delete
-  path: "config/modules/publishing-core/config/receivers/magnoliaPublic8080"
+playbook:
+  - name: updateSuperuserPw
+    endpoints:
+      - magnolia-author
+    method: "post"
+    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
+    password: "superuser"
+    path: "users/system/superuser"
+    allow_failure: true
+    data:
+      properties:
+        - name: pswd
+          type: String
+          values: [
+            {{ bcrypt (.Env.MGNLBOOT_NEW_SUPERUSER_PW) | quote }}
+          ]
 
-{{- if .Env.MGNL_ACTIVATION_PUBKEY }}
-set_pubkey:
-  step: pubkey
-  method: post
-  path: "config/server/activation"
-  allow_failure: false
-  data:
-    properties:
-      - name: class
-        type: String
-        values:
-         - "info.magnolia.publishing.manager.ActivationManagerAdapter"
-      - name: publicKey
-        type: String
-        values:
-          - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
-{{- end }}
+  - name: remove_sub
+    endpoints:
+      - magnolia-author
+    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
+    password: {{ .Env.MGNLBOOT_NEW_SUPERUSER_PW | quote }}
+    method: delete
+    path: "config/modules/publishing-core/config/receivers/magnoliaPublic8080"
 
-{{- if .Env.MGNL_DEFAULT_BASE_URL }}
-setDefaultBaseURL:
-  step: baseURL
-  method: "post"
-  path: "config/server"
-  data:
-    properties:
-      - name: defaultBaseUrl
-        type: String
-        values:
-          - {{ .Env.MGNL_DEFAULT_BASE_URL | quote }}
-{{- end }}
+  {{- if .Env.MGNL_ACTIVATION_PUBKEY }}
+  - name: set_pubkey
+    endpoints:
+      - magnolia-author
+    method: post
+    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
+    password: {{ .Env.MGNLBOOT_NEW_SUPERUSER_PW | quote }}
+    path: "config/server/activation"
+    allow_failure: false
+    data:
+      properties:
+        - name: class
+          type: String
+          values:
+          - "info.magnolia.publishing.manager.ActivationManagerAdapter"
+        - name: publicKey
+          type: String
+          values:
+            - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
+  {{- end }}
 
-updateSuperuserPw:
-  step: change_superuser_pw
-  method: "post"
-  path: "users/system/superuser"
-  allow_failure: false
-  data:
-    properties:
-      - name: pswd
-        type: String
-        values: [
-          {{ bcrypt (.Env.MGNLBOOT_NEW_SUPERUSER_PW) | quote }}
-        ]
+  {{- if .Env.MGNL_DEFAULT_BASE_URL }}
+  - name: setDefaultBaseURL
+    endpoints:
+      - magnolia-author
+    method: "post"
+    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
+    password: {{ .Env.MGNLBOOT_NEW_SUPERUSER_PW | quote }}
+    path: "config/server"
+    data:
+      properties:
+        - name: defaultBaseUrl
+          type: String
+          values:
+            - {{ .Env.MGNL_DEFAULT_BASE_URL | quote }}
+  {{- end }}
