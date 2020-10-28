@@ -153,6 +153,9 @@ spec:
         {{- with .backup.volumes }}
 {{ toYaml . | indent 8 }}
         {{- end }}
+        {{- else }}
+        - name: archive
+          emptyDir: {}
         {{- end }}
   volumeClaimTemplates:
     - metadata:
@@ -174,6 +177,7 @@ spec:
       {{- else }}
           - ReadWriteOnce
       {{- end }}
+    {{- if .backup.enabled }}
     - metadata:
         name: archive
         labels:
@@ -189,6 +193,7 @@ spec:
         storageClassName: {{ .backup.pg_wal_storageClassName | default "" }}
         accessModes:
           - ReadWriteOnce
+    {{- end }}
 {{- end }}
 ---
 apiVersion: v1

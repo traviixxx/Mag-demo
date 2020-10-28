@@ -195,13 +195,6 @@ spec:
               mountPath: /etc/localtime
             - name: {{ $appVolumeName }}
               mountPath: /app
-        - name: bootstrapper
-          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
-          imagePullPolicy: Always
-          command: ["sh", "-c", "cp -a /app /magnolia/bootstrap"]
-          volumeMounts:
-            - name: {{ $appVolumeName }}
-              mountPath: /magnolia
 {{- range $.Values.jars }}
         - name: {{ .name }}
           image: {{ .repository }}:{{ .tag }}
@@ -220,26 +213,34 @@ spec:
         - name: waitfor-db
           image: busybox:1.31
           command: ['sh', '-c', "until nslookup {{ $dbName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"]
-{{- if eq $magnoliaMode "public" }}
-        - name: waitfor-author
-          image: busybox:1.31
-          command: ['sh', '-c', "until nslookup {{ printf "%s-author-svc" $fullName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for author; sleep 2; done"]
-{{- end }}
       containers:
         {{- with .values.extraContainers }}
 {{ toYaml . | indent 8 }}
         {{- end }}
-        - name: {{ $.Chart.Name }}
-          image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-{{- with .values.resources }}
-          resources:
-{{ toYaml . | indent 12 }}
-{{- end }}
+        - name: bootstrapper
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: Always
+          command:
+            - /app
+            - serve
+            - -m
+            - http://localhost:8080{{ .values.contextPath }}
+            - --code
+            - "{{ .values.livenessProbe.expectedCodes }}"
+            {{- if $.Values.bootstrap.enabled }}
+            - -i
+            - /data/instructions.yml
+            {{- end }}
+            #- -vvv  # Trace mode.
+          volumeMounts:
+            - name: {{ $appVolumeName }}
+              mountPath: /magnolia
+            {{- if $.Values.bootstrap.enabled }}
+            - name: instructions
+              mountPath: /data/instructions.yml
+              subPath: instructions.yml
+            {{- end }}
           env:
-{{- with .values.env }}
-{{ toYaml . | indent 10 }}
-{{- end }}
           {{- if $.Values.bootstrap.enabled }}
           - name: MGNLBOOT_NEW_SUPERUSER_PW
             valueFrom:
@@ -251,6 +252,8 @@ spec:
               secretKeyRef:
                 key: password
                 name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
+          - name: MGNL_CONTEXT_PATH
+            value: {{ .values.contextPath }}
           - name: MGNLBOOT_AUTHOR_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
           - name: MGNLBOOT_PUBLIC_INSTANCE
@@ -269,26 +272,21 @@ spec:
                 key:  {{ .values.activation.secret.key| quote }}
           {{- end }}
           {{- end }}
+        - name: {{ $.Chart.Name }}
+          image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+{{- with .values.resources }}
+          resources:
+{{ toYaml . | indent 12 }}
+{{- end }}
+          env:
+{{- with .values.env }}
+{{ toYaml . | indent 10 }}
+{{- end }}
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
                 optional: false
-          {{- if $.Values.bootstrap.enabled }}
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - {{ $.Values.deploy.directory }}/bootstrap
-                  - boot
-                  - -w
-                  - {{ $.Values.postjob.waitFor | default "3m" }}
-                  - -m
-                  - http://localhost:8080{{ .values.contextPath }}
-                  - -i
-                  - /data/instructions.yml
-                  - --allow-fail-401
-                  - -vv
-          {{- end }}
           volumeMounts:
             - name: tz-config
               mountPath: /etc/localtime
@@ -335,32 +333,30 @@ spec:
               {{- end}}
               subPath: magnolia-activation-keypair.properties
 {{- end }}
-            {{- if $.Values.bootstrap.enabled }}
-            - name: instructions
-              mountPath: /data/instructions.yml
-              subPath: instructions.yml
-            {{- end }}
           {{- if .values.livenessProbe.enabled }}
           {{- $contextPath := .values.contextPath }}
           {{- with .values.livenessProbe }}
+          ports:
+            - name: "liveness-port"
+              containerPort: 8765
           livenessProbe:
-            exec:
-              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080{{ $contextPath }}", "--code", "{{ default "200-399,401,404" .expectedCodes }}", "-vv" ]
+            httpGet:
+              path: /healthz
+              port: "liveness-port"
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
             timeoutSeconds: {{ .timeoutSeconds | default 10 }}
             initialDelaySeconds: {{ .initialDelaySeconds | default 240 }}
           {{- end }}
           {{- end }}
-{{- if eq $magnoliaMode "author" }}
           readinessProbe:
-            exec:
-              command: [ "{{ $.Values.deploy.directory }}/bootstrap", "httpget", "http://localhost:8080{{ .values.contextPath }}", "--code", "200-399,401", "-vv" ]
+            httpGet:
+              path: /healthz
+              port: "liveness-port"
             initialDelaySeconds: 2
             #periodSeconds: 120
             timeoutSeconds: 2
             successThreshold: 3
-{{- end }}
 {{- with .values.startupProbe }}
 {{- end }}
     {{- if $.Values.image.pullSecrets }}

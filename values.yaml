@@ -316,9 +316,8 @@ ingress:
 # tested with this chart.
 postjob:
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.1.8
+  tag: v0.2.0
   waitFor: 10m
-
 
 resources: {}
 
