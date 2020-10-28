@@ -17,12 +17,13 @@ containers the copy the actual webapp to the `webapps` folder.
 
 ### Rescue mode
 
-To enable the [Groovy Rescue Console](https://documentation.magnolia-cms.com/display/DOCS61/Groovy+module#Groovymodule-RescueApp), deploy your Helm
-release with the following flag:
+To enable the
+[Groovy Rescue Console](https://documentation.magnolia-cms.com/display/DOCS61/Groovy+module#Groovymodule-RescueApp),
+deploy your Helm release with the following flag:
 
 ```yaml
 magnoliaAuthor:
-    rescueMode: true
+  rescueMode: true
 ```
 
 This only takes effect if Magnolia is already installed.
@@ -50,15 +51,18 @@ image:
 ```
 
 The init container is expected to have an already "exploded" webapp in
-`/magnolia`. Files in there will be copied into the `webapps` when starting tomcat.
+`/magnolia`. Files in there will be copied into the `webapps` when starting
+tomcat.
 
-To pull from private Docker registry (e.g. GitLab), you have to create a docker-registry secret:
+To pull from private Docker registry (e.g. GitLab), you have to create a
+docker-registry secret:
 
 ```bash
 kubectl create secret docker-registry gitlab-registry --docker-server=https://registry.gitlab.com --docker-username=<username> --docker-password=<password or token>
 ```
 
-To use the token from above, specify `pullSecrets` inside `image:` section like the following:
+To use the token from above, specify `pullSecrets` inside `image:` section like
+the following:
 
 ```yaml
 image:
@@ -89,7 +93,10 @@ magnoliaAuthor:
 If you enable persistence a PVC is created and you can also specify the
 StorageClass. Each instance (author and public) only gets one single db.
 
-If you like to enable shared database (aka [Jackrabbit Clustering](https://wiki.magnolia-cms.com/display/WIKI/Setting+up+a+Jackrabbit+Clustering)), you can configure the shared workspaces and db connection (same as above) like the following:
+If you like to enable shared database (aka
+[Jackrabbit Clustering](https://wiki.magnolia-cms.com/display/WIKI/Setting+up+a+Jackrabbit+Clustering)),
+you can configure the shared workspaces and db connection (same as above) like
+the following:
 
 ```yaml
 sharedDb:
@@ -97,8 +104,7 @@ sharedDb:
   workspaces:
     - form2db
     - shop
-  db:
-    ...
+  db: ...
 ```
 
 ### Libraries
@@ -118,7 +124,8 @@ magnoliaAuthor:
         level: ERROR
 ```
 
-Under `loggers` it's possible to define additional loggers with the respective value.
+Under `loggers` it's possible to define additional loggers with the respective
+value.
 
 ### Convention expected from init containers
 
@@ -129,20 +136,25 @@ containers is to copy some files to a target directory specified by the env var
 
 ## Monitoring / Liveness
 
-As a default, we monitor the public instance via a call to `/` for liveness. You
-can change these settings in the `magnoliaPublic/Author` dicts:
+As a default, we monitor the public instance via a call to the
+[bootstrapper](https://gitlab.com/mironet/magnolia-bootstrap)'s `/healthz`
+endpoint.
 
 ```yaml
 magnoliaPublic:
   #...
   livenessProbe:
-    path: /author
-    port: 8080
+    port: 8765 # The default used by the bootstrapper.
     failureThreshold: 4
     initialDelaySeconds: 120
     timeoutSeconds: 10
     periodSeconds: 30
 ```
+
+Magnolia is not deemed "ready" before all of the following conditions are met:
+
+- Magnolia itself is reporting a good response to a healthcheck.
+- All instructions have been executed correctly by the bootstrapper.
 
 ## TLS
 
@@ -151,7 +163,8 @@ the ingress object should contain all annotations necessary for the cert manager
 to issue certificates with eg. Let's Encrypt.
 
 You have to first specify the host names you want certificates for and uncomment
-the annotation used by cert-manager to auto-issue certificates from Let's encrypt:
+the annotation used by cert-manager to auto-issue certificates from Let's
+encrypt:
 
 ```yaml
 ingress:
@@ -164,12 +177,16 @@ ingress:
         - /
   tls:
     - hosts:
-      - test.k8s.example.com
+        - test.k8s.example.com
 ```
+
+Of course you could still ignore all this and use your own load balancing /
+ingress configuration, but this configuration is the one that has been tested.
 
 ## Extra sidecar containers
 
-Additional sidecar containers can be injected in the `magnoliaAuthor/magnoliaPublic:` sections in the `values.yml`:
+Additional sidecar containers can be injected in the
+`magnoliaAuthor/magnoliaPublic:` sections in the `values.yml`:
 
 ```yaml
 magnoliaPublic:
@@ -182,16 +199,21 @@ magnoliaPublic:
 
 ## Backups / DB Dumps
 
-The magnolia to s3 backup agent can be used for regular dumps and backups of the data bases.
+The magnolia to object storage backup agent can be used for regular dumps and
+backups of the data bases.
 
 ### Prerequisites
 
-* S3 bucket with credentials (accesskey and secretkey)
-* Secret in Kubernetes
+- S3 bucket with credentials (accesskey and secretkey) **or**
+- GCS storage access (key.json file from the Google Console)
+- Secret in Kubernetes
 
 ### Backup Configuration
 
-You need to set at least the following values according to your environment. Please have a look at the [magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for an explanation of all settings.
+You need to set at least the following values according to your environment.
+Please have a look at the
+[magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for
+an explanation of all settings.
 
 ```yaml
 magnoliaAuthor:
@@ -199,31 +221,32 @@ magnoliaAuthor:
     backup:
       enabled: True
       env:
-      - name: MGNLBACKUP_CMD
-        value: pg_dumpall
-      - name: MGNLBACKUP_ARGS
-        value: --host localhost --user postgres
-      - name: MGNLBACKUP_S3_BUCKET
-        value: magnoliabackups
-      - name: MGNLBACKUP_S3_ACCESSKEY
-        valueFrom:
-          secretKeyRef:
-            name: s3-backup-key
-            key: accesskey
-      - name: MGNLBACKUP_S3_SECRETKEY
-        valueFrom:
-          secretKeyRef:
-            name: s3-backup-key
-            key: secretkey
-      - name: MGNLBACKUP_S3_ENDPOINT
-        value: s3.example.com
-      - name: MGNLBACKUP_S3_CYCLE
-        value: "15,4,3"
-      - name: MGNLBACKUP_HERITAGE
-        value: "my_backup_tag" # Backups will be marked with this tag in object storage.
+        - name: MGNLBACKUP_CMD
+          value: pg_dumpall
+        - name: MGNLBACKUP_ARGS
+          value: --host localhost --user postgres
+        - name: MGNLBACKUP_S3_BUCKET
+          value: magnoliabackups
+        - name: MGNLBACKUP_S3_ACCESSKEY
+          valueFrom:
+            secretKeyRef:
+              name: s3-backup-key
+              key: accesskey
+        - name: MGNLBACKUP_S3_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: s3-backup-key
+              key: secretkey
+        - name: MGNLBACKUP_S3_ENDPOINT
+          value: s3.example.com
+        - name: MGNLBACKUP_S3_CYCLE
+          value: "15,4,3"
+        - name: MGNLBACKUP_HERITAGE
+          value: "my_backup_tag" # Backups will be marked with this tag in object storage.
 ```
 
-The referenced secret needs to exist before rolling this out. Here's an example of how to create one:
+The referenced secret needs to exist before rolling this out. Here's an example
+of how to create one:
 
 ```bash
 # Create files needed for the rest of the example.
@@ -235,33 +258,52 @@ kubectl create secret generic s3-backup-key --from-file=accesskey=./accesskey.tx
 rm -f accesskey.txt secretkey.txt
 ```
 
-(Also see the [official Kubernetes documentation about secrets](https://kubernetes.io/docs/concepts/configuration/secret/).)
+(Also see the
+[official Kubernetes documentation about secrets](https://kubernetes.io/docs/concepts/configuration/secret/).)
 
-This creates a new sidecar which takes backups every 24h each day. The backups are streamed directly to S3 without temporarily storing them locally, so this backup mechanism can be used for very large data base dumps without having to worry about local storage or memory.
+This creates a new sidecar which takes backups every 24h each day. The backups
+are streamed directly to S3 without temporarily storing them locally, so this
+backup mechanism can be used for very large data base dumps without having to
+worry about local storage or memory.
+
+In case of larger data bases (a few GiBs to several TiBs) we recommend to use
+[the WAL log shipping method](https://gitlab.com/mironet/magnolia-backup#postgresql-wal-archiving).
 
 ### Backup inspection
 
-You can port-forward the backup service and see a list of current backups and also get direct download links for the S3 server:
+You can port-forward the backup service and see a list of current backups and
+also get direct download links for the S3 server:
 
 ```bash
 kubectl port-forward <your-release-name>-author-db-0 9999:9999
 ```
 
-After the port forwarding is established, visit [http://localhost:9999/list](http://localhost:9999/list) for a list of backups.
+After the port forwarding is established, visit
+[http://localhost:9999/list](http://localhost:9999/list) for a list of backups.
 
 ## Activation keypair generation
 
 ### Technical background
 
-Magnolia uses a public/private key system for content activation from author to public instances. If that key is nonexistent on the first boot it will be generated by Magnolia itself. While this is convenient it makes the application somewhat stateful. Generating a RSA key out of a passphrase (a secret for example) is theoretically possible but not easy (nor secure) to do.
+Magnolia uses a public/private key system for content activation from author to
+public instances. If that key is nonexistent on the first boot it will be
+generated by Magnolia itself. While this is convenient it makes the application
+somewhat stateful. Generating a RSA key out of a passphrase (a secret for
+example) is theoretically possible but not easy (nor secure) to do.
 
 ### Automatically generated key
 
-This is the easiest approach. A `emptyDir` will be created by the pod and mounted for the purpose of storing the automatically generated activation key. You don't have to configure anything for this and it is the default. But use of this approach is not recommended in production. You can always switch to the manual secret method below after doing this.
+This is the easiest approach. A `emptyDir` will be created by the pod and
+mounted for the purpose of storing the automatically generated activation key.
+You don't have to configure anything for this and it is the default. But use of
+this approach is not recommended in production. You can always switch to the
+manual secret method below after doing this.
 
 ### Secrets
 
-You can specify which secret the pods should be looking for to mount the key `.properties` file at the correct location. The format of the activation key file is like follows:
+You can specify which secret the pods should be looking for to mount the key
+`.properties` file at the correct location. The format of the activation key
+file is like follows:
 
 ```text
 #generated 09.May.2020 04:55 by superuser
@@ -274,8 +316,9 @@ You can manually generate it like explained below:
 
 ### Direct key input
 
-Magnolia requires RSA keypair properties for the publication mechanism. You
-can generate a keypair e.g. with `openssl`. **Magnolia can handle at most 1024 bit key length:**
+Magnolia requires RSA keypair properties for the publication mechanism. You can
+generate a keypair e.g. with `openssl`. **Magnolia can handle at most 1024 bit
+key length:**
 
 ```bash
 mkdir temp
@@ -292,7 +335,8 @@ echo -n key.public=$(cat temp/pubkey.der | hexdump  -e '"%X"') >> temp/secret.ym
 kubectl create secret generic activation-key --from-file=activation-secret=temp/secret.yml
 ```
 
-The configuration in your `values.yml` should reference this secret so it will be loaded:
+The configuration in your `values.yml` should reference this secret so it will
+be loaded:
 
 ```yaml
 bootstrap:
@@ -315,7 +359,8 @@ magnoliaPublic:
 
 ## Status
 
-This chart is currently used in production. We will adhere to the semver standard and try to maintain backwards compatiblity within major releases.
+This chart is currently used in production. We will adhere to the semver
+standard and try to maintain backwards compatiblity within major releases.
 
 ## Legal Notes
 
