@@ -15,9 +15,9 @@ stages:
     - cat test-values/${RELEASE}.yml | gomplate > test-values/${RELEASE}.yaml
 
 .test_after: &test_after
-    - helm del ${RELEASE}
-    - kubectl get pods -l component=test -l app.kubernetes.io/instance=${RELEASE} -o json | kubectl delete -f -
-    - kubectl get persistentvolumeclaims -l "release=${RELEASE}" -o json | kubectl delete -f -
+    - helm del ${RELEASE} || true
+    - kubectl get pods -l component=test -l app.kubernetes.io/instance=${RELEASE} -o json | kubectl delete -f - || true
+    - kubectl get persistentvolumeclaims -l "release=${RELEASE}" -o json | kubectl delete -f - || true
 
 lint:
   stage: lint
@@ -39,6 +39,8 @@ test-simple:
     - *test_before
     - *test_gomplate
   script:
+    # Remove old stuff if it's still running.
+    - *test_after
     - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
     - helm test --logs ${RELEASE}
   environment:
@@ -72,6 +74,8 @@ test-full:
     - helm repo update
     - helm upgrade --install ${RELEASE}-minio --set accessKey=fulltest,secretKey=fulltest stable/minio
   script:
+    # Remove old stuff if it's still running.
+    - *test_after
     - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
     - helm test --logs ${RELEASE}
   environment:
