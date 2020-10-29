@@ -25,7 +25,7 @@ spec:
   resources:
     requests:
       storage: {{ .values.persistence.size }}
-  storageClassName: local-path
+  storageClassName: {{ .values.persistence.storageClassName | default "" }}
 {{- end }}
 {{- end }}
 ---
