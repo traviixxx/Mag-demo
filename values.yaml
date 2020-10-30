@@ -126,6 +126,7 @@ magnoliaAuthor:
     existingClaim:
     size: 10Gi # In case of local-path provisioners this is not enforced.
     mountPath: /mgnl-home
+    storageClassName: "" # Empty string is the default.
   db:
     enabled: True
     repository: postgres
@@ -240,6 +241,7 @@ magnoliaPublic:
     existingClaim:
     size: "10Gi" # In case of local-path provisioners this is not enforced.
     mountPath: "/mgnl-home"
+    storageClassName: "" # Empty string is the default.
   db:
     enabled: True # If false, use embedded H2 data base.
     repository: postgres
