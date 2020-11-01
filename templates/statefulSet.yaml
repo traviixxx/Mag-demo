@@ -14,7 +14,7 @@ metadata:
     tier: app
     component: public-instance
 spec:
-  serviceName: {{ $name }}
+  serviceName: {{ $name }}-svc
   replicas: {{ $pub.replicas }}
   selector:
     matchLabels:
@@ -210,8 +210,8 @@ spec:
             value: {{ $pub.contextPath }}
           - name: MGNLBOOT_AUTHOR_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
-          - name: MGNLBOOT_PUBLIC_INSTANCE # TODO headless service!
-            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" $.Values.magnoliaPublic.contextPath }}
+          - name: MGNLBOOT_PUBLIC_SERVICE_NAME
+            value: {{ printf "%s-%s-svc" $fullName "public" }}
           - name: MGNL_PODNAME
             value: {{ $name }}
           {{- if $pub.base_url }}

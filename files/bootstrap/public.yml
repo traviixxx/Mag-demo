@@ -30,13 +30,13 @@ playbook:
     password: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_PW | quote }}
     path: "config/modules/publishing-core/config/receivers"
     data:
-      name: {{ .Env.MGNL_PODNAME | quote }}
+      name: {{ .Env.HOSTNAME | quote }}
       type: "mgnl:contentNode"
       properties:
         - name: url
           type: String
           values:
-            - {{ .Env.MGNLBOOT_PUBLIC_INSTANCE }}
+            - "http://{{ .Env.HOSTNAME }}.{{ .Env.MGNLBOOT_PUBLIC_SERVICE_NAME }}:8765/"
         - name: enabled
           type: String
           values:

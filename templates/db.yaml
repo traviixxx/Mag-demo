@@ -15,10 +15,10 @@ data:
   postgres.conf: |-
 {{ tpl ($.Files.Get "files/archive-postgres.conf") . | indent 4 }}
 ---
-{{- range list .Values.magnoliaAuthor.db (.Values.magnoliaPublic.stateful | ternary .Values.magnoliaPublic.db nil) (.Values.sharedDb.enabled | ternary .Values.sharedDb.db nil)  -}}
+{{- range list .Values.magnoliaAuthor .Values.magnoliaPublic nil (.Values.sharedDb.enabled | ternary .Values.sharedDb nil)  -}}
 {{- if . -}}
-{{- $appName := printf "%s-%s-db" $fullName .name -}}
-{{- $dbName := printf "%s-db" .name }}
+{{- $appName := printf "%s-%s-db" $fullName .db.name -}}
+{{- $dbName := printf "%s-db" .db.name }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -30,10 +30,14 @@ metadata:
     chart: {{ $chartName }}
     release: {{ $release.Name }}
     heritage: {{ $release.Service }}
-    component: {{ .name }}
+    component: {{ .db.name }}
 spec:
   serviceName: {{ $appName }}
+  {{- if .stateful }}
+  replicas: {{ .replicas }}
+  {{- else }}
   replicas: 1
+  {{- end }}
   selector:
     matchLabels:
       app: {{ $appName }}
@@ -67,9 +71,9 @@ spec:
         fsGroup: 70
       containers:
         - name: {{ $dbName }}
-          image: "{{ .repository }}:{{ .tag }}"
-{{- if eq .type "postgres" }}
-          {{- if .backup.enabled }}
+          image: "{{ .db.repository }}:{{ .db.tag }}"
+{{- if eq .db.type "postgres" }}
+          {{- if .db.backup.enabled }}
           command:
           - "docker-entrypoint.sh"
           - "postgres"
@@ -78,13 +82,13 @@ spec:
           {{- end }}
           env:
             - name: POSTGRES_DB
-              value: "{{ .name }}"
+              value: "{{ .db.name }}"
             - name: POSTGRES_HOST_AUTH_METHOD
               value: "trust"
             - name: PGDATA
               value: "/var/lib/postgresql/data/mydata"
 {{- end }}
-          {{- if and .restore.enabled (eq .type "postgres") }}
+          {{- if and .db.restore.enabled (eq .db.type "postgres") }}
           lifecycle:
             postStart:
               exec:
@@ -93,7 +97,7 @@ spec:
                   - -c
                   - sh
                   - -c
-                  - psql -c "DROP DATABASE {{ .name }}" && wget {{ .restore.dump_url | quote }} -O - | gunzip | psql postgres
+                  - psql -c "DROP DATABASE {{ .db.name }}" && wget {{ .db.restore.dump_url | quote }} -O - | gunzip | psql postgres
                   - postgres
           {{- end }}
           volumeMounts:
@@ -101,42 +105,42 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: archive
               mountPath: /archive
-            {{- if .backup.enabled }}
+            {{- if .db.backup.enabled }}
             - name: postgres-conf
               mountPath: /etc/postgresql/postgres.conf
               subPath: postgres.conf
             {{- end }}
           readinessProbe:
             exec:
-              command: ["psql", "-w", "-U", "postgres", "-d", "{{ .name }}", "-c", "SELECT 1"]
+              command: ["psql", "-w", "-U", "postgres", "-d", "{{ .db.name }}", "-c", "SELECT 1"]
             initialDelaySeconds: 5
             timeoutSeconds: 2
-{{- if .backup.enabled }}
+{{- if .db.backup.enabled }}
         - name: backup
-          image: {{ printf "%s:%s" .backup.image .backup.tag }}
-          {{- with .backup.env }}
+          image: {{ printf "%s:%s" .db.backup.image .db.backup.tag }}
+          {{- with .db.backup.env }}
           env:
-{{ toYaml .  | indent 12 }}
+{{ toYaml . | indent 12 }}
           {{- end }}
           volumeMounts:
             - name: archive
-              mountPath: {{ .backup.pg_wal_archive }}
+              mountPath: {{ .db.backup.pg_wal_archive }}
             - name: scratch
-              mountPath: {{ .backup.pg_wal_scratch }}
-          {{- with .backup.volumeMounts }}
+              mountPath: {{ .dbbackup.pg_wal_scratch }}
+          {{- with .db.backup.volumeMounts }}
 {{ toYaml . | indent 12 }}
           {{- end }}
 {{- end }}
       volumes:
-{{- if and .persistence.enabled .persistence.existingClaim }}
+{{- if and .db.persistence.enabled .db.persistence.existingClaim }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .persistence.existingClaim }}
-{{- else if not .persistence.enabled }}
+            claimName: {{ .db.persistence.existingClaim }}
+{{- else if not .db.persistence.enabled }}
         - name: data
           emptyDir: {}
-{{- else if and .persistence.enabled (not .persistence.existingClaim) }}
-        {{- if .backup.enabled }}
+{{- else if and .db.persistence.enabled (not .db.persistence.existingClaim) }}
+        {{- if .db.backup.enabled }}
         - name: archive
           persistentVolumeClaim:
             claimName: archive
@@ -150,7 +154,7 @@ spec:
                 path: postgres.conf
             name: {{ $.Release.Name }}-postgres-conf
             optional: False
-        {{- with .backup.volumes }}
+        {{- with .db.backup.volumes }}
 {{ toYaml . | indent 8 }}
         {{- end }}
         {{- else }}
@@ -165,19 +169,19 @@ spec:
           chart: {{ $chartName }}
           release: {{ $release.Name }}
           heritage: {{ $release.Service }}
-          component: {{ .name }}
+          component: {{ .db.name }}
       spec:
         resources:
           requests:
-            storage: {{ .persistence.size | default "10Gi" }}
-        storageClassName: {{ .persistence.storageClassName | default "" }}
+            storage: {{ .db.persistence.size | default "10Gi" }}
+        storageClassName: {{ .db.persistence.storageClassName | default "" }}
         accessModes:
-      {{- if .persistence.accessModes }}
-          {{- toYaml .persistence.accessModes | nindent 10 }}
+      {{- if .db.persistence.accessModes }}
+          {{- toYaml .db.persistence.accessModes | nindent 10 }}
       {{- else }}
           - ReadWriteOnce
       {{- end }}
-    {{- if .backup.enabled }}
+    {{- if .db.backup.enabled }}
     - metadata:
         name: archive
         labels:
@@ -185,12 +189,12 @@ spec:
           chart: {{ $chartName }}
           release: {{ $release.Name }}
           heritage: {{ $release.Service }}
-          component: {{ .name }}
+          component: {{ .db.name }}
       spec:
         resources:
           requests:
-            storage: {{ .backup.pg_wal_archive_size | default "50Gi" }}
-        storageClassName: {{ .backup.pg_wal_storageClassName | default "" }}
+            storage: {{ .db.backup.pg_wal_archive_size | default "50Gi" }}
+        storageClassName: {{ .db.backup.pg_wal_storageClassName | default "" }}
         accessModes:
           - ReadWriteOnce
     {{- end }}
@@ -212,7 +216,7 @@ spec:
     app: {{ $appName }}
     release: {{ $release.Name }}
   ports:
-  {{- if eq .type "postgres" }}
+  {{- if eq .db.type "postgres" }}
   - name: postgres
     port: 5432
     protocol: TCP

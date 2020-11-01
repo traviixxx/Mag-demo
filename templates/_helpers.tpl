@@ -35,7 +35,7 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "magnolia.labels" -}}
-app: {{ template "magnolia.name" . }}
+app: {{ template "magnolia.fullname" . }}
 chart: {{ template "magnolia.chart" . }}
 release: {{ .Release.Name }}
 heritage: {{ .Release.Service }}

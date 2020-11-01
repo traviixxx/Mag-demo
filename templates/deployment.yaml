@@ -36,26 +36,23 @@ metadata:
   name: {{ $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ $name }}
-    chart: {{ $chartName }}
-    release: {{ $.Release.Name }}
-    heritage: {{ $.Release.Service }}
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    tier: app
+    component: {{ printf "%s-instance" $magnoliaMode }}
 spec:
   selector:
     matchLabels:
-      app: {{ $name }}
-      release: {{ $.Release.Name }}
+      {{- include "magnolia.labels" $ | nindent 6 }}
       tier: app
-      component: author-instance
+      component: {{ printf "%s-instance" $magnoliaMode }}
   strategy:
     {{ toYaml .values.strategy | indent 4 }}
   template:
     metadata:
       labels:
-        app: {{ $name }}
-        release: {{ $.Release.Name }}
+        {{- include "magnolia.labels" $ | nindent 8 }}
         tier: app
-        component: author-instance
+        component: {{ printf "%s-instance" $magnoliaMode }}
       annotations:
         timestamp: "{{ date "20060102150405" now }}"
     spec:
