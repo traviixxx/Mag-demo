@@ -15,7 +15,7 @@ data:
   postgres.conf: |-
 {{ tpl ($.Files.Get "files/archive-postgres.conf") . | indent 4 }}
 ---
-{{- range list .Values.magnoliaAuthor.db .Values.magnoliaPublic.db (.Values.sharedDb.enabled | ternary .Values.sharedDb.db nil)  -}}
+{{- range list .Values.magnoliaAuthor.db (.Values.magnoliaPublic.stateful | ternary .Values.magnoliaPublic.db nil) (.Values.sharedDb.enabled | ternary .Values.sharedDb.db nil)  -}}
 {{- if . -}}
 {{- $appName := printf "%s-%s-db" $fullName .name -}}
 {{- $dbName := printf "%s-db" .name }}

@@ -3,7 +3,7 @@
 Expand the name of the chart.
 */}}
 {{- define "magnolia.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default $.Chart.Name $.Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -35,11 +35,8 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "magnolia.labels" -}}
-app.kubernetes.io/name: {{ include "magnolia.name" . }}
-helm.sh/chart: {{ include "magnolia.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app: {{ template "magnolia.name" . }}
+chart: {{ template "magnolia.chart" . }}
+release: {{ .Release.Name }}
+heritage: {{ .Release.Service }}
 {{- end -}}
