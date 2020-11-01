@@ -17,7 +17,7 @@ metadata:
   name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ template "magnolia.labels" $ }}
+{{- include "magnolia.labels" $ | nindent 4 }}
 data:
 {{- with .values.setenv }}
   JVM_RAM_MIN_PERCENTAGE: {{ default 25 .memory.minPercentage | quote }}

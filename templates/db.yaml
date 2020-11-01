@@ -199,24 +199,24 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: {{ $appName }}
-    namespace: {{ $release.Namespace }}
-    {{- if $.Values.service.annotations }}
-    annotations:
-        {{- toYaml $.Values.service.annotations | nindent 4 }}
-    {{- end }}
+  name: {{ $appName }}
+  namespace: {{ $release.Namespace }}
+  {{- if $.Values.service.annotations }}
+  annotations:
+    {{- toYaml $.Values.service.annotations | nindent 4 }}
+  {{- end }}
 spec:
-    type: "{{ $.Values.service.type }}"
-    clusterIP: None
-    selector:
-        app: {{ $appName }}
-        release: {{ $release.Name }}
-    ports:
-    {{- if eq .type "postgres" }}
-    - name: postgres
-      port: 5432
-      protocol: TCP
-      targetPort: 5432
-    {{- end }}
+  type: "{{ $.Values.service.type }}"
+  clusterIP: None
+  selector:
+    app: {{ $appName }}
+    release: {{ $release.Name }}
+  ports:
+  {{- if eq .type "postgres" }}
+  - name: postgres
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  {{- end }}
 {{- end }}
 {{- end -}}

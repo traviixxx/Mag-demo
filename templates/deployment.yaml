@@ -1,7 +1,7 @@
 {{- $count := 0 -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
-{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (.Values.magnoliaPublic.stateful | ternary (dict "mode" "public" "values" .Values.magnoliaPublic) nil) -}}
+{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (.Values.magnoliaPublic.stateful | ternary nil (dict "mode" "public" "values" .Values.magnoliaPublic)) -}}
 {{- if . -}}
 {{- $magnoliaMode := .mode -}}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
