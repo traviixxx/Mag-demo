@@ -327,7 +327,7 @@ ingress:
 # tested with this chart.
 postjob:
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.1-rc1
+  tag: v0.2.1-rc2
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
 
