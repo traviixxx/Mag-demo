@@ -27,6 +27,10 @@ spec:
         {{- include "magnolia.labels" . | nindent 8 }}
         tier: app
         component: public-instance
+      annotations:
+        {{- if $pub.redeploy }}
+        timestamp: "{{ date "20060102150405" now }}"
+        {{- end }}
     spec:
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}

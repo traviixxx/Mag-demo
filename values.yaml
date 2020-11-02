@@ -41,7 +41,7 @@ sharedDb:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.2.0
+      tag: v0.2.1
       env:
         - name: MGNLBACKUP_CMD
           value: pg_basebackup
@@ -86,6 +86,7 @@ sharedDb:
 # default).
 magnoliaAuthor:
   restartPolicy: Always
+  redeploy: false # Always redeploy on "helm upgrade/install" even if no changes were made.
   contextPath: /author # Always use a leading slash.
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
@@ -148,7 +149,7 @@ magnoliaAuthor:
     backup:
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.0"
+      tag: "v0.2.1"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -202,6 +203,7 @@ magnoliaAuthor:
 # supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
   restartPolicy: Always # Always use a leading slash.
+  redeploy: true # Always redeploy on "helm upgrade/install" even if no changes were made.
   contextPath: /
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
@@ -260,7 +262,7 @@ magnoliaPublic:
       size: "10Gi"
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.0"
+      tag: "v0.2.1"
       enabled: False
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
@@ -325,7 +327,7 @@ ingress:
 # tested with this chart.
 postjob:
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.0
+  tag: v0.2.1-rc1
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
 

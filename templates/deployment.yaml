@@ -56,7 +56,9 @@ spec:
         tier: app
         component: {{ printf "%s-instance" $magnoliaMode }}
       annotations:
+        {{- if .values.redeploy }}
         timestamp: "{{ date "20060102150405" now }}"
+        {{- end }}
     spec:
       restartPolicy: {{ .values.restartPolicy | default "Always" }}
       affinity:
