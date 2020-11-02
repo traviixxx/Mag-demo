@@ -126,7 +126,7 @@ spec:
             - name: archive
               mountPath: {{ .db.backup.pg_wal_archive }}
             - name: scratch
-              mountPath: {{ .dbbackup.pg_wal_scratch }}
+              mountPath: {{ .db.backup.pg_wal_scratch }}
           {{- with .db.backup.volumeMounts }}
 {{ toYaml . | indent 12 }}
           {{- end }}
