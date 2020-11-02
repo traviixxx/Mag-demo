@@ -279,8 +279,8 @@ magnoliaPublic:
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
   - name: postgres-jdbc
-    repository: registry.gitlab.com/mironet/magnolia-jar
-    tag: postgres-42.2.8
+    repository: registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8
+    tag: v0.0.1
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
