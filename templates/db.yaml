@@ -26,11 +26,9 @@ metadata:
   name: {{ $appName }}
   namespace: {{ $release.Namespace }}
   labels:
-    app: {{ $appName }}
-    chart: {{ $chartName }}
-    release: {{ $release.Name }}
-    heritage: {{ $release.Service }}
+    {{- include "magnolia.labels" $ | nindent 4 }}
     component: {{ .db.name }}
+    tier: database
 spec:
   serviceName: {{ $appName }}
   {{- if .stateful }}
@@ -40,13 +38,14 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      app: {{ $appName }}
-      release: {{ $release.Name }}
+      {{- include "magnolia.labels" $ | nindent 6 }}
+      component: {{ .db.name }}
+      tier: database
   template:
     metadata:
       labels:
-        app: {{ $appName }}
-        release: {{ $release.Name }}
+        {{- include "magnolia.labels" $ | nindent 8 }}
+        component: {{ .db.name }}
         tier: database
     spec:
       affinity:
@@ -213,8 +212,9 @@ spec:
   type: "{{ $.Values.service.type }}"
   clusterIP: None
   selector:
-    app: {{ $appName }}
-    release: {{ $release.Name }}
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    component: {{ .db.name }}
+    tier: database
   ports:
   {{- if eq .db.type "postgres" }}
   - name: postgres
