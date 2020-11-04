@@ -35,6 +35,17 @@ spec:
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
       restartPolicy: {{ $pub.restartPolicy | default "Always" }}
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  release: {{ $.Release.Name }}
+                  tier: database
+                  component: {{ $pub.db.name }}
       volumes:
         - name: temp
           emptyDir: {}

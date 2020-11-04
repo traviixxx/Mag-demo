@@ -60,6 +60,8 @@ spec:
         timestamp: "{{ date "20060102150405" now }}"
         {{- end }}
     spec:
+      securityContext:
+        {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
       restartPolicy: {{ .values.restartPolicy | default "Always" }}
       affinity:
         podAffinity:
@@ -72,6 +74,8 @@ spec:
                   app: {{ $dbName }}
                   release: {{ $.Release.Name }}
       volumes:
+        - name: temp
+          emptyDir: {}
         - name: magnolia-home
           persistentVolumeClaim:
         {{- if .values.persistence.enabled }}
@@ -294,6 +298,8 @@ spec:
                 name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
                 optional: false
           volumeMounts:
+            - name: temp
+              mountPath: {{ $.Values.deploy.tempDir }}
             - name: tz-config
               mountPath: /etc/localtime
             - name: magnolia-home

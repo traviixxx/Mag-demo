@@ -94,7 +94,7 @@ stop-test-full:
     - export RELEASE=full
   script:
     - *test_after
-    - helm del ${RELEASE}-minio
+    - helm del ${RELEASE}-minio || true
   when: manual
 
 upload:
