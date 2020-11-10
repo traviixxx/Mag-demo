@@ -331,6 +331,9 @@ postjob:
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
 
+contentsync:
+  enabled: false
+
 resources: {}
 
 nodeSelector: {}

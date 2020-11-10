@@ -182,6 +182,15 @@ spec:
               subPath: jackrabbit.xml
             - name: app
               mountPath: /magnolia
+        - name: waitfor-db
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
+          {{- $dbHost := printf "%s-%s-db" $fullName $pub.db.name }}
+          command:
+            - /app
+            - waitfor
+            - --names
+            - {{ $dbHost }}-{{ "{{ .Env.HOSTNAME | podordinal }}" }}.{{ $dbHost }}
       containers:
         {{- with $pub.extraContainers }}
         {{- toYaml . | nindent 8 }}
