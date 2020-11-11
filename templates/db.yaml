@@ -117,6 +117,15 @@ spec:
 {{- if .db.backup.enabled }}
         - name: backup
           image: {{ printf "%s:%s" .db.backup.image .db.backup.tag }}
+          command:
+            - /app
+            - dump
+            - --mode
+            - server
+            {{- if $.Values.contentsync.enabled }}
+            - --tls-address
+            - {{ $.Values.contentsync.address | quote }}
+            {{- end }}
           {{- with .db.backup.env }}
           env:
 {{ toYaml . | indent 12 }}
@@ -126,6 +135,11 @@ spec:
               mountPath: {{ .db.backup.pg_wal_archive }}
             - name: scratch
               mountPath: {{ .db.backup.pg_wal_scratch }}
+            {{- if $.Values.contentsync.enabled }}
+            - name: mtls-certs
+              mountPath: "/opt/tls"
+              readOnly: true
+            {{- end }}
           {{- with .db.backup.volumeMounts }}
 {{ toYaml . | indent 12 }}
           {{- end }}
@@ -145,6 +159,11 @@ spec:
             claimName: archive
         - name: scratch
           emptyDir: {}
+        {{- if $.Values.contentsync.enabled }}
+        - name: mtls-certs
+          secret:
+            secretName: {{ printf "%s-client-tls" $appName | quote }}
+        {{- end }}
         - name: postgres-conf
           configMap:
             items:

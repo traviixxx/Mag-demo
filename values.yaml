@@ -333,6 +333,7 @@ postjob:
 
 contentsync:
   enabled: false
+  address: ":9998"
 
 resources: {}
 

@@ -59,7 +59,7 @@ metadata:
   labels:
     {{- include "magnolia.labels" $ | nindent 4 }}
 spec:
-  secretName: {{ $appName }}-ca-tls
+  secretName: {{ $appName }}-client-tls
   isCA: false
   usages:
     - server auth
