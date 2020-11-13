@@ -240,6 +240,14 @@ spec:
     port: 5432
     protocol: TCP
     targetPort: 5432
+  - name: backup
+    port: 9999
+    protocol: TCP
+    targetPort: 9999
+  - name: contentsync
+    port: 9998
+    protocol: TCP
+    targetPort: 9998
   {{- end }}
 {{- end }}
 {{- end -}}
