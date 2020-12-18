@@ -1,19 +1,17 @@
-{{- $count := 0 -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
-{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (.Values.magnoliaPublic.stateful | ternary nil (dict "mode" "public" "values" .Values.magnoliaPublic)) -}}
-{{- if . -}}
-{{- $magnoliaMode := .mode -}}
+{{- with .Values.magnoliaAuthor -}}
+{{- $magnoliaMode := "author" -}}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $dbName := printf "%s-db" $name -}}
 {{- $appVolumeName := printf "%s-app-volume" $name -}}
-{{- if .values.persistence.enabled }}
-{{- if not .values.persistence.existingClaim }}
+{{- if .persistence.enabled }}
+{{- if not .persistence.existingClaim }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ printf "home-%s-%d" $name $count }}
+  name: {{ printf "home-%s" $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
     app: {{ $name }}
@@ -25,9 +23,9 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .values.persistence.size }}
-  {{- if .values.persistence.storageClassName }}
-  storageClassName: {{ .values.persistence.storageClassName }}
+      storage: {{ .persistence.size }}
+  {{- if .persistence.storageClassName }}
+  storageClassName: {{ .persistence.storageClassName }}
   {{- end }}
 {{- end }}
 {{- end }}
@@ -48,7 +46,7 @@ spec:
       tier: app
       component: {{ printf "%s-instance" $magnoliaMode }}
   strategy:
-    {{ toYaml .values.strategy | indent 4 }}
+    {{ toYaml .strategy | indent 4 }}
   template:
     metadata:
       labels:
@@ -56,13 +54,13 @@ spec:
         tier: app
         component: {{ printf "%s-instance" $magnoliaMode }}
       annotations:
-        {{- if .values.redeploy }}
+        {{- if .redeploy }}
         timestamp: "{{ date "20060102150405" now }}"
         {{- end }}
     spec:
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
-      restartPolicy: {{ .values.restartPolicy | default "Always" }}
+      restartPolicy: {{ .restartPolicy | default "Always" }}
       affinity:
         podAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -78,12 +76,11 @@ spec:
           emptyDir: {}
         - name: magnolia-home
           persistentVolumeClaim:
-        {{- if .values.persistence.enabled }}
-        {{- if .values.persistence.existingClaim }}
-            claimName: {{ .values.persistence.existingClaim }}
+        {{- if .persistence.enabled }}
+        {{- if .persistence.existingClaim }}
+            claimName: {{ .persistence.existingClaim }}
         {{- else }}
-            claimName: {{ printf "home-%s-%d" $name $count }}
-            {{- $count = add1 $count }}
+            claimName: {{ printf "home-%s" $name }}
         {{- end }}
         {{- end }}
         - name: tz-config
@@ -91,7 +88,7 @@ spec:
             path: /usr/share/zoneinfo/{{ $.Values.timezone }}
         - name: {{ $appVolumeName }}
           emptyDir: {}
-{{- if .values.db.enabled }}
+{{- if .db.enabled }}
         - name: jackrabbit-config
           configMap:
             items:
@@ -118,7 +115,7 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- end }}
-{{- if .values.rescueMode }}
+{{- if .rescueMode }}
         - name: rescue-web-xml
           configMap:
             items:
@@ -162,7 +159,7 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- if eq $magnoliaMode "author" }}
-{{- if and (not .values.activation.useExistingSecret) .values.activation.privateKey }}
+{{- if and (not .activation.useExistingSecret) .activation.privateKey }}
         - name: activation-keypair
           secret:
             secretName: {{ printf "%s-activation-secret" $.Release.Name }}
@@ -171,14 +168,14 @@ spec:
             items:
               - key: magnolia-activation-keypair.properties
                 path: magnolia-activation-keypair.properties
-{{- else if .values.activation.useExistingSecret }}
+{{- else if .activation.useExistingSecret }}
         - name: activation-keypair
           secret:
-            secretName: {{ .values.activation.secret.name | quote }}
+            secretName: {{ .activation.secret.name | quote }}
             defaultMode: 420
             optional: false
             items:
-              - key: {{ .values.activation.secret.key | quote }}
+              - key: {{ .activation.secret.key | quote }}
                 path: magnolia-activation-keypair.properties
 {{- else }}
         - name: activation-keypair
@@ -197,7 +194,7 @@ spec:
         {{- end }}
       initContainers:
         - name: war
-          image: {{ .values.webarchive.repository }}:{{ .values.webarchive.tag }}
+          image: {{ .webarchive.repository }}:{{ .webarchive.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ["sh", "-c", "cp -a /magnolia /app/"]
           volumeMounts:
@@ -224,7 +221,7 @@ spec:
           image: busybox:1.31
           command: ['sh', '-c', "until nslookup {{ $dbName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"]
       containers:
-        {{- with .values.extraContainers }}
+        {{- with .extraContainers }}
 {{ toYaml . | indent 8 }}
         {{- end }}
         - name: bootstrapper
@@ -234,9 +231,9 @@ spec:
             - /app
             - serve
             - -m
-            - http://localhost:8080{{ .values.contextPath }}
+            - http://localhost:8080{{ .contextPath }}
             - --code
-            - "{{ .values.livenessProbe.expectedCodes }}"
+            - "{{ .livenessProbe.expectedCodes }}"
             {{- if $.Values.bootstrap.enabled }}
             - -i
             - /data/instructions.yml
@@ -263,34 +260,34 @@ spec:
                 key: password
                 name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
           - name: MGNL_CONTEXT_PATH
-            value: {{ .values.contextPath }}
+            value: {{ .contextPath }}
           - name: MGNLBOOT_AUTHOR_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
           - name: MGNLBOOT_PUBLIC_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" $.Values.magnoliaPublic.contextPath }}
           - name: MGNL_PODNAME
             value: {{ $name }}
-          {{- if .values.base_url }}
+          {{- if .base_url }}
           - name: MGNL_DEFAULT_BASE_URL
-            value: {{ .values.base_url | quote }}
+            value: {{ .base_url | quote }}
           {{- end }}
-          {{- if .values.activation.useExistingSecret }}
+          {{- if .activation.useExistingSecret }}
           - name: MGNL_ACTIVATION_PUBKEY
             valueFrom:
               secretKeyRef:
-                name:  {{ .values.activation.secret.name | quote }}
-                key:  {{ .values.activation.secret.key| quote }}
+                name:  {{ .activation.secret.name | quote }}
+                key:  {{ .activation.secret.key| quote }}
           {{- end }}
           {{- end }}
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
-{{- with .values.resources }}
+{{- with .resources }}
           resources:
 {{ toYaml . | indent 12 }}
 {{- end }}
           env:
-{{- with .values.env }}
+{{- with .env }}
 {{ toYaml . | indent 10 }}
 {{- end }}
           envFrom:
@@ -303,14 +300,14 @@ spec:
             - name: tz-config
               mountPath: /etc/localtime
             - name: magnolia-home
-              mountPath: {{ .values.persistence.mountPath | default "/mgnl-home" }}
+              mountPath: {{ .persistence.mountPath | default "/mgnl-home" }}
             - name: {{ $appVolumeName }}
               mountPath: {{ $.Values.deploy.directory }}
-{{- if .values.db.enabled }}
+{{- if .db.enabled }}
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
-{{- if .values.rescueMode }}
+{{- if .rescueMode }}
             - name: rescue-web-xml
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/web.xml
               subPath: rescue-web.xml
@@ -338,16 +335,16 @@ spec:
               subPath: logging.properties
 {{- if eq $magnoliaMode "author" }}
             - name: activation-keypair
-              {{- if and (not .values.activation.useExistingSecret) (empty .values.activation.privateKey) }}
-              mountPath: {{ .values.activation.keyLocation | dir }}
+              {{- if and (not .activation.useExistingSecret) (empty .activation.privateKey) }}
+              mountPath: {{ .activation.keyLocation | dir }}
               {{- else }}
-              mountPath: {{ .values.activation.keyLocation }}
+              mountPath: {{ .activation.keyLocation }}
               {{- end}}
               subPath: magnolia-activation-keypair.properties
 {{- end }}
-          {{- if .values.livenessProbe.enabled }}
-          {{- $contextPath := .values.contextPath }}
-          {{- with .values.livenessProbe }}
+          {{- if .livenessProbe.enabled }}
+          {{- $contextPath := .contextPath }}
+          {{- with .livenessProbe }}
           ports:
             - name: "liveness-port"
               containerPort: 8765
@@ -369,7 +366,7 @@ spec:
             #periodSeconds: 120
             timeoutSeconds: 2
             successThreshold: 3
-{{- with .values.startupProbe }}
+{{- with .startupProbe }}
 {{- end }}
     {{- if $.Values.image.pullSecrets }}
       imagePullSecrets:
@@ -383,5 +380,4 @@ spec:
       tolerations:
 {{ toYaml $.Values.tolerations | indent 8 }}
     {{- end }}
-{{ end -}}
 {{ end -}}
