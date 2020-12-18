@@ -80,7 +80,7 @@ spec:
         {{- if .persistence.existingClaim }}
             claimName: {{ .persistence.existingClaim }}
         {{- else }}
-            claimName: {{ printf "home-%s-0" $name }}
+            claimName: {{ printf "home-%s" $name }}
         {{- end }}
         {{- end }}
         - name: tz-config
