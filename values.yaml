@@ -209,8 +209,7 @@ magnoliaPublic:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   rescueMode: False
-  stateful: False # Use stateful public instances with embedded db (Magnolia enterprise feature).
-  replicas: 2 # Only considered if stateful=true.
+  replicas: 1
   strategy:
     type: Recreate
   setenv:

@@ -1,7 +1,6 @@
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $name := printf "%s-%s" $fullName "public" -}}
-{{- if .Values.magnoliaPublic.stateful }}
 {{- $pub := .Values.magnoliaPublic }}
 ---
 apiVersion: apps/v1
@@ -360,10 +359,9 @@ spec:
         accessModes:
           - ReadWriteOnce
       metadata:
-        name: magnolia-home
+        name: home
         labels:
           {{- include "magnolia.labels" . | nindent 10 }}
           tier: app
           component: public-instance
     {{- end }}
-{{- end }}

@@ -31,11 +31,7 @@ metadata:
     tier: database
 spec:
   serviceName: {{ $appName }}
-  {{- if .stateful }}
   replicas: {{ .replicas }}
-  {{- else }}
-  replicas: 1
-  {{- end }}
   selector:
     matchLabels:
       {{- include "magnolia.labels" $ | nindent 6 }}
