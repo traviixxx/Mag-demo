@@ -22,6 +22,10 @@ deploy:
 
 bootstrap:
   enabled: True
+  users:
+    - superuser
+    - ff_admin
+    - ff_rescue
 
 sharedDb:
   enabled: false
@@ -112,6 +116,7 @@ magnoliaAuthor:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
   bootstrap:
+    user: superuser
     password: ""
   activation:
     privateKey: null
@@ -230,6 +235,7 @@ magnoliaPublic:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
   bootstrap:
+    user: superuser
     password: ""
   activation:
     privateKey: null

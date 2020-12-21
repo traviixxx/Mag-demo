@@ -158,6 +158,18 @@ spec:
               path: logging.properties
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
+{{- $userCount := 0 }}
+{{- range $.Values.bootstrap.users }}
+        - name: {{ printf "mgnl-bootstrap-%d" $userCount }}
+          configMap:
+            items:
+            - key: {{ printf "mgnl-bootstrap-%d.xml" $userCount }}
+              mode: 420
+              path: {{ printf "mgnl-bootstrap-%d.xml" $userCount }}
+            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            optional: False
+{{- $userCount = add1 $userCount }}
+{{- end }}
 {{- if eq $magnoliaMode "author" }}
 {{- if and (not .activation.useExistingSecret) .activation.privateKey }}
         - name: activation-keypair
@@ -275,6 +287,13 @@ spec:
             - name: logging-properties
               mountPath: /usr/local/tomcat/conf/logging.properties
               subPath: logging.properties
+{{- $userCount = 0 }}
+{{- range $.Values.bootstrap.users }}
+            - name: {{ printf "mgnl-bootstrap-%d" $userCount }}
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/bootstrap/common/{{ printf "mgnl-bootstrap-%d.xml" $userCount }}
+              subPath: {{ printf "mgnl-bootstrap-%d.xml" $userCount }}
+{{ $userCount = add1 $userCount }}
+{{- end }}
 {{- if eq $magnoliaMode "author" }}
             - name: activation-keypair
               {{- if and (not .activation.useExistingSecret) (empty .activation.privateKey) }}
