@@ -64,6 +64,25 @@ spec:
         runAsUser: 70
         runAsGroup: 70
         fsGroup: 70
+      initContainers:
+        # Those init containers provide backward compatibility with older Helm chart releases
+        - name: migration-helper
+          image: "{{ .db.repository }}:{{ .db.tag }}"
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              cd /var/lib/postgresql/data
+              if [[ -d ./mydata && ! -f ./PG_VERSION ]]; then
+                cp -R ./mydata/** .
+                rm -rf ./mydata
+              fi
+              chown -R 70:70 .
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
       containers:
         - name: {{ $dbName }}
           image: "{{ .db.repository }}:{{ .db.tag }}"
@@ -75,8 +94,6 @@ spec:
           - "-c"
           - "config_file=/etc/postgresql/postgres.conf"
           {{- end }}
-          securityContext:
-            runAsUser: 0
           env:
             - name: POSTGRES_DB
               value: "{{ .db.name }}"
