@@ -251,7 +251,7 @@ spec:
           {{- end }}
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          imagePullPolicy: {{ $.Values.image.tomcat.pullPolicy }}
         {{- with $pub.resources }}
           resources:
           {{- toYaml . | nindent 12 }}

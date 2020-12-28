@@ -5,6 +5,7 @@ image:
   tomcat:
     repository: tomcat
     tag: 9-jre11-slim
+    pullPolicy: IfNotPresent
   pullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
