@@ -221,64 +221,6 @@ spec:
           image: busybox:1.31
           command: ['sh', '-c', "until nslookup {{ $dbName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"]
       containers:
-        {{- with .extraContainers }}
-{{ toYaml . | indent 8 }}
-        {{- end }}
-        - name: bootstrapper
-          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
-          imagePullPolicy: Always
-          command:
-            - /app
-            - serve
-            - -m
-            - http://localhost:8080{{ .contextPath }}
-            - --code
-            - "{{ .livenessProbe.expectedCodes }}"
-            {{- if $.Values.bootstrap.enabled }}
-            - -i
-            - /data/instructions.yml
-            {{- end }}
-            #- -vvv  # Trace mode.
-          volumeMounts:
-            - name: {{ $appVolumeName }}
-              mountPath: /magnolia
-            {{- if $.Values.bootstrap.enabled }}
-            - name: instructions
-              mountPath: /data/instructions.yml
-              subPath: instructions.yml
-            {{- end }}
-          env:
-          {{- if $.Values.bootstrap.enabled }}
-          - name: MGNLBOOT_NEW_SUPERUSER_PW
-            valueFrom:
-              secretKeyRef:
-                key: password
-                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
-          - name: MGNLBOOT_AUTHOR_SUPERUSER_PW
-            valueFrom:
-              secretKeyRef:
-                key: password
-                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
-          - name: MGNL_CONTEXT_PATH
-            value: {{ .contextPath }}
-          - name: MGNLBOOT_AUTHOR_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
-          - name: MGNLBOOT_PUBLIC_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" $.Values.magnoliaPublic.contextPath }}
-          - name: MGNL_PODNAME
-            value: {{ $name }}
-          {{- if .base_url }}
-          - name: MGNL_DEFAULT_BASE_URL
-            value: {{ .base_url | quote }}
-          {{- end }}
-          {{- if .activation.useExistingSecret }}
-          - name: MGNL_ACTIVATION_PUBKEY
-            valueFrom:
-              secretKeyRef:
-                name:  {{ .activation.secret.name | quote }}
-                key:  {{ .activation.secret.key| quote }}
-          {{- end }}
-          {{- end }}
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
@@ -342,6 +284,64 @@ spec:
               {{- end}}
               subPath: magnolia-activation-keypair.properties
 {{- end }}
+        {{- with .extraContainers }}
+{{ toYaml . | indent 8 }}
+        {{- end }}
+        - name: bootstrapper
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: Always
+          command:
+            - /app
+            - serve
+            - -m
+            - http://localhost:8080{{ .contextPath }}
+            - --code
+            - "{{ .livenessProbe.expectedCodes }}"
+            {{- if $.Values.bootstrap.enabled }}
+            - -i
+            - /data/instructions.yml
+            {{- end }}
+            #- -vvv  # Trace mode.
+          volumeMounts:
+            - name: {{ $appVolumeName }}
+              mountPath: /magnolia
+            {{- if $.Values.bootstrap.enabled }}
+            - name: instructions
+              mountPath: /data/instructions.yml
+              subPath: instructions.yml
+            {{- end }}
+          env:
+          {{- if $.Values.bootstrap.enabled }}
+          - name: MGNLBOOT_NEW_SUPERUSER_PW
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
+          - name: MGNLBOOT_AUTHOR_SUPERUSER_PW
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
+          - name: MGNL_CONTEXT_PATH
+            value: {{ .contextPath }}
+          - name: MGNLBOOT_AUTHOR_INSTANCE
+            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
+          - name: MGNLBOOT_PUBLIC_INSTANCE
+            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" $.Values.magnoliaPublic.contextPath }}
+          - name: MGNL_PODNAME
+            value: {{ $name }}
+          {{- if .base_url }}
+          - name: MGNL_DEFAULT_BASE_URL
+            value: {{ .base_url | quote }}
+          {{- end }}
+          {{- if .activation.useExistingSecret }}
+          - name: MGNL_ACTIVATION_PUBKEY
+            valueFrom:
+              secretKeyRef:
+                name:  {{ .activation.secret.name | quote }}
+                key:  {{ .activation.secret.key| quote }}
+          {{- end }}
+          {{- end }}
           {{- if .livenessProbe.enabled }}
           {{- $contextPath := .contextPath }}
           {{- with .livenessProbe }}

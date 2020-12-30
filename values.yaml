@@ -142,9 +142,9 @@ magnoliaAuthor:
     persistence:
       enabled: True
       size: 10Gi
+      volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
       # accessModes:
       #   - ReadWriteOnce
-
       # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
     backup:
       enabled: False
@@ -259,6 +259,7 @@ magnoliaPublic:
     persistence:
       enabled: True
       size: "10Gi"
+      volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.1"

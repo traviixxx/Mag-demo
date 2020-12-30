@@ -191,9 +191,57 @@ spec:
             - --names
             - {{ $dbHost }}-{{ "{{ .Env.HOSTNAME | podordinal }}" }}.{{ $dbHost }}
       containers:
-        {{- with $pub.extraContainers }}
-        {{- toYaml . | nindent 8 }}
+        - name: {{ $.Chart.Name }}
+          image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with $pub.resources }}
+          resources:
+          {{- toYaml . | nindent 12 }}
         {{- end }}
+          env:
+        {{- with $pub.env }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-configmap-%s" $.Release.Name "public" }}
+                optional: false
+          volumeMounts:
+            - name: temp
+              mountPath: {{ $.Values.deploy.tempDir }}
+            - name: tz-config
+              mountPath: /etc/localtime
+            - name: magnolia-home
+              mountPath: {{ $pub.persistence.mountPath | default "/mgnl-home" }}
+            - name: app
+              mountPath: {{ $.Values.deploy.directory }}
+{{- if $pub.db.enabled }}
+{{- if $pub.rescueMode }}
+            - name: rescue-web-xml
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/web.xml
+              subPath: rescue-web.xml
+{{- end }}
+{{- if $.Values.sharedDb.enabled }}
+            - name: jackrabbit-shared-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit-shared.xml
+              subPath: jackrabbit-shared.xml
+            - name: jcr-repositories
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/repositories.xml
+              subPath: jcr-repositories.xml
+{{- end }}
+{{- end }}
+            - name: log4j-config
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/log4j2.xml
+              subPath: log4j2.xml
+            - name: setenv
+              mountPath: /usr/local/tomcat/bin/setenv.sh
+              subPath: setenv.sh
+            - name: server-xml
+              mountPath: /usr/local/tomcat/conf/server.xml
+              subPath: server.xml
+            - name: logging-properties
+              mountPath: /usr/local/tomcat/conf/logging.properties
+              subPath: logging.properties
         - name: bootstrapper
           image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
           imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
@@ -249,57 +297,6 @@ spec:
                 key:  {{ $pub.activation.secret.key| quote }}
           {{- end }}
           {{- end }}
-        - name: {{ $.Chart.Name }}
-          image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        {{- with $pub.resources }}
-          resources:
-          {{- toYaml . | nindent 12 }}
-        {{- end }}
-          env:
-        {{- with $pub.env }}
-          {{- toYaml . | nindent 10 }}
-        {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ printf "%s-configmap-%s" $.Release.Name "public" }}
-                optional: false
-          volumeMounts:
-            - name: temp
-              mountPath: {{ $.Values.deploy.tempDir }}
-            - name: tz-config
-              mountPath: /etc/localtime
-            - name: magnolia-home
-              mountPath: {{ $pub.persistence.mountPath | default "/mgnl-home" }}
-            - name: app
-              mountPath: {{ $.Values.deploy.directory }}
-{{- if $pub.db.enabled }}
-{{- if $pub.rescueMode }}
-            - name: rescue-web-xml
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/web.xml
-              subPath: rescue-web.xml
-{{- end }}
-{{- if $.Values.sharedDb.enabled }}
-            - name: jackrabbit-shared-config
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit-shared.xml
-              subPath: jackrabbit-shared.xml
-            - name: jcr-repositories
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/repositories.xml
-              subPath: jcr-repositories.xml
-{{- end }}
-{{- end }}
-            - name: log4j-config
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/default/log4j2.xml
-              subPath: log4j2.xml
-            - name: setenv
-              mountPath: /usr/local/tomcat/bin/setenv.sh
-              subPath: setenv.sh
-            - name: server-xml
-              mountPath: /usr/local/tomcat/conf/server.xml
-              subPath: server.xml
-            - name: logging-properties
-              mountPath: /usr/local/tomcat/conf/logging.properties
-              subPath: logging.properties
           {{- if $pub.livenessProbe.enabled }}
           {{- $contextPath := $pub.contextPath }}
           {{- with $pub.livenessProbe }}
@@ -324,6 +321,9 @@ spec:
             #periodSeconds: 120
             timeoutSeconds: 2
             successThreshold: 3
+        {{- with $pub.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     {{- if $.Values.image.pullSecrets }}
       imagePullSecrets:
       {{- toYaml $.Values.image.pullSecrets | nindent 8 }}
