@@ -6,7 +6,7 @@
 {{- $dbName := printf "%s-db" $name -}}
 {{- $appVolumeName := printf "%s-app-volume" $name -}}
 {{- if .persistence.enabled }}
-{{- if not .persistence.existingClaim }}
+{{- if not .persistence.existingClaim  }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

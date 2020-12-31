@@ -65,20 +65,24 @@ spec:
         runAsGroup: 70
         fsGroup: 70
       initContainers:
-        {{- if .db.persistence.volumePermissions }}
-        - name: fix-volume-perms
-          image: "busybox:1"
+        # Those init containers provide backward compatibility with older Helm chart releases
+        - name: migration-helper
+          image: "{{ .db.repository }}:{{ .db.tag }}"
           command:
-            - chown
-            - -R
-            - "70:70"
-            - "/var/lib/postgresql/data"
+            - "/bin/bash"
+            - "-c"
+            - |
+              cd /var/lib/postgresql/data
+              if [[ -d ./mydata && ! -f ./PG_VERSION ]]; then
+                cp -R ./mydata/** .
+                rm -rf ./mydata
+              fi
+              chown -R 70:70 .
+          securityContext:
+            runAsUser: 0
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
-          securityContext:
-            runAsUser: 0
-        {{- end }}
       containers:
         - name: {{ $dbName }}
           image: "{{ .db.repository }}:{{ .db.tag }}"
