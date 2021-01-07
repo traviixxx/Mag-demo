@@ -2,13 +2,42 @@
 
 Helm Chart for [Magnolia CMS](https://www.magnolia-cms.com/).
 
-This chart deploys a Magnolia CMS instance (author or public) and if desired
+This chart deploys a Magnolia CMS instance (author and/or publics) and if desired
 configures it to use a data base for its backend storage.
 
-It's designed for one single author and one single public instance. Multiple
-public instances are work in progress.
+It supports multiple public instances as StatefulSets.
 
 [[_TOC_]]
+
+## Install
+
+Add the public Helm repository:
+
+```bash
+helm repo add mironet https://charts.mirohost.ch
+helm repo update
+helm install -g mironet/magnolia-helm
+```
+
+## Upgrade
+
+The basic upgrade from an older chart version to a newer one is done with:
+
+```bash
+# Latest version:
+helm upgrade <release-name> mironet/magnolia-helm
+# Specific version:
+helm upgrade <release-name> mironet/magnolia-helm --version <version-string>
+```
+
+Usually upgrades should work fine but there might be cases where you will have to redeploy some or all of the resources. Since the databases and other stateful parts of the deployment use PVC templates it should be safe to delete the deployment:
+
+```bash
+helm delete <release-name> # This will not remove volumes created by PVC templates (inside StatefulSets).
+helm install ... # And reinstall.
+```
+
+If you want to do this non-disruptively in production we recommend you restore/clone the deployment to another environment, point external load balancers to the new deployment and then remove the old one.
 
 ## Configuration
 
@@ -70,6 +99,8 @@ image:
   pullSecrets:
     - name: gitlab-registry
 ```
+
+Or you can use service accounts, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-image-pull-secret-to-service-account) for details.
 
 ### Persistence
 
@@ -361,6 +392,10 @@ magnoliaPublic:
 
 This chart is currently used in production. We will adhere to the semver
 standard and try to maintain backwards compatiblity within major releases.
+
+## Compatibility
+
+Values used with older chart versions should always work with newer chart versions and provide the same results. **Note:** This does not mean a certain deployment will upgrade non-disruptively, i.e. without having to remove it first. See the [Upgrade](#upgrade) section about upgrades in general.
 
 ## Legal Notes
 
