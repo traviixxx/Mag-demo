@@ -193,7 +193,8 @@ magnoliaAuthor:
       enabled: False
       # # where to get the dump from
       # dump_url: https://s3...
-
+    contentsync:
+      enabled: false
   livenessProbe:
     enabled: True
     failureThreshold: 4
@@ -271,6 +272,9 @@ magnoliaPublic:
     restore:
       enabled: False
       dump_url: https://s3...
+    contentsync:
+      enabled: true
+      address: ":9998"
   livenessProbe:
     enabled: True
     failureThreshold: 4
@@ -331,10 +335,6 @@ postjob:
   tag: v0.2.1-rc3
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
-
-contentsync:
-  enabled: false
-  address: ":9998"
 
 resources: {}
 

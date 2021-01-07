@@ -1,4 +1,4 @@
-{{- if $.Values.contentsync.enabled -}}
+{{- if $.Values.magnoliaPublic.db.contentsync.enabled -}}
 {{- if $.Values.magnoliaPublic.db.enabled -}}
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $name := include "magnolia.name" . -}}

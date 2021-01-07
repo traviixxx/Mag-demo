@@ -83,6 +83,27 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+      {{- if .db.contentsync.enabled }}
+        - name: contentsync
+          image: {{ printf "%s:%s" .db.backup.image .db.backup.tag }}
+          command:
+            - /app
+            - boot
+            - --data-dir
+            - /var/lib/postgresql/data
+            - --service-name
+            - {{ $appName }}
+            - --loglevel
+            - debug
+          securityContext:
+            runAsUser: 70
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: mtls-certs
+              mountPath: "/opt/tls"
+              readOnly: true
+      {{- end }}
       containers:
         - name: {{ $dbName }}
           image: "{{ .db.repository }}:{{ .db.tag }}"
@@ -137,9 +158,9 @@ spec:
             - dump
             - --mode
             - server
-            {{- if $.Values.contentsync.enabled }}
+            {{- if .db.contentsync.enabled }}
             - --tls-address
-            - {{ $.Values.contentsync.address | quote }}
+            - {{ .db.contentsync.address | quote }}
             {{- end }}
           {{- with .db.backup.env }}
           env:
@@ -150,7 +171,7 @@ spec:
               mountPath: {{ .db.backup.pg_wal_archive }}
             - name: scratch
               mountPath: {{ .db.backup.pg_wal_scratch }}
-            {{- if $.Values.contentsync.enabled }}
+            {{- if .db.contentsync.enabled }}
             - name: mtls-certs
               mountPath: "/opt/tls"
               readOnly: true
@@ -174,7 +195,7 @@ spec:
             claimName: archive
         - name: scratch
           emptyDir: {}
-        {{- if $.Values.contentsync.enabled }}
+        {{- if .db.contentsync.enabled }}
         - name: mtls-certs
           secret:
             secretName: {{ printf "%s-client-tls" $appName | quote }}
