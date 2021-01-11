@@ -48,7 +48,8 @@ data:
 {{ tpl ($.Files.Get "files/jcr-repositories.xml") $data | indent 4 }}
 {{ $count := 0 }}
 {{- range $.Values.bootstrap.users }}
-  mgnl-bootstrap-{{ . }}.xml: |-
+{{- $userEscaped := regexReplaceAll "(\\W+|_)" . "-" }}
+  mgnl-bootstrap-{{ $userEscaped }}.xml: |-
 {{ tpl ($.Files.Get "files/mgnl-bootstrap/users.xml") (dict "username" . "password" "$2a$12$PtuMCc87iQqWJ5RfwELug.Ku9SShYQ/IXHwqg9Elai.9oJ5P1o9s2" "Template" $.Template) | indent 4 }}
 {{- $count = add1 $count }}
 {{- end }}

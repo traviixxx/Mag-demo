@@ -130,17 +130,16 @@ spec:
               path: logging.properties
             name: {{ $.Release.Name }}-configmap-public
             optional: False
-{{- $userCount := 0 }}
 {{- range $.Values.bootstrap.users }}
-        - name: {{ printf "mgnl-bootstrap-%d" $userCount }}
+{{- $userEscaped := regexReplaceAll "(\\W+|_)" . "-" }}
+        - name: {{ printf "mgnl-bootstrap-%s" $userEscaped }}
           configMap:
             items:
-            - key: {{ printf "mgnl-bootstrap-%d.xml" $userCount }}
+            - key: {{ printf "mgnl-bootstrap-%s.xml" $userEscaped }}
               mode: 420
-              path: {{ printf "mgnl-bootstrap-%d.xml" $userCount }}
+              path: {{ printf "mgnl-bootstrap-%s.xml" $userEscaped }}
             name: {{ $.Release.Name }}-configmap-public
             optional: False
-{{- $userCount = add1 $userCount }}
 {{- end }}
         {{- if $.Values.bootstrap.enabled }}
         - name: instructions
@@ -360,12 +359,11 @@ spec:
             - name: logging-properties
               mountPath: /usr/local/tomcat/conf/logging.properties
               subPath: logging.properties
-{{- $userCount = 0 }}
 {{- range $.Values.bootstrap.users }}
-            - name: {{ printf "mgnl-bootstrap-%d" $userCount }}
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/bootstrap/common/{{ printf "mgnl-bootstrap-%d.xml" $userCount }}
-              subPath: {{ printf "mgnl-bootstrap-%d.xml" $userCount }}
-{{ $userCount = add1 $userCount }}
+{{- $userEscaped := regexReplaceAll "(\\W+|_)" . "-" }}
+            - name: {{ printf "mgnl-bootstrap-%s" $userEscaped }}
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/bootstrap/common/{{ printf "mgnl-bootstrap-%s.xml" $userEscaped }}
+              subPath: {{ printf "mgnl-bootstrap-%s.xml" $userEscaped }}
 {{- end }}
           {{- if $pub.livenessProbe.enabled }}
           {{- $contextPath := $pub.contextPath }}

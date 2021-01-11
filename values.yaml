@@ -22,10 +22,7 @@ deploy:
 
 bootstrap:
   enabled: True
-  users:
-    - superuser
-    - ff_admin
-    - ff_rescue
+  users: []
 
 sharedDb:
   enabled: false
