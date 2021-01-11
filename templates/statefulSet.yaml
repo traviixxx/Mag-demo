@@ -2,6 +2,7 @@
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $name := printf "%s-%s" $fullName "public" -}}
 {{- $pub := .Values.magnoliaPublic }}
+{{- $author := .Values.magnoliaAuthor }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -267,6 +268,10 @@ spec:
             {{- end }}
           env:
           {{- if $.Values.bootstrap.enabled }}
+          - name: MGNLBOOT_SUPERUSER_NAME
+            value: {{ $pub.bootstrap.username }}
+          - name: MGNLBOOT_AUTHOR_SUPERUSER_NAME
+            value: {{ $author.bootstrap.username }}
           - name: MGNLBOOT_NEW_SUPERUSER_PW
             valueFrom:
               secretKeyRef:

@@ -312,6 +312,8 @@ spec:
             {{- end }}
           env:
           {{- if $.Values.bootstrap.enabled }}
+          - name: MGNLBOOT_SUPERUSER_NAME
+            value: {{ .bootstrap.username }}
           - name: MGNLBOOT_NEW_SUPERUSER_PW
             valueFrom:
               secretKeyRef:
