@@ -100,9 +100,11 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+            {{- if .db.contentsync.enabled }}
             - name: mtls-certs
-              mountPath: "/opt/tls"
+              mountPath: /opt/tls
               readOnly: true
+            {{- end }}
       {{- end }}
       containers:
         - name: {{ $dbName }}
@@ -195,11 +197,6 @@ spec:
             claimName: archive
         - name: scratch
           emptyDir: {}
-        {{- if .db.contentsync.enabled }}
-        - name: mtls-certs
-          secret:
-            secretName: {{ printf "%s-client-tls" $appName | quote }}
-        {{- end }}
         - name: postgres-conf
           configMap:
             items:
@@ -214,6 +211,11 @@ spec:
         {{- else }}
         - name: archive
           emptyDir: {}
+        {{- end }}
+        {{- if .db.contentsync.enabled }}
+        - name: mtls-certs
+          secret:
+            secretName: {{ printf "%s-client-tls" $appName | quote }}
         {{- end }}
   volumeClaimTemplates:
     - metadata:
