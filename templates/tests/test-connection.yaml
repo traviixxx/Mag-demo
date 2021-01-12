@@ -32,7 +32,7 @@ spec:
         - -i
         - 15s
         - -t
-        - 5m
+        - 10m
         - -r
         - "100"
   restartPolicy: Never

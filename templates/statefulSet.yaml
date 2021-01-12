@@ -49,10 +49,10 @@ spec:
       volumes:
         - name: temp
           emptyDir: {}
-        - name: magnolia-home
-          persistentVolumeClaim:
         {{- if $pub.persistence.enabled }}
         {{- if $pub.persistence.existingClaim }}
+        - name: magnolia-home
+          persistentVolumeClaim:
             claimName: {{ $pub.persistence.existingClaim }}
         {{- end }}
         {{- end }}
@@ -364,7 +364,7 @@ spec:
         accessModes:
           - ReadWriteOnce
       metadata:
-        name: home
+        name: magnolia-home
         labels:
           {{- include "magnolia.labels" . | nindent 10 }}
           tier: app
