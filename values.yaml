@@ -212,6 +212,7 @@ magnoliaPublic:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   rescueMode: False
+  stateful: True # Do not change this.
   replicas: 1
   strategy:
     type: Recreate
