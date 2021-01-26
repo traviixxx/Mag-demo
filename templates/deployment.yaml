@@ -352,7 +352,7 @@ spec:
               containerPort: 8765
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /livez
               port: "liveness-port"
             failureThreshold: {{ .failureThreshold | default 4 }}
             periodSeconds: {{ .periodSeconds | default 30 }}
@@ -362,12 +362,12 @@ spec:
           {{- end }}
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /readyz
               port: "liveness-port"
             initialDelaySeconds: 2
-            #periodSeconds: 120
-            timeoutSeconds: 2
-            successThreshold: 3
+            periodSeconds: 2
+            timeoutSeconds: 1
+            successThreshold: 1
 {{- with .startupProbe }}
 {{- end }}
     {{- if $.Values.image.pullSecrets }}
