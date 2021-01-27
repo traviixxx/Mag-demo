@@ -42,7 +42,7 @@ sharedDb:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.2.2-beta2
+      tag: v0.2.2-beta3
       env:
         - name: MGNLBACKUP_CMD
           value: pg_basebackup
@@ -151,7 +151,7 @@ magnoliaAuthor:
     backup:
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.2-beta2"
+      tag: "v0.2.2-beta3"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -267,7 +267,7 @@ magnoliaPublic:
       volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.2-beta2"
+      tag: "v0.2.2-beta3"
       enabled: False
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
