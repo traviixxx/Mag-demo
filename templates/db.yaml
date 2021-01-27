@@ -123,7 +123,7 @@ spec:
             - name: POSTGRES_HOST_AUTH_METHOD
               value: "trust"
             - name: PGDATA
-              value: "/var/lib/postgresql/data"
+              value: {{ .db.pgdata }}
 {{- end }}
           {{- if and .db.restore.enabled (eq .db.type "postgres") }}
           lifecycle:

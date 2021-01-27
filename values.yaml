@@ -141,6 +141,7 @@ magnoliaAuthor:
     tag: 11.9-alpine
     type: postgres
     name: author
+    pgdata: "/var/lib/postgresql/data"
     persistence:
       enabled: True
       size: 10Gi
@@ -261,6 +262,7 @@ magnoliaPublic:
     tag: 11.9-alpine
     type: postgres
     name: public
+    pgdata: "/var/lib/postgresql/data"
     persistence:
       enabled: True
       size: "10Gi"
