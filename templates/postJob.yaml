@@ -16,6 +16,6 @@ metadata:
 {{ $labels | indent 4 }}
 data:
   instructions.yml: |-
-{{ $.Files.Get (printf "files/bootstrap/%s.yml" $magnoliaMode) | indent 4 }}
+{{ $.Files.Get .values.bootstrap.instructionFile | indent 4 }}
 {{- end }}
 {{- end }}

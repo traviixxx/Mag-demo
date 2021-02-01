@@ -114,6 +114,7 @@ magnoliaAuthor:
   bootstrap:
     username: superuser
     password: ""
+    instructionFile: "files/bootstrap/author.yml"
   activation:
     privateKey: null
     publicKey: null
@@ -234,6 +235,7 @@ magnoliaPublic:
   bootstrap:
     username: "superuser"
     password: ""
+    instructionFile: "files/bootstrap/public.yml"
   activation:
     privateKey: null
     publicKey: null
