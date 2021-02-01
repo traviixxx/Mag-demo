@@ -87,7 +87,9 @@
             unpackWARs="false">
         <Context path="{{ .values.contextPath }}"
                 docBase="magnolia"
-                containerSciFilter="WsSci" />
+                containerSciFilter="WsSci">
+          <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "unset" }}" />
+        </Context>
 
       </Host>
     </Engine>

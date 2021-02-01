@@ -1,66 +1,40 @@
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
-{{- with .Values.magnoliaAuthor -}}
-{{- $magnoliaMode := "author" -}}
-{{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
-{{- $dbName := printf "%s-db" $name -}}
-{{- $appVolumeName := printf "%s-app-volume" $name -}}
-{{- if .persistence.enabled }}
-{{- if not .persistence.existingClaim  }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ printf "home-%s" $name }}
-  namespace: {{ $.Release.Namespace }}
-  labels:
-    app: {{ $name }}
-    chart: {{ $chartName }}
-    release: {{ $.Release.Name }}
-    heritage: {{ $.Release.Service }}
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .persistence.size }}
-  {{- if .persistence.storageClassName }}
-  storageClassName: {{ .persistence.storageClassName }}
-  {{- end }}
-{{- end }}
-{{- end }}
+{{- $name := printf "%s-%s" $fullName "public" -}}
+{{- $pub := .Values.magnoliaPublic }}
+{{- $author := .Values.magnoliaAuthor }}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "magnolia.labels" $ | nindent 4 }}
+    {{- include "magnolia.labels" . | nindent 4 }}
     tier: app
-    component: {{ printf "%s-instance" $magnoliaMode }}
+    component: public-instance
 spec:
+  serviceName: {{ $name }}-svc
+  replicas: {{ $pub.replicas }}
   selector:
     matchLabels:
-      {{- include "magnolia.labels" $ | nindent 6 }}
+      {{- include "magnolia.labels" . | nindent 6 }}
       tier: app
-      component: {{ printf "%s-instance" $magnoliaMode }}
-  strategy:
-    {{ toYaml .strategy | indent 4 }}
+      component: public-instance
   template:
     metadata:
       labels:
-        {{- include "magnolia.labels" $ | nindent 8 }}
+        {{- include "magnolia.labels" . | nindent 8 }}
         tier: app
-        component: {{ printf "%s-instance" $magnoliaMode }}
+        component: public-instance
       annotations:
-        {{- if .redeploy }}
+        {{- if $pub.redeploy }}
         timestamp: "{{ date "20060102150405" now }}"
         {{- end }}
     spec:
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
-      restartPolicy: {{ .restartPolicy | default "Always" }}
+      restartPolicy: {{ $pub.restartPolicy | default "Always" }}
       affinity:
         podAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -69,33 +43,32 @@ spec:
               topologyKey: "kubernetes.io/hostname"
               labelSelector:
                 matchLabels:
-                  app: {{ $dbName }}
                   release: {{ $.Release.Name }}
+                  tier: database
+                  component: {{ $pub.db.name }}
       volumes:
         - name: temp
           emptyDir: {}
+        {{- if $pub.persistence.enabled }}
+        {{- if $pub.persistence.existingClaim }}
         - name: magnolia-home
           persistentVolumeClaim:
-        {{- if .persistence.enabled }}
-        {{- if .persistence.existingClaim }}
-            claimName: {{ .persistence.existingClaim }}
-        {{- else }}
-            claimName: {{ printf "home-%s" $name }}
+            claimName: {{ $pub.persistence.existingClaim }}
         {{- end }}
         {{- end }}
         - name: tz-config
           hostPath:
             path: /usr/share/zoneinfo/{{ $.Values.timezone }}
-        - name: {{ $appVolumeName }}
+        - name: app
           emptyDir: {}
-{{- if .db.enabled }}
+{{- if $pub.db.enabled }}
         - name: jackrabbit-config
           configMap:
             items:
             - key: jackrabbit.xml
               mode: 420
               path: jackrabbit.xml
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
 {{- if $.Values.sharedDb.enabled }}
         - name: jackrabbit-shared-config
@@ -104,7 +77,7 @@ spec:
               - key: jackrabbit-shared.xml
                 mode: 420
                 path: jackrabbit-shared.xml
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
         - name: jcr-repositories
           configMap:
@@ -112,17 +85,17 @@ spec:
               - key: jcr-repositories.xml
                 mode: 420
                 path: jcr-repositories.xml
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
 {{- end }}
-{{- if .rescueMode }}
+{{- if $pub.rescueMode }}
         - name: rescue-web-xml
           configMap:
             items:
               - key: rescue-web.xml
                 mode: 420
                 path: rescue-web.xml
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
 {{- end }}
 {{- end }}
@@ -132,7 +105,7 @@ spec:
               - key: log4j2.xml
                 mode: 420
                 path: log4j2.xml
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
         - name: setenv
           configMap:
@@ -140,7 +113,7 @@ spec:
             - key: setenv.sh
               mode: 420
               path: setenv.sh
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
         - name: server-xml
           configMap:
@@ -148,7 +121,7 @@ spec:
             - key: server.xml
               mode: 420
               path: server.xml
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
         - name: logging-properties
           configMap:
@@ -156,32 +129,8 @@ spec:
             - key: logging.properties
               mode: 420
               path: logging.properties
-            name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
+            name: {{ $.Release.Name }}-configmap-public
             optional: False
-{{- if eq $magnoliaMode "author" }}
-{{- if and (not .activation.useExistingSecret) .activation.privateKey }}
-        - name: activation-keypair
-          secret:
-            secretName: {{ printf "%s-activation-secret" $.Release.Name }}
-            defaultMode: 420
-            optional: false
-            items:
-              - key: magnolia-activation-keypair.properties
-                path: magnolia-activation-keypair.properties
-{{- else if .activation.useExistingSecret }}
-        - name: activation-keypair
-          secret:
-            secretName: {{ .activation.secret.name | quote }}
-            defaultMode: 420
-            optional: false
-            items:
-              - key: {{ .activation.secret.key | quote }}
-                path: magnolia-activation-keypair.properties
-{{- else }}
-        - name: activation-keypair
-          emptyDir: {}
-{{- end }}
-{{- end }}
         {{- if $.Values.bootstrap.enabled }}
         - name: instructions
           configMap:
@@ -189,20 +138,20 @@ spec:
             - key: instructions.yml
               mode: 420
               path: instructions.yml
-            name: {{ printf "%s-bootstrap-%s" $.Release.Name $magnoliaMode }}
+            name: {{ printf "%s-bootstrap-%s" $.Release.Name "public" }}
             optional: False
         {{- end }}
       initContainers:
         - name: war
-          image: {{ .webarchive.repository }}:{{ .webarchive.tag }}
+          image: {{ $pub.webarchive.repository }}:{{ $pub.webarchive.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ["sh", "-c", "cp -a /magnolia /app/"]
           volumeMounts:
             - name: tz-config
               mountPath: /etc/localtime
-            - name: {{ $appVolumeName }}
+            - name: app
               mountPath: /app
-{{- range $.Values.jars }}
+        {{- range $.Values.jars }}
         - name: {{ .name }}
           image: {{ .repository }}:{{ .tag }}
           command:
@@ -210,31 +159,53 @@ spec:
           volumeMounts:
             - name: tz-config
               mountPath: /etc/localtime
-            - name: {{ $appVolumeName }}
+            - name: app
               mountPath: /app
-{{- with .env }}
+          {{- with .env }}
           env:
-{{ toYaml . | indent 12 }}
-{{- end -}}
-{{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end -}}
+        {{- end }}
+        - name: dyn-dbconfig
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
+          command:
+            - /app
+            - template
+            - -i
+            - /data/jackrabbit.xml
+            - -o
+            - /magnolia/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
+          volumeMounts:
+            - name: jackrabbit-config
+              mountPath: /data/jackrabbit.xml
+              subPath: jackrabbit.xml
+            - name: app
+              mountPath: /magnolia
         - name: waitfor-db
-          image: busybox:1.31
-          command: ['sh', '-c', "until nslookup {{ $dbName }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"]
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
+          {{- $dbHost := printf "%s-%s-db" $fullName $pub.db.name }}
+          command:
+            - /app
+            - waitfor
+            - --names
+            - {{ $dbHost }}-{{ "{{ .Env.HOSTNAME | podordinal }}" }}.{{ $dbHost }}
       containers:
         - name: {{ $.Chart.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
           imagePullPolicy: {{ $.Values.image.tomcat.pullPolicy }}
-{{- with .resources }}
+        {{- with $pub.resources }}
           resources:
-{{ toYaml . | indent 12 }}
-{{- end }}
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
           env:
-{{- with .env }}
-{{ toYaml . | indent 10 }}
-{{- end }}
+        {{- with $pub.env }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ printf "%s-configmap-%s" $.Release.Name $magnoliaMode }}
+                name: {{ printf "%s-configmap-%s" $.Release.Name "public" }}
                 optional: false
           volumeMounts:
             - name: temp
@@ -242,14 +213,11 @@ spec:
             - name: tz-config
               mountPath: /etc/localtime
             - name: magnolia-home
-              mountPath: {{ .persistence.mountPath | default "/mgnl-home" }}
-            - name: {{ $appVolumeName }}
+              mountPath: {{ $pub.persistence.mountPath | default "/mgnl-home" }}
+            - name: app
               mountPath: {{ $.Values.deploy.directory }}
-{{- if .db.enabled }}
-            - name: jackrabbit-config
-              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
-              subPath: jackrabbit.xml
-{{- if .rescueMode }}
+{{- if $pub.db.enabled }}
+{{- if $pub.rescueMode }}
             - name: rescue-web-xml
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/web.xml
               subPath: rescue-web.xml
@@ -275,35 +243,23 @@ spec:
             - name: logging-properties
               mountPath: /usr/local/tomcat/conf/logging.properties
               subPath: logging.properties
-{{- if eq $magnoliaMode "author" }}
-            - name: activation-keypair
-              {{- if and (not .activation.useExistingSecret) (empty .activation.privateKey) }}
-              mountPath: {{ .activation.keyLocation | dir }}
-              {{- else }}
-              mountPath: {{ .activation.keyLocation }}
-              {{- end}}
-              subPath: magnolia-activation-keypair.properties
-{{- end }}
-        {{- with .extraContainers }}
-{{ toYaml . | indent 8 }}
-        {{- end }}
         - name: bootstrapper
           image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
-          imagePullPolicy: Always
+          imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
           command:
             - /app
             - serve
             - -m
-            - http://localhost:8080{{ .contextPath }}
+            - http://localhost:8080{{ $pub.contextPath }}
             - --code
-            - "{{ .livenessProbe.expectedCodes }}"
+            - "{{ $pub.livenessProbe.expectedCodes }}"
             {{- if $.Values.bootstrap.enabled }}
             - -i
             - /data/instructions.yml
             {{- end }}
             #- -vvv  # Trace mode.
           volumeMounts:
-            - name: {{ $appVolumeName }}
+            - name: app
               mountPath: /magnolia
             {{- if $.Values.bootstrap.enabled }}
             - name: instructions
@@ -313,40 +269,42 @@ spec:
           env:
           {{- if $.Values.bootstrap.enabled }}
           - name: MGNLBOOT_SUPERUSER_NAME
-            value: {{ .bootstrap.username }}
+            value: {{ $pub.bootstrap.username }}
+          - name: MGNLBOOT_AUTHOR_SUPERUSER_NAME
+            value: {{ $author.bootstrap.username }}
           - name: MGNLBOOT_NEW_SUPERUSER_PW
             valueFrom:
               secretKeyRef:
                 key: password
-                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" $magnoliaMode }}
+                name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "public" }}
           - name: MGNLBOOT_AUTHOR_SUPERUSER_PW
             valueFrom:
               secretKeyRef:
                 key: password
                 name: {{ printf "%s-%s-%s" $.Release.Name "secret-superuser" "author" }}
           - name: MGNL_CONTEXT_PATH
-            value: {{ .contextPath }}
+            value: {{ $pub.contextPath }}
           - name: MGNLBOOT_AUTHOR_INSTANCE
             value: {{ printf "http://%s-%s-svc:8080%s" $fullName "author" $.Values.magnoliaAuthor.contextPath }}
-          - name: MGNLBOOT_PUBLIC_INSTANCE
-            value: {{ printf "http://%s-%s-svc:8080%s" $fullName "public" $.Values.magnoliaPublic.contextPath }}
+          - name: MGNLBOOT_PUBLIC_SERVICE_NAME
+            value: {{ printf "%s-%s-svc" $fullName "public" }}
           - name: MGNL_PODNAME
             value: {{ $name }}
-          {{- if .base_url }}
+          {{- if $pub.base_url }}
           - name: MGNL_DEFAULT_BASE_URL
-            value: {{ .base_url | quote }}
+            value: {{ $pub.base_url | quote }}
           {{- end }}
-          {{- if .activation.useExistingSecret }}
+          {{- if $pub.activation.useExistingSecret }}
           - name: MGNL_ACTIVATION_PUBKEY
             valueFrom:
               secretKeyRef:
-                name:  {{ .activation.secret.name | quote }}
-                key:  {{ .activation.secret.key| quote }}
+                name:  {{ $pub.activation.secret.name | quote }}
+                key:  {{ $pub.activation.secret.key| quote }}
           {{- end }}
           {{- end }}
-          {{- if .livenessProbe.enabled }}
-          {{- $contextPath := .contextPath }}
-          {{- with .livenessProbe }}
+          {{- if $pub.livenessProbe.enabled }}
+          {{- $contextPath := $pub.contextPath }}
+          {{- with $pub.livenessProbe }}
           ports:
             - name: "liveness-port"
               containerPort: 8765
@@ -368,18 +326,47 @@ spec:
             periodSeconds: 2
             timeoutSeconds: 1
             successThreshold: 1
-{{- with .startupProbe }}
-{{- end }}
+        {{- with $pub.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     {{- if $.Values.image.pullSecrets }}
       imagePullSecrets:
-{{ toYaml $.Values.image.pullSecrets | indent 8 }}
+      {{- toYaml $.Values.image.pullSecrets | nindent 8 }}
     {{- end }}
     {{- if $.Values.nodeSelector }}
       nodeSelector:
-{{ toYaml $.Values.nodeSelector | indent 8 }}
+      {{- toYaml $.Values.nodeSelector | nindent 8 }}
     {{- end }}
     {{- if $.Values.tolerations }}
       tolerations:
-{{ toYaml $.Values.tolerations | indent 8 }}
+      {{- toYaml $.Values.tolerations | nindent 8 }}
     {{- end }}
-{{ end -}}
+  volumeClaimTemplates:
+    - spec:
+        resources:
+          requests:
+            storage: {{ $pub.db.backup.pg_wal_archive_size | default "50Gi" }}
+        storageClassName: {{ $pub.db.backup.pg_wal_storageClassName | default "" }}
+        accessModes:
+          - ReadWriteOnce
+      metadata:
+        name: archive
+        labels:
+          {{- include "magnolia.labels" . | nindent 10 }}
+          tier: app
+          component: public-instance
+    {{- if $pub.persistence.enabled }}
+    - spec:
+        resources:
+          requests:
+            storage: {{ $pub.persistence.size | default "10Gi" }}
+        storageClassName: {{ $pub.persistence.storageClassName | default "" }}
+        accessModes:
+          - ReadWriteOnce
+      metadata:
+        name: magnolia-home
+        labels:
+          {{- include "magnolia.labels" . | nindent 10 }}
+          tier: app
+          component: public-instance
+    {{- end }}

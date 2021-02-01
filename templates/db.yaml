@@ -15,10 +15,10 @@ data:
   postgres.conf: |-
 {{ tpl ($.Files.Get "files/archive-postgres.conf") . | indent 4 }}
 ---
-{{- range list .Values.magnoliaAuthor.db .Values.magnoliaPublic.db (.Values.sharedDb.enabled | ternary .Values.sharedDb.db nil)  -}}
+{{- range list .Values.magnoliaAuthor .Values.magnoliaPublic nil (.Values.sharedDb.enabled | ternary .Values.sharedDb nil)  -}}
 {{- if . -}}
-{{- $appName := printf "%s-%s-db" $fullName .name -}}
-{{- $dbName := printf "%s-db" .name }}
+{{- $appName := printf "%s-%s-db" $fullName .db.name -}}
+{{- $dbName := printf "%s-db" .db.name }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -26,23 +26,22 @@ metadata:
   name: {{ $appName }}
   namespace: {{ $release.Namespace }}
   labels:
-    app: {{ $appName }}
-    chart: {{ $chartName }}
-    release: {{ $release.Name }}
-    heritage: {{ $release.Service }}
-    component: {{ .name }}
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    component: {{ .db.name }}
+    tier: database
 spec:
   serviceName: {{ $appName }}
-  replicas: 1
+  replicas: {{ .replicas }}
   selector:
     matchLabels:
-      app: {{ $appName }}
-      release: {{ $release.Name }}
+      {{- include "magnolia.labels" $ | nindent 6 }}
+      component: {{ .db.name }}
+      tier: database
   template:
     metadata:
       labels:
-        app: {{ $appName }}
-        release: {{ $release.Name }}
+        {{- include "magnolia.labels" $ | nindent 8 }}
+        component: {{ .db.name }}
         tier: database
     spec:
       affinity:
@@ -65,11 +64,53 @@ spec:
         runAsUser: 70
         runAsGroup: 70
         fsGroup: 70
+      initContainers:
+        # Those init containers provide backward compatibility with older Helm chart releases
+        - name: migration-helper
+          image: "{{ .db.repository }}:{{ .db.tag }}"
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              cd /var/lib/postgresql/data
+              if [[ -d ./mydata && ! -f ./PG_VERSION ]]; then
+                cp -R ./mydata/** .
+                rm -rf ./mydata
+              fi
+              chown -R 70:70 .
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      {{- if .db.contentsync.enabled }}
+        - name: contentsync
+          image: {{ printf "%s:%s" .db.backup.image .db.backup.tag }}
+          command:
+            - /app
+            - boot
+            - --data-dir
+            - /var/lib/postgresql/data
+            - --service-name
+            - {{ $appName }}
+            - --loglevel
+            - debug
+          securityContext:
+            runAsUser: 70
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            {{- if .db.contentsync.enabled }}
+            - name: mtls-certs
+              mountPath: /opt/tls
+              readOnly: true
+            {{- end }}
+      {{- end }}
       containers:
         - name: {{ $dbName }}
-          image: "{{ .repository }}:{{ .tag }}"
-{{- if eq .type "postgres" }}
-          {{- if .backup.enabled }}
+          image: "{{ .db.repository }}:{{ .db.tag }}"
+{{- if eq .db.type "postgres" }}
+          {{- if .db.backup.enabled }}
           command:
           - "docker-entrypoint.sh"
           - "postgres"
@@ -78,13 +119,13 @@ spec:
           {{- end }}
           env:
             - name: POSTGRES_DB
-              value: "{{ .name }}"
+              value: "{{ .db.name }}"
             - name: POSTGRES_HOST_AUTH_METHOD
               value: "trust"
             - name: PGDATA
-              value: "/var/lib/postgresql/data/mydata"
+              value: "/var/lib/postgresql/data"
 {{- end }}
-          {{- if and .restore.enabled (eq .type "postgres") }}
+          {{- if and .db.restore.enabled (eq .db.type "postgres") }}
           lifecycle:
             postStart:
               exec:
@@ -93,7 +134,7 @@ spec:
                   - -c
                   - sh
                   - -c
-                  - psql -c "DROP DATABASE {{ .name }}" && wget {{ .restore.dump_url | quote }} -O - | gunzip | psql postgres
+                  - psql -c "DROP DATABASE {{ .db.name }}" && wget {{ .db.restore.dump_url | quote }} -O - | gunzip | psql postgres
                   - postgres
           {{- end }}
           volumeMounts:
@@ -101,42 +142,56 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: archive
               mountPath: /archive
-            {{- if .backup.enabled }}
+            {{- if .db.backup.enabled }}
             - name: postgres-conf
               mountPath: /etc/postgresql/postgres.conf
               subPath: postgres.conf
             {{- end }}
           readinessProbe:
             exec:
-              command: ["psql", "-w", "-U", "postgres", "-d", "{{ .name }}", "-c", "SELECT 1"]
+              command: ["psql", "-w", "-U", "postgres", "-d", "{{ .db.name }}", "-c", "SELECT 1"]
             initialDelaySeconds: 5
             timeoutSeconds: 2
-{{- if .backup.enabled }}
+{{- if .db.backup.enabled }}
         - name: backup
-          image: {{ printf "%s:%s" .backup.image .backup.tag }}
-          {{- with .backup.env }}
+          image: {{ printf "%s:%s" .db.backup.image .db.backup.tag }}
+          command:
+            - /app
+            - dump
+            - --mode
+            - server
+            {{- if .db.contentsync.enabled }}
+            - --tls-address
+            - {{ .db.contentsync.address | quote }}
+            {{- end }}
+          {{- with .db.backup.env }}
           env:
-{{ toYaml .  | indent 12 }}
+{{ toYaml . | indent 12 }}
           {{- end }}
           volumeMounts:
             - name: archive
-              mountPath: {{ .backup.pg_wal_archive }}
+              mountPath: {{ .db.backup.pg_wal_archive }}
             - name: scratch
-              mountPath: {{ .backup.pg_wal_scratch }}
-          {{- with .backup.volumeMounts }}
+              mountPath: {{ .db.backup.pg_wal_scratch }}
+            {{- if .db.contentsync.enabled }}
+            - name: mtls-certs
+              mountPath: "/opt/tls"
+              readOnly: true
+            {{- end }}
+          {{- with .db.backup.volumeMounts }}
 {{ toYaml . | indent 12 }}
           {{- end }}
 {{- end }}
       volumes:
-{{- if and .persistence.enabled .persistence.existingClaim }}
+{{- if and .db.persistence.enabled .db.persistence.existingClaim }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .persistence.existingClaim }}
-{{- else if not .persistence.enabled }}
+            claimName: {{ .db.persistence.existingClaim }}
+{{- else if not .db.persistence.enabled }}
         - name: data
           emptyDir: {}
-{{- else if and .persistence.enabled (not .persistence.existingClaim) }}
-        {{- if .backup.enabled }}
+{{- else if and .db.persistence.enabled (not .db.persistence.existingClaim) }}
+        {{- if .db.backup.enabled }}
         - name: archive
           persistentVolumeClaim:
             claimName: archive
@@ -150,12 +205,17 @@ spec:
                 path: postgres.conf
             name: {{ $.Release.Name }}-postgres-conf
             optional: False
-        {{- with .backup.volumes }}
+        {{- with .db.backup.volumes }}
 {{ toYaml . | indent 8 }}
         {{- end }}
         {{- else }}
         - name: archive
           emptyDir: {}
+        {{- end }}
+        {{- if .db.contentsync.enabled }}
+        - name: mtls-certs
+          secret:
+            secretName: {{ printf "%s-client-tls" $appName | quote }}
         {{- end }}
   volumeClaimTemplates:
     - metadata:
@@ -165,19 +225,19 @@ spec:
           chart: {{ $chartName }}
           release: {{ $release.Name }}
           heritage: {{ $release.Service }}
-          component: {{ .name }}
+          component: {{ .db.name }}
       spec:
         resources:
           requests:
-            storage: {{ .persistence.size | default "10Gi" }}
-        storageClassName: {{ .persistence.storageClassName | default "" }}
+            storage: {{ .db.persistence.size | default "10Gi" }}
+        storageClassName: {{ .db.persistence.storageClassName | default "" }}
         accessModes:
-      {{- if .persistence.accessModes }}
-          {{- toYaml .persistence.accessModes | nindent 10 }}
+      {{- if .db.persistence.accessModes }}
+          {{- toYaml .db.persistence.accessModes | nindent 10 }}
       {{- else }}
           - ReadWriteOnce
       {{- end }}
-    {{- if .backup.enabled }}
+    {{- if .db.backup.enabled }}
     - metadata:
         name: archive
         labels:
@@ -185,12 +245,12 @@ spec:
           chart: {{ $chartName }}
           release: {{ $release.Name }}
           heritage: {{ $release.Service }}
-          component: {{ .name }}
+          component: {{ .db.name }}
       spec:
         resources:
           requests:
-            storage: {{ .backup.pg_wal_archive_size | default "50Gi" }}
-        storageClassName: {{ .backup.pg_wal_storageClassName | default "" }}
+            storage: {{ .db.backup.pg_wal_archive_size | default "50Gi" }}
+        storageClassName: {{ .db.backup.pg_wal_storageClassName | default "" }}
         accessModes:
           - ReadWriteOnce
     {{- end }}
@@ -199,24 +259,33 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: {{ $appName }}
-    namespace: {{ $release.Namespace }}
-    {{- if $.Values.service.annotations }}
-    annotations:
-        {{- toYaml $.Values.service.annotations | nindent 4 }}
-    {{- end }}
+  name: {{ $appName }}
+  namespace: {{ $release.Namespace }}
+  {{- if $.Values.service.annotations }}
+  annotations:
+    {{- toYaml $.Values.service.annotations | nindent 4 }}
+  {{- end }}
 spec:
-    type: "{{ $.Values.service.type }}"
-    clusterIP: None
-    selector:
-        app: {{ $appName }}
-        release: {{ $release.Name }}
-    ports:
-    {{- if eq .type "postgres" }}
-    - name: postgres
-      port: 5432
-      protocol: TCP
-      targetPort: 5432
-    {{- end }}
+  type: "{{ $.Values.service.type }}"
+  clusterIP: None
+  selector:
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    component: {{ .db.name }}
+    tier: database
+  ports:
+  {{- if eq .db.type "postgres" }}
+  - name: postgres
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  - name: backup
+    port: 9999
+    protocol: TCP
+    targetPort: 9999
+  - name: contentsync
+    port: 9998
+    protocol: TCP
+    targetPort: 9998
+  {{- end }}
 {{- end }}
 {{- end -}}

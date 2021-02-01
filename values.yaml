@@ -5,6 +5,7 @@ image:
   tomcat:
     repository: tomcat
     tag: 9-jre11-slim
+    pullPolicy: IfNotPresent
   pullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -13,6 +14,11 @@ timezone: Europe/Zurich
 
 deploy:
   directory: /usr/local/tomcat/webapps
+  tempDir: /usr/local/tomcat/temp
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
 
 bootstrap:
   enabled: True
@@ -36,7 +42,7 @@ sharedDb:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.2.0
+      tag: v0.2.2-beta3
       env:
         - name: MGNLBACKUP_CMD
           value: pg_basebackup
@@ -81,6 +87,7 @@ sharedDb:
 # default).
 magnoliaAuthor:
   restartPolicy: Always
+  redeploy: false # Always redeploy on "helm upgrade/install" even if no changes were made.
   contextPath: /author # Always use a leading slash.
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
@@ -105,6 +112,7 @@ magnoliaAuthor:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
   bootstrap:
+    username: superuser
     password: ""
   activation:
     privateKey: null
@@ -136,14 +144,14 @@ magnoliaAuthor:
     persistence:
       enabled: True
       size: 10Gi
+      volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
       # accessModes:
       #   - ReadWriteOnce
-
       # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
     backup:
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.0"
+      tag: "v0.2.2-beta3"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -186,7 +194,8 @@ magnoliaAuthor:
       enabled: False
       # # where to get the dump from
       # dump_url: https://s3...
-
+    contentsync:
+      enabled: false
   livenessProbe:
     enabled: True
     failureThreshold: 4
@@ -197,11 +206,14 @@ magnoliaAuthor:
 # supported to use PostgreSQL / MySQL if needed.
 magnoliaPublic:
   restartPolicy: Always # Always use a leading slash.
+  redeploy: true # Always redeploy on "helm upgrade/install" even if no changes were made.
   contextPath: /
   webarchive:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   rescueMode: False
+  stateful: True # Do not change this.
+  replicas: 1
   strategy:
     type: Recreate
   setenv:
@@ -220,6 +232,7 @@ magnoliaPublic:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
   bootstrap:
+    username: "superuser"
     password: ""
   activation:
     privateKey: null
@@ -251,9 +264,10 @@ magnoliaPublic:
     persistence:
       enabled: True
       size: "10Gi"
+      volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.0"
+      tag: "v0.2.2-beta3"
       enabled: False
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
@@ -261,6 +275,9 @@ magnoliaPublic:
     restore:
       enabled: False
       dump_url: https://s3...
+    contentsync:
+      enabled: true
+      address: ":9998"
   livenessProbe:
     enabled: True
     failureThreshold: 4
@@ -270,8 +287,8 @@ magnoliaPublic:
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
   - name: postgres-jdbc
-    repository: registry.gitlab.com/mironet/magnolia-jar
-    tag: postgres-42.2.8
+    repository: registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8
+    tag: v0.0.1
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
@@ -318,7 +335,8 @@ ingress:
 # tested with this chart.
 postjob:
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.0
+  tag: v0.2.1-rc4
+  imagePullPolicy: "IfNotPresent"
   waitFor: 10m
 
 resources: {}

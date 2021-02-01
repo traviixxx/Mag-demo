@@ -22,8 +22,11 @@ spec:
     type: "{{ $.Values.service.type }}"
     clusterIP: {{ $.Values.service.clusterIP }}
     selector:
-        app: {{ $name }}
+        app: {{ $fullName }}
+        chart: {{ $chartName }}
         release: {{ $.Release.Name }}
+        component: {{ printf "%s-instance" $magnoliaMode }}
+        tier: app
     ports:
         {{- toYaml $.Values.service.ports | nindent 4 }}
 {{- end }}
