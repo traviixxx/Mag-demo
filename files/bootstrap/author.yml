@@ -11,8 +11,8 @@ playbook:
       - magnolia-author
     method: "post"
     username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
-    password: "superuser"
-    path: "users/system/superuser"
+    password: {{ .Env.MGNLBOOT_SUPERUSER_PW | default "superuser" }}
+    path: "users/system/{{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}"
     allow_failure: true
     data:
       properties:

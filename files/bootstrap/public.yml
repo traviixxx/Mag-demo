@@ -6,12 +6,32 @@ endpoints:
     url: {{ .Env.MGNLBOOT_AUTHOR_INSTANCE }}
 
 playbook:
+  - name: add_new_subs
+    method: put
+    endpoints:
+      - magnolia-author
+    username: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_NAME | default "superuser" }}
+    password: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_PW | quote }}
+    path: "config/modules/publishing-core/config/receivers"
+    data:
+      name: {{ .Env.HOSTNAME | quote }}
+      type: "mgnl:contentNode"
+      properties:
+        - name: url
+          type: String
+          values:
+            - "http://{{ .Env.HOSTNAME }}.{{ .Env.MGNLBOOT_PUBLIC_SERVICE_NAME }}:8765/"
+        - name: enabled
+          type: String
+          values:
+            - "true"
+
   - name: updateSuperuserPw
     endpoints:
       - magnolia-public
     method: "post"
     username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
+    password: {{ .Env.MGNLBOOT_SUPERUSER_PW | default "superuser" }}
     path: "users/system/{{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}"
     allow_failure: true
     data:
@@ -21,26 +41,6 @@ playbook:
           values: [
             {{ bcrypt (.Env.MGNLBOOT_NEW_SUPERUSER_PW) | quote }}
           ]
-
-  - name: add_new_subs
-    method: put
-    endpoints:
-      - magnolia-author
-    username: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_PW | quote }}
-    path: "config/modules/publishing-core/config/receivers"
-    data:
-      name: {{ .Env.MGNL_PODNAME | quote }}
-      type: "mgnl:contentNode"
-      properties:
-        - name: url
-          type: String
-          values:
-            - {{ .Env.MGNLBOOT_PUBLIC_INSTANCE }}
-        - name: enabled
-          type: String
-          values:
-            - "true"
 
   {{- if .Env.MGNL_ACTIVATION_PUBKEY }}
   - name: set_pubkey

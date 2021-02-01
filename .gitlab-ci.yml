@@ -70,7 +70,7 @@ test-full:
     - export RELEASE=full
     - *test_before
     - *test_gomplate
-    - helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+    - helm repo add stable https://charts.helm.sh/stable
     - helm repo update
     - helm upgrade --install ${RELEASE}-minio --set accessKey=fulltest,secretKey=fulltest stable/minio
   script:
@@ -94,7 +94,7 @@ stop-test-full:
     - export RELEASE=full
   script:
     - *test_after
-    - helm del ${RELEASE}-minio
+    - helm del ${RELEASE}-minio || true
   when: manual
 
 upload:
