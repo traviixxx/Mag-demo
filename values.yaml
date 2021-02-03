@@ -118,6 +118,7 @@ magnoliaAuthor:
     # default. This is intended to be used with the --set-file flag of "helm
     # install".
     instructions: ""
+    extraEnv: []
   activation:
     privateKey: null
     publicKey: null
@@ -244,6 +245,7 @@ magnoliaPublic:
     # default. This is intended to be used with the --set-file flag of "helm
     # install".
     instructions: ""
+    extraEnv: []
   activation:
     privateKey: null
     publicKey: null
@@ -347,7 +349,7 @@ ingress:
 # tested with this chart.
 postjob:
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.1-rc5
+  tag: v0.2.1-rc6
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
 
