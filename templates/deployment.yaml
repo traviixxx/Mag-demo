@@ -57,6 +57,9 @@ spec:
         {{- if .redeploy }}
         timestamp: "{{ date "20060102150405" now }}"
         {{- end }}
+        {{- range $key, $value := .podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
     spec:
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}

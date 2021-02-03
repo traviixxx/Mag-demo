@@ -205,6 +205,8 @@ magnoliaAuthor:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+  # Custom annotations added to pods.
+  podAnnotations: {}
 
 # This is the public instance. It can use the H2 data base, but it's also
 # supported to use PostgreSQL / MySQL if needed.
@@ -291,6 +293,8 @@ magnoliaPublic:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+  # Custom annotations added to pods.
+  podAnnotations: {}
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
