@@ -15,7 +15,12 @@ metadata:
   labels:
 {{ $labels | indent 4 }}
 data:
+{{- if .values.bootstrap.instructions }}
+  instructions.yml: |-
+{{ .values.bootstrap.instructions | indent 4 }}
+{{- else }}
   instructions.yml: |-
 {{ $.Files.Get (printf "files/bootstrap/%s.yml" $magnoliaMode) | indent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}

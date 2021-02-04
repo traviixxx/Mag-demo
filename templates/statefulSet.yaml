@@ -31,6 +31,9 @@ spec:
         {{- if $pub.redeploy }}
         timestamp: "{{ date "20060102150405" now }}"
         {{- end }}
+        {{- range $key, $value := $pub.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
     spec:
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
@@ -300,6 +303,9 @@ spec:
               secretKeyRef:
                 name:  {{ $pub.activation.secret.name | quote }}
                 key:  {{ $pub.activation.secret.key| quote }}
+          {{- end }}
+          {{- if $pub.bootstrap.extraEnv }}
+          {{- toYaml $pub.bootstrap.extraEnv | nindent 10 }}
           {{- end }}
           {{- end }}
           {{- if $pub.livenessProbe.enabled }}

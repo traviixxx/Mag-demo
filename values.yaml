@@ -114,6 +114,11 @@ magnoliaAuthor:
   bootstrap:
     username: superuser
     password: ""
+    # Verbatim content of the instructions for this instance. If empty use a
+    # default. This is intended to be used with the --set-file flag of "helm
+    # install".
+    instructions: ""
+    extraEnv: []
   activation:
     privateKey: null
     publicKey: null
@@ -201,6 +206,8 @@ magnoliaAuthor:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+  # Custom annotations added to pods.
+  podAnnotations: {}
 
 # This is the public instance. It can use the H2 data base, but it's also
 # supported to use PostgreSQL / MySQL if needed.
@@ -234,6 +241,11 @@ magnoliaPublic:
   bootstrap:
     username: "superuser"
     password: ""
+    # Verbatim content of the instructions for this instance. If empty use a
+    # default. This is intended to be used with the --set-file flag of "helm
+    # install".
+    instructions: ""
+    extraEnv: []
   activation:
     privateKey: null
     publicKey: null
@@ -283,6 +295,8 @@ magnoliaPublic:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+  # Custom annotations added to pods.
+  podAnnotations: {}
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
@@ -335,7 +349,7 @@ ingress:
 # tested with this chart.
 postjob:
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.1-rc5
+  tag: v0.2.1-rc6
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
 
