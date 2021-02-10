@@ -308,12 +308,12 @@ spec:
           {{- toYaml $pub.bootstrap.extraEnv | nindent 10 }}
           {{- end }}
           {{- end }}
-          {{- if $pub.livenessProbe.enabled }}
-          {{- $contextPath := $pub.contextPath }}
-          {{- with $pub.livenessProbe }}
           ports:
             - name: "liveness-port"
               containerPort: 8765
+          {{- if $pub.livenessProbe.enabled }}
+          {{- $contextPath := $pub.contextPath }}
+          {{- with $pub.livenessProbe }}
           livenessProbe:
             httpGet:
               path: /livez
