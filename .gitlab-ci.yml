@@ -6,10 +6,8 @@ stages:
   - deploy
 
 .test_before: &test_before
-    - export GIT_TAG=$(git describe --always)
+    - export GIT_TAG=$(git describe --always --tags)
     - export CHART_VERSION=$GIT_TAG
-    - cat .Chart.tpl | gomplate > Chart.yaml
-    - cat Chart.yaml
 
 .test_gomplate: &test_gomplate
     - cat test-values/${RELEASE}.yml | gomplate > test-values/${RELEASE}.yaml
@@ -107,7 +105,7 @@ upload:
     - *test_before
   script:
     - helm dep build
-    - helm package .
+    - helm package . --version ${CHART_VERSION}
     - curl -f -u "$CHARTMUSEUM_USER:$CHARTMUSEUM_PASS" --data-binary @magnolia-helm-${CHART_VERSION}.tgz https://charts.mirohost.ch/api/charts
   only:
     - tags
