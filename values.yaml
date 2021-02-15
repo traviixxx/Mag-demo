@@ -153,6 +153,7 @@ magnoliaAuthor:
       # accessModes:
       #   - ReadWriteOnce
       # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
+      subPath: "psql" # Mount point is /var/lib/postgresql, PGDATA=/var/lib/postgresql/psql
     backup:
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
@@ -268,7 +269,7 @@ magnoliaPublic:
     mountPath: "/mgnl-home"
     storageClassName: "" # Empty string is the default.
   db:
-    enabled: True # If false, use embedded H2 data base.
+    enabled: True
     repository: postgres
     tag: 11.9-alpine
     type: postgres
@@ -277,6 +278,7 @@ magnoliaPublic:
       enabled: True
       size: "10Gi"
       volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
+      subPath: "psql" # Mount point is /var/lib/postgresql, PGDATA=/var/lib/postgresql/psql
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.2-beta3"

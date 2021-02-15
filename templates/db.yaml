@@ -65,24 +65,21 @@ spec:
         runAsGroup: 70
         fsGroup: 70
       initContainers:
-        # Those init containers provide backward compatibility with older Helm chart releases
+        # This init container provides backward compatibility with older Helm chart releases.
         - name: migration-helper
-          image: "{{ .db.repository }}:{{ .db.tag }}"
+          image: "registry.gitlab.com/mironet/magnolia-psql-helper:v0.0.1"
           command:
-            - "/bin/bash"
-            - "-c"
-            - |
-              cd /var/lib/postgresql/data
-              if [[ -d ./mydata && ! -f ./PG_VERSION ]]; then
-                cp -R ./mydata/** .
-                rm -rf ./mydata
-              fi
-              chown -R 70:70 .
+            - "/app"
+            - "fixup-pgdata"
+            - "--source=/var/lib/postgresql"
+            - "--target=/var/lib/postgresql/{{ .db.persistence.subPath }}"
+            - "--source=/var/lib/postgresql/data/mydata"
+            - "--target=/var/lib/postgresql/data"
           securityContext:
             runAsUser: 0
           volumeMounts:
             - name: data
-              mountPath: /var/lib/postgresql/data
+              mountPath: /var/lib/postgresql
       {{- if .db.contentsync.enabled }}
         - name: contentsync
           image: {{ printf "%s:%s" .db.backup.image .db.backup.tag }}
@@ -90,7 +87,7 @@ spec:
             - /app
             - boot
             - --data-dir
-            - /var/lib/postgresql/data
+            - {{ printf "/var/lib/postgresql/%s" .db.persistence.subPath }}
             - --service-name
             - {{ $appName }}
             - --loglevel
@@ -99,7 +96,7 @@ spec:
             runAsUser: 70
           volumeMounts:
             - name: data
-              mountPath: /var/lib/postgresql/data
+              mountPath: "/var/lib/postgresql"
             {{- if .db.contentsync.enabled }}
             - name: mtls-certs
               mountPath: /opt/tls
@@ -123,7 +120,7 @@ spec:
             - name: POSTGRES_HOST_AUTH_METHOD
               value: "trust"
             - name: PGDATA
-              value: "/var/lib/postgresql/data"
+              value: {{ printf "/var/lib/postgresql/%s" .db.persistence.subPath }}
 {{- end }}
           {{- if and .db.restore.enabled (eq .db.type "postgres") }}
           lifecycle:
@@ -139,7 +136,7 @@ spec:
           {{- end }}
           volumeMounts:
             - name: data
-              mountPath: /var/lib/postgresql/data
+              mountPath: "/var/lib/postgresql"
             - name: archive
               mountPath: /archive
             {{- if .db.backup.enabled }}
