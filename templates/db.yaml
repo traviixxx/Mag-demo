@@ -70,10 +70,11 @@ spec:
         # https://gitlab.com/mironet/magnolia-helm/-/merge_requests/44#note_510163431
         # for details.
         - name: migration-helper
-          image: "registry.gitlab.com/mironet/magnolia-psql-helper:v0.0.2"
+          image: "registry.gitlab.com/mironet/magnolia-psql-helper:v0.0.4"
           command:
             - "/app"
             - "fixup-pgdata"
+            - "--marker=PG_VERSION"
             - "--source=/db"
             - "--target=/db/{{ .db.persistence.subPath }}"
             - "--source=/db/data/mydata"
