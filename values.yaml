@@ -153,7 +153,8 @@ magnoliaAuthor:
       # accessModes:
       #   - ReadWriteOnce
       # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
-      subPath: "psql" # Mount point is /var/lib/postgresql, PGDATA=/var/lib/postgresql/psql
+      mountPath: "/db"
+      subPath: "data" # Mount point is /db, PGDATA=/db/data
     backup:
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
@@ -278,7 +279,8 @@ magnoliaPublic:
       enabled: True
       size: "10Gi"
       volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
-      subPath: "psql" # Mount point is /var/lib/postgresql, PGDATA=/var/lib/postgresql/psql
+      mountPath: "/db"
+      subPath: "data" # Mount point is /db, PGDATA=/db/data
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.2-beta3"
