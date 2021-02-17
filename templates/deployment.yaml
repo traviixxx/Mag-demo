@@ -196,6 +196,9 @@ spec:
             optional: False
         {{- end }}
       initContainers:
+        {{- with .extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: war
           image: {{ .webarchive.repository }}:{{ .webarchive.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}

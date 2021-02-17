@@ -93,6 +93,7 @@ magnoliaAuthor:
     repository: registry.gitlab.com/mironet/magnolia-demo
     tag: latest
   extraContainers: []
+  extraInitContainers: []
   rescueMode: False
   strategy:
     type: Recreate
@@ -299,6 +300,8 @@ magnoliaPublic:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+  extraContainers: []
+  extraInitContainers: []
   # Custom annotations added to pods.
   podAnnotations: {}
 
