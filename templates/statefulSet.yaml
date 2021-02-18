@@ -169,6 +169,9 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end -}}
         {{- end }}
+        {{- with $pub.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: dyn-dbconfig
           image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
           imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
