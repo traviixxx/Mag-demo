@@ -3,27 +3,40 @@
 
 image:
   tomcat:
+    # -- The tomcat image we're going to use.
     repository: tomcat
+    # -- Tomcat repo tag.
     tag: 9-jre11-slim
+    # -- Tomcat repo pull policy.
     pullPolicy: IfNotPresent
   pullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# -- Timezone for Magnolia.
 timezone: Europe/Zurich
 
 deploy:
+  # -- Deploy into this directory innside the app server container.
   directory: /usr/local/tomcat/webapps
   tempDir: /usr/local/tomcat/temp
   securityContext:
+    # -- Run application pod under this user ID. **Note:** Do not use a
+    # privileged user here.
     runAsUser: 1000
+    # -- Group ID.
     runAsGroup: 1000
+    # -- Fixup file permissions for volumes mounted to the Magnolia pod.
     fsGroup: 1000
 
 bootstrap:
+  # -- Do enable bootstrapping via REST.
   enabled: True
 
+# -- Shared database (jackrabbit "clustering").
+# @default -- See values below ...
 sharedDb:
+  # -- Enable shared db
   enabled: false
   workspaces: []
   db:
@@ -83,31 +96,48 @@ sharedDb:
       # # where to get the dump from
       # dump_url: https://s3...
 
-# This is the author's configuration. It should not use H2 data base (the
+# -- This is the author's configuration. It should not use H2 data base (the
 # default).
+# @default -- See values below ...
 magnoliaAuthor:
   restartPolicy: Always
-  redeploy: false # Always redeploy on "helm upgrade/install" even if no changes were made.
-  contextPath: /author # Always use a leading slash.
+  # -- If true, redeploy on "helm upgrade/install" even if no changes were made.
+  redeploy: false
+  # -- The context path of this Magnolia instance. Always use a leading slash.
+  contextPath: /author
   webarchive:
+    # -- The docker image where to fetch compiled Magnolia libs from.
     repository: registry.gitlab.com/mironet/magnolia-demo
+    # -- Do not use 'latest' in production.
     tag: latest
+  # -- Extra sidecar containers added to the Magnolia pod.
   extraContainers: []
+  # -- Extra init containers added to the Magnolia pod.
   extraInitContainers: []
+  # -- Enable Groovy rescue console.
   rescueMode: False
   strategy:
+    # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
   setenv:
     memory:
+      # -- Minimum amount allocated to heap as a percentage of the pod's
+      # resources.
       minPercentage: 25
+      # -- Maximum amount allocated to heap as a percentage of the pod's
+      # resources.
       maxPercentage: 60
     update:
+      # -- Auto-update Magnolia if repositories are empty (usually on the first
+      # run).
       auto: "true"
   resources:
     requests:
+      # -- Minimum amount of memory this pod requests.
       memory: 512Mi
     limits:
-      #cpu: 1000m
+      # -- Maximum amount of memory this pod is allowed to use. This is not the
+      # heap size, the heap size is smaller, see `setenv.memory` for details.
       memory: 512Mi
   logging:
     level: DEBUG
@@ -115,7 +145,7 @@ magnoliaAuthor:
   bootstrap:
     username: superuser
     password: ""
-    # Verbatim content of the instructions for this instance. If empty use a
+    # -- Verbatim content of the instructions for this instance. If empty use a
     # default. This is intended to be used with the --set-file flag of "helm
     # install".
     instructions: ""
@@ -123,24 +153,26 @@ magnoliaAuthor:
   activation:
     privateKey: null
     publicKey: null
-    # Set this to `true` in case you want to use an existing activation key
+    # -- Set this to `true` in case you want to use an existing activation key
     # stored as a secret and provide its name.
     useExistingSecret: False
     keyLocation: /keys/activation/magnolia-activation-keypair.properties
     secret:
       name: my-activation-secret
       key: my-activation-secret-key # The name of they inside the secret to use.
-  # Enable persistence for indexes, cache, tmp files. If this is enabled the
-  # MGNL_HOME_DIR env var will be set and a volume will be mounted to the
-  # default location unless it's specified here as mountPath.
   persistence:
+    # -- Enable persistence for indexes, cache, tmp files. If this is enabled
+    # the MGNL_HOME_DIR env var will be set and a volume will be mounted to the
+    # default location unless it's specified here as mountPath.
     enabled: True
-    # Existing volumes can be mounted into the container. If not specified, helm
-    # will create a new PVC.
+    # -- Existing volumes can be mounted into the container. If not specified,
+    # helm will create a new PVC.
     existingClaim:
-    size: 10Gi # In case of local-path provisioners this is not enforced.
+    # -- In case of local-path provisioners this is not enforced.
+    size: 10Gi
     mountPath: /mgnl-home
-    storageClassName: "" # Empty string is the default.
+    # -- Empty string means: Use the default storage class.
+    storageClassName: ""
   db:
     enabled: True
     repository: postgres
@@ -151,12 +183,12 @@ magnoliaAuthor:
       enabled: True
       size: 10Gi
       volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
-      # accessModes:
-      #   - ReadWriteOnce
-      # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
+      # -- Mount point is /db, PGDATA=/db/data
       mountPath: "/db"
-      subPath: "data" # Mount point is /db, PGDATA=/db/data
+      # -- Mount point is /db, PGDATA=/db/data
+      subPath: "data"
     backup:
+      # -- Enable db backup sidecar.
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.2-beta3"
@@ -209,34 +241,53 @@ magnoliaAuthor:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
-  # Custom annotations added to pods.
+  # -- Custom annotations added to pod.
   podAnnotations: {}
 
-# This is the public instance. It can use the H2 data base, but it's also
-# supported to use PostgreSQL / MySQL if needed.
+# -- This is the public instance.
+# @default -- See values below ...
 magnoliaPublic:
   restartPolicy: Always # Always use a leading slash.
-  redeploy: true # Always redeploy on "helm upgrade/install" even if no changes were made.
+  # -- If true, redeploy on "helm upgrade/install" even if no changes were made.
+  redeploy: true
+  # -- The context path of this Magnolia instance. Always use a leading slash.
   contextPath: /
   webarchive:
+    # -- The docker image where to fetch compiled Magnolia libs from.
     repository: registry.gitlab.com/mironet/magnolia-demo
+    # -- Do not use 'latest' in production.
     tag: latest
+  # -- Extra sidecar containers added to the Magnolia pod.
+  extraContainers: []
+  # -- Extra init containers added to the Magnolia pod.
+  extraInitContainers: []
+  # -- Enable Groovy rescue console.
   rescueMode: False
   stateful: True # Do not change this.
+  # -- How many public instances to deploy.
   replicas: 1
   strategy:
+    # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
   setenv:
     memory:
+      # -- Minimum amount allocated to heap as a percentage of the pod's
+      # resources.
       minPercentage: 25
+      # -- Maximum amount allocated to heap as a percentage of the pod's
+      # resources.
       maxPercentage: 60
     update:
+      # -- Auto-update Magnolia if repositories are empty (usually on the first
+      # run).
       auto: "true"
   resources:
     requests:
+      # -- Minimum amount of memory this pod requests.
       memory: 512Mi
     limits:
-      #cpu: 1000m
+      # -- Maximum amount of memory this pod is allowed to use. This is not the
+      # heap size, the heap size is smaller, see `setenv.memory` for details.
       memory: 512Mi
   logging:
     level: DEBUG
@@ -244,7 +295,7 @@ magnoliaPublic:
   bootstrap:
     username: "superuser"
     password: ""
-    # Verbatim content of the instructions for this instance. If empty use a
+    # -- Verbatim content of the instructions for this instance. If empty use a
     # default. This is intended to be used with the --set-file flag of "helm
     # install".
     instructions: ""
@@ -252,24 +303,26 @@ magnoliaPublic:
   activation:
     privateKey: null
     publicKey: null
-    # Set this to `true` in case you want to use an existing activation key
+    # -- Set this to `true` in case you want to use an existing activation key
     # stored as a secret and provide its name.
     useExistingSecret: False
     keyLocation: /keys/activation/magnolia-activation-keypair.properties
     secret:
       name: my-activation-secret
       key: my-activation-secret-key # The name of they inside the secret to use.
-  # Enable persistence for indexes, cache, tmp files. If this is enabled the
-  # MGNL_HOME_DIR env var will be set and a volume will be mounted to the
-  # default location unless it's specified here as mountPath.
   persistence:
+    # -- Enable persistence for indexes, cache, tmp files. If this is enabled
+    # the MGNL_HOME_DIR env var will be set and a volume will be mounted to the
+    # default location unless it's specified here as mountPath.
     enabled: True
-    # Existing volumes can be mounted into the container. If not specified, helm
-    # will create a new PVC.
+    # -- Existing volumes can be mounted into the container. If not specified,
+    # helm will create a new PVC.
     existingClaim:
-    size: "10Gi" # In case of local-path provisioners this is not enforced.
+    # -- In case of local-path provisioners this is not enforced.
+    size: "10Gi"
     mountPath: "/mgnl-home"
-    storageClassName: "" # Empty string is the default.
+    # -- Empty string means: Use the default storage class.
+    storageClassName: ""
   db:
     enabled: True
     repository: postgres
@@ -280,11 +333,14 @@ magnoliaPublic:
       enabled: True
       size: "10Gi"
       volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
+      # -- Mount point is /db, PGDATA=/db/data
       mountPath: "/db"
-      subPath: "data" # Mount point is /db, PGDATA=/db/data
+      # -- Mount point is /db, PGDATA=/db/data
+      subPath: "data"
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.2-beta3"
+      # -- Enable db backup sidecar.
       enabled: False
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
@@ -293,26 +349,29 @@ magnoliaPublic:
       enabled: False
       dump_url: https://s3...
     contentsync:
+      # -- Enable content sync on public instances. Depends on the backup being
+      # enabled and configured correctly for pg_wal log shipping.
       enabled: true
+      # -- TLS port of the backup sidecar.
       address: ":9998"
   livenessProbe:
     enabled: True
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
-  extraContainers: []
-  extraInitContainers: []
-  # Custom annotations added to pods.
+  # -- Custom annotations added to pods.
   podAnnotations: {}
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
   - name: postgres-jdbc
+    # -- Example of additional jar, here the Postgres JDBC driver.
     repository: registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8
     tag: v0.0.1
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
+    # -- Where to find the init script which copies .jar files into tomcat/lib.
     initScript: /init.sh
 
 service:
@@ -330,13 +389,16 @@ service:
     #   targetPort: 9090
 
 ingress:
+  # -- Enable/disable ingress configuration.
   enabled: False
+  # -- Additional annotations for the ingress object.
+  # @default -- {}
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 512m
     # Use these if you want cert-manager to issue let's encrypt certs.
     #cert-manager.io/cluster-issuer: letsencrypt-prod
+  # -- Specify hosts here as an array.
   hosts: []
-    # Specify hosts here as an array.
     # - host: k8s.local
     #   paths:
     #     - path: /
@@ -355,13 +417,9 @@ ingress:
 # Configuration for the bootstrapper. The idea is to fix the specific version
 # tested with this chart.
 postjob:
+  # -- Where to get the bootstrapper from. This should not be changed under
+  # normal circumstances.
   image: registry.gitlab.com/mironet/magnolia-bootstrap
   tag: v0.2.2
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
-
-resources: {}
-
-nodeSelector: {}
-
-affinity: {}

@@ -40,95 +40,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 
 ## Values Reference
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| bootstrap.enabled | bool | `true` | Do enable bootstrapping via REST. |
-| deploy.directory | string | `"/usr/local/tomcat/webapps"` | Deploy into this directory innside the app server container. |
-| deploy.securityContext.fsGroup | int | `1000` | Fixup file permissions for volumes mounted to the Magnolia pod. |
-| deploy.securityContext.runAsGroup | int | `1000` | Group ID. |
-| deploy.securityContext.runAsUser | int | `1000` | Run application pod under this user ID. **Note:** Do not use a privileged user here. |
-| deploy.tempDir | string | `"/usr/local/tomcat/temp"` |  |
-| fullnameOverride | string | `""` |  |
-| image.pullSecrets | list | `[]` |  |
-| image.tomcat.pullPolicy | string | `"IfNotPresent"` | Tomcat repo pull policy. |
-| image.tomcat.repository | string | `"tomcat"` | The tomcat image we're going to use. |
-| image.tomcat.tag | string | `"9-jre11-slim"` | Tomcat repo tag. |
-| ingress.annotations | object | {} | Additional annotations for the ingress object. |
-| ingress.enabled | bool | `false` | Enable/disable ingress configuration. |
-| ingress.hosts | list | `[]` | Specify hosts here as an array. |
-| ingress.tls | list | `[]` |  |
-| jars[0].env[0].name | string | `"INIT_DEST"` |  |
-| jars[0].env[0].value | string | `"/app/magnolia/WEB-INF/lib"` |  |
-| jars[0].initScript | string | `"/init.sh"` | Where to find the init script which copies .jar files into tomcat/lib. |
-| jars[0].name | string | `"postgres-jdbc"` |  |
-| jars[0].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8"` | Example of additional jar, here the Postgres JDBC driver. |
-| jars[0].tag | string | `"v0.0.1"` |  |
-| magnoliaAuthor | object | See values below ... | This is the author's configuration. It should not use H2 data base (the default). |
-| magnoliaAuthor.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
-| magnoliaAuthor.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
-| magnoliaAuthor.contextPath | string | `"/author"` | The context path of this Magnolia instance. Always use a leading slash. |
-| magnoliaAuthor.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
-| magnoliaAuthor.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
-| magnoliaAuthor.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
-| magnoliaAuthor.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
-| magnoliaAuthor.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
-| magnoliaAuthor.persistence.enabled | bool | `true` | Enable persistence for indexes, cache, tmp files. If this is enabled the MGNL_HOME_DIR env var will be set and a volume will be mounted to the default location unless it's specified here as mountPath. |
-| magnoliaAuthor.persistence.existingClaim | string | `nil` | Existing volumes can be mounted into the container. If not specified, helm will create a new PVC. |
-| magnoliaAuthor.persistence.size | string | `"10Gi"` | In case of local-path provisioners this is not enforced. |
-| magnoliaAuthor.persistence.storageClassName | string | `""` | Empty string means: Use the default storage class. |
-| magnoliaAuthor.podAnnotations | object | `{}` | Custom annotations added to pod. |
-| magnoliaAuthor.redeploy | bool | `false` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
-| magnoliaAuthor.rescueMode | bool | `false` | Enable Groovy rescue console. |
-| magnoliaAuthor.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
-| magnoliaAuthor.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
-| magnoliaAuthor.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
-| magnoliaAuthor.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
-| magnoliaAuthor.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
-| magnoliaAuthor.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
-| magnoliaAuthor.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
-| magnoliaAuthor.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
-| magnoliaPublic | object | See values below ... | This is the public instance. |
-| magnoliaPublic.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
-| magnoliaPublic.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
-| magnoliaPublic.contextPath | string | `"/"` | The context path of this Magnolia instance. Always use a leading slash. |
-| magnoliaPublic.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
-| magnoliaPublic.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
-| magnoliaPublic.db.contentsync.enabled | bool | `true` | Enable content sync on public instances. Depends on the backup being enabled and configured correctly for pg_wal log shipping. |
-| magnoliaPublic.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
-| magnoliaPublic.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
-| magnoliaPublic.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
-| magnoliaPublic.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
-| magnoliaPublic.persistence.enabled | bool | `true` | Enable persistence for indexes, cache, tmp files. If this is enabled the MGNL_HOME_DIR env var will be set and a volume will be mounted to the default location unless it's specified here as mountPath. |
-| magnoliaPublic.persistence.existingClaim | string | `nil` | Existing volumes can be mounted into the container. If not specified, helm will create a new PVC. |
-| magnoliaPublic.persistence.size | string | `"10Gi"` | In case of local-path provisioners this is not enforced. |
-| magnoliaPublic.persistence.storageClassName | string | `""` | Empty string means: Use the default storage class. |
-| magnoliaPublic.podAnnotations | object | `{}` | Custom annotations added to pods. |
-| magnoliaPublic.redeploy | bool | `true` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
-| magnoliaPublic.replicas | int | `1` | How many public instances to deploy. |
-| magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console. |
-| magnoliaPublic.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
-| magnoliaPublic.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
-| magnoliaPublic.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
-| magnoliaPublic.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
-| magnoliaPublic.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
-| magnoliaPublic.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
-| magnoliaPublic.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
-| magnoliaPublic.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
-| nameOverride | string | `""` |  |
-| postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
-| postjob.imagePullPolicy | string | `"IfNotPresent"` |  |
-| postjob.tag | string | `"v0.2.2"` |  |
-| postjob.waitFor | string | `"10m"` |  |
-| service.annotations | object | `{}` |  |
-| service.clusterIP | string | `"None"` |  |
-| service.ports[0].name | string | `"http"` |  |
-| service.ports[0].port | int | `80` |  |
-| service.ports[0].protocol | string | `"TCP"` |  |
-| service.ports[0].targetPort | int | `8080` |  |
-| service.type | string | `"ClusterIP"` |  |
-| sharedDb | object | See values below ... | Shared database (jackrabbit "clustering"). |
-| sharedDb.enabled | bool | `false` | Enable shared db |
-| timezone | string | `"Europe/Zurich"` | Timezone for Magnolia. |
+{{ template "chart.valuesTable" . }}
 
 ## Configuration
 
@@ -559,10 +471,7 @@ Values used with older chart versions should always work with newer chart versio
 
 ## Maintainers
 
-| Name | Email | Url |
-| ---- | ------ | --- |
-| MiroNet AG | mathias.seiler@mironet.ch | https://www.mironet.ch/ |
-| fastforward websolutions | pzingg@fastforward.ch | https://www.fastforward.ch/ |
+{{ template "chart.maintainersTable" . }}
 
 ## Legal Notes
 

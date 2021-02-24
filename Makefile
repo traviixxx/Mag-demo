@@ -21,6 +21,9 @@ clean: ## Clean up environment.
 clean-pvc: ## Clean disks (PVCs) too.
 	kubectl get persistentvolumeclaims -l 'release=$(RELEASE)' -o json | kubectl delete -f -
 
+gen-doc: ## Generate docs. Install helm-docs for this to work (https://github.com/norwoodj/helm-docs).
+	helm-docs --template-files=docs/README.md.gotmpl
+
 install-local: ## Install helm chart on k8s.
 	helm upgrade --install $(RELEASE) . -f $(LOCAL_YAML)
 
