@@ -50,8 +50,10 @@ sharedDb:
       size: 10Gi
       # accessModes:
       #   - ReadWriteOnce
-
-        # existingClaim: test  # Use this claim if you want to reuse an existing PVC.
+      # -- Mount point is /db, PGDATA=/db/data
+      mountPath: "/db"
+      # -- Mount point is /db, PGDATA=/db/data
+      subPath: "data"
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
@@ -95,6 +97,8 @@ sharedDb:
       enabled: False
       # # where to get the dump from
       # dump_url: https://s3...
+    cntentsync:
+      enabled: False
 
 # -- This is the author's configuration. It should not use H2 data base (the
 # default).
