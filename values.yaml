@@ -97,7 +97,7 @@ sharedDb:
       enabled: False
       # # where to get the dump from
       # dump_url: https://s3...
-    cntentsync:
+    contentsync:
       enabled: False
 
 # -- This is the author's configuration. It should not use H2 data base (the
