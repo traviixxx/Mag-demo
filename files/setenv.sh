@@ -40,4 +40,13 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.clusterid=cid_{{ .magnoliaMode }}"
 {{- end }}
 
+{{- with .values.catalinaExtraEnv }}
+{{ $list := list }}
+CATALINA_OPTS="$CATALINA_OPTS \
+{{ range $key, $value := . -}}
+{{ $list = append $list (printf "-D%s=%s" $key $value) -}}
+{{- end -}}
+{{ $list | join " \\\n" | indent 1 }}"
+{{- end }}
+
 CATALINA_OPTS="$CATALINA_OPTS $CATALINA_OPTS_EXTRA"

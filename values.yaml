@@ -123,6 +123,8 @@ magnoliaAuthor:
   strategy:
     # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
+  # -- These key/value pairs will be added to CATALINA_OPTS.
+  catalinaExtraEnv: {}
   setenv:
     memory:
       # -- Minimum amount allocated to heap as a percentage of the pod's
@@ -247,6 +249,9 @@ magnoliaAuthor:
     expectedCodes: "200-399,401,404"
   # -- Custom annotations added to pod.
   podAnnotations: {}
+  # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
+  # key/value pairs will be mapped to xml.
+  jndiResources: []
 
 # -- This is the public instance.
 # @default -- See values below ...
@@ -273,6 +278,8 @@ magnoliaPublic:
   strategy:
     # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
+  # -- These key/value pairs will be added to CATALINA_OPTS.
+  catalinaExtraEnv: {}
   setenv:
     memory:
       # -- Minimum amount allocated to heap as a percentage of the pod's
@@ -365,6 +372,9 @@ magnoliaPublic:
     expectedCodes: "200-399,401,404"
   # -- Custom annotations added to pods.
   podAnnotations: {}
+  # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
+  # key/value pairs will be mapped to xml.
+  jndiResources: []
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:

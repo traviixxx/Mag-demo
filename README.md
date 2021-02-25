@@ -66,12 +66,14 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor | object | See values below ... | This is the author's configuration. It should not use H2 data base (the default). |
 | magnoliaAuthor.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
 | magnoliaAuthor.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
+| magnoliaAuthor.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaAuthor.contextPath | string | `"/author"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaAuthor.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaAuthor.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaAuthor.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaAuthor.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
 | magnoliaAuthor.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
+| magnoliaAuthor.jndiResources | list | `[]` | Additional JDNI resources to be added in tomcat's `server.xml`. The key/value pairs will be mapped to xml. |
 | magnoliaAuthor.persistence.enabled | bool | `true` | Enable persistence for indexes, cache, tmp files. If this is enabled the MGNL_HOME_DIR env var will be set and a volume will be mounted to the default location unless it's specified here as mountPath. |
 | magnoliaAuthor.persistence.existingClaim | string | `nil` | Existing volumes can be mounted into the container. If not specified, helm will create a new PVC. |
 | magnoliaAuthor.persistence.size | string | `"10Gi"` | In case of local-path provisioners this is not enforced. |
@@ -90,6 +92,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic | object | See values below ... | This is the public instance. |
 | magnoliaPublic.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
 | magnoliaPublic.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
+| magnoliaPublic.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaPublic.contextPath | string | `"/"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaPublic.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaPublic.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
@@ -98,6 +101,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaPublic.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
 | magnoliaPublic.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
+| magnoliaPublic.jndiResources | list | `[]` | Additional JDNI resources to be added in tomcat's `server.xml`. The key/value pairs will be mapped to xml. |
 | magnoliaPublic.persistence.enabled | bool | `true` | Enable persistence for indexes, cache, tmp files. If this is enabled the MGNL_HOME_DIR env var will be set and a volume will be mounted to the default location unless it's specified here as mountPath. |
 | magnoliaPublic.persistence.existingClaim | string | `nil` | Existing volumes can be mounted into the container. If not specified, helm will create a new PVC. |
 | magnoliaPublic.persistence.size | string | `"10Gi"` | In case of local-path provisioners this is not enforced. |
@@ -127,6 +131,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | service.ports[0].targetPort | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
 | sharedDb | object | See values below ... | Shared database (jackrabbit "clustering"). |
+| sharedDb.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | sharedDb.enabled | bool | `false` | Enable shared db |
 | timezone | string | `"Europe/Zurich"` | Timezone for Magnolia. |
 
@@ -350,6 +355,77 @@ magnoliaPublic:
     prometheus.io/port: "8080"
     prometheus.io/path: "/.monitoring/metrics"
 ```
+
+## JNDI Resources
+
+You can add additional JNDI resources (usually configured in the Tomcat's `server.xml`) by adding the respecitve XML parameter keys and values. This definition for example ...
+
+```yaml
+magnoliaPublic:
+  jndiResources:
+    - name: "jdbc/custom-postgres"
+      auth: "Container"
+      type: "javax.sql.DataSource"
+      driverClassName: "org.postgresql.Driver"
+      url: "jdbc:postgresql://postgres.example.com:5432/database"
+      username: "${jndi.postgres.username}"
+      password: "${jndi.postgres.password}"
+      maxTotal: "20"
+      maxIdle: "10"
+      maxWaitMillis: "-1"
+```
+
+... results a server.xml config section like this:
+
+```xml
+<Server port="-1" shutdown="SHUTDOWN">
+  <!-- Global JNDI resources
+        Documentation at /docs/jndi-resources-howto.html
+  -->
+  <GlobalNamingResources>
+    ...
+    <Resource
+              auth="Container"
+              driverClassName="org.postgresql.Driver"
+              maxIdle="10"
+              maxTotal="20"
+              maxWaitMillis="-1"
+              name="jdbc/custom-postgres"
+              password="${jndi.postgres.password}"
+              type="javax.sql.DataSource"
+              url="jdbc:postgresql://postgres.example.com:5432/database"
+              username="${jndi.postgres.username}"
+              />
+  </GlobalNamingResources>
+```
+
+## Expanding `$CATALINA_OPTS`
+
+In the example about JNDI datasources we used variables which can be set by expanding `$CATALINA_OPTS`. This can be done in a declarative way in YAML:
+
+```yaml
+magnoliaPublic:
+  env:
+    - name: JNDI_POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          key: postgres.username
+          name: jndi
+    - name: JNDI_POSTGRES_PASSSWORD
+      valueFrom:
+        secretKeyRef:
+          key: postgres.password
+          name: jndi
+  catalinaExtraEnv:
+    jndi.postgres.username: "${JNDI_POSTGRES_USERNAME}"
+    jndi.postgres.password: "${JNDI_POSTGRES_PASSSWORD}"
+```
+
+This way we expect a previously existing secret with the username and password for the external database resource.
+
+> **Note**: You could also use the variable name directly, e.g.
+> `jndi.postgres.username` but the example here is about showing the declarative
+> expansion of `$CATALINA_OPTS`.
 
 ## Backups / DB Dumps
 
