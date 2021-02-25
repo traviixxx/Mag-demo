@@ -375,7 +375,7 @@ magnoliaPublic:
       maxWaitMillis: "-1"
 ```
 
-... results a server.xml config section like this:
+... results in a `server.xml` config section like this:
 
 ```xml
 <Server port="-1" shutdown="SHUTDOWN">
@@ -397,7 +397,11 @@ magnoliaPublic:
               username="${jndi.postgres.username}"
               />
   </GlobalNamingResources>
+  ...
+</Server>
 ```
+
+> **Note:** Any combination of XML attribute names and values can be used here. They will be copied 1:1 in the target XML structure.
 
 ## Expanding `$CATALINA_OPTS`
 
