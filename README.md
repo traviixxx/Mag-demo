@@ -127,6 +127,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | service.ports[0].targetPort | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
 | sharedDb | object | See values below ... | Shared database (jackrabbit "clustering"). |
+| sharedDb.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | sharedDb.enabled | bool | `false` | Enable shared db |
 | timezone | string | `"Europe/Zurich"` | Timezone for Magnolia. |
 
@@ -512,15 +513,15 @@ generate a keypair e.g. with `openssl`.
 ```bash
 mkdir temp
 openssl genrsa -out temp/key.pem 1024
-openssl rsa -in temp/key.pem -pubout -outform der -out temp/pubkey.der
-openssl pkcs8 -topk8 -inform PEM -outform DER -in temp/key.pem -out temp/key.der -nocrypt
+openssl rsa -in temp/key.pem -pubout -outform DER -out temp/pubkey.der
+openssl pkcs8 -topk8 -in temp/key.pem -nocrypt -outform DER -out temp/key.der
 ```
 
 Now you can create the `activation.properties` secret:
 
 ```bash
-echo key.private=$(cat temp/key.der | hexdump  -e '"%X"') > temp/secret.yml
-echo -n key.public=$(cat temp/pubkey.der | hexdump  -e '"%X"') >> temp/secret.yml
+echo key.public=$(xxd -p temp/key.der | tr -d '\n') > temp/secret.yml
+echo key.private=$(xxd -p temp/pubkey.der | tr -d '\n') >> temp/secret.yml
 kubectl create secret generic activation-key --from-file=activation-secret=temp/secret.yml
 ```
 
