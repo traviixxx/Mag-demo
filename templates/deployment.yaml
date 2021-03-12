@@ -82,6 +82,8 @@ spec:
       volumes:
         - name: temp
           emptyDir: {}
+        - name: logs
+          emptyDir: {}
         - name: magnolia-home
           persistentVolumeClaim:
         {{- if .persistence.enabled }}
@@ -264,6 +266,8 @@ spec:
           volumeMounts:
             - name: temp
               mountPath: {{ $.Values.deploy.tempDir }}
+            - name: logs
+              mountPath: {{ .logging.path }}
             - name: tz-config
               mountPath: /etc/localtime
             - name: magnolia-home

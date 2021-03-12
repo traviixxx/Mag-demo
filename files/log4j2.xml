@@ -4,14 +4,129 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern='{{ .pattern }}'/>
         </Console>
+
+        <RollingFile name="sync-log-debug"
+                     fileName="${magnolia.logs.dir}/magnolia-debug.log"
+                     filePattern="${magnolia.logs.dir}/magnolia-debug-%i.log"
+                     append="true">
+            <PatternLayout pattern="%-5p %c %d{dd.MM.yyyy HH:mm:ss} -- %m%n"/>
+            <ThresholdFilter level="DEBUG"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <Async name="log-debug">
+            <AppenderRef ref="sync-log-debug"/>
+        </Async>
+
+        <RollingFile name="sync-log-error"
+                     fileName="${magnolia.logs.dir}/magnolia-error.log"
+                     filePattern="${magnolia.logs.dir}/magnolia-error-%i.log"
+                     append="true">
+            <PatternLayout pattern="%-5p %c %d{dd.MM.yyyy HH:mm:ss} -- %m%n"/>
+            <ThresholdFilter level="ERROR"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <Async name="log-error">
+            <AppenderRef ref="sync-log-error"/>
+        </Async>
+
+        <RollingFile name="sync-log-publishing"
+                     fileName="${magnolia.logs.dir}/magnolia-publishing.log"
+                     filePattern="${magnolia.logs.dir}/magnolia-publishing-%i.log"
+                     append="true">
+            <PatternLayout pattern="%-5p %c %d{dd.MM.yyyy HH:mm:ss} -- %m%n"/>
+            <ThresholdFilter level="ERROR"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <Async name="log-publishing">
+            <AppenderRef ref="sync-log-publishing"/>
+        </Async>
+
+        <File name="log-bootstrap" fileName="${magnolia.logs.dir}/bootstrap.log">
+            <PatternLayout pattern="%-5p %d{dd.MM.yyyy HH:mm:ss}  %m%n"/>
+        </File>
+
+        <RollingFile name="sync-log-access"
+                     fileName="${magnolia.logs.dir}/magnolia-access.log"
+                     filePattern="${magnolia.logs.dir}/magnolia-access-%i.log"
+                     append="true">
+            <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss}%m%n"/>
+            <ThresholdFilter level="ERROR"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <Async name="log-access">
+            <AppenderRef ref="sync-log-access"/>
+        </Async>
+
+        <RollingFile name="sync-log-audit"
+                     fileName="${magnolia.logs.dir}/magnolia-audit.log"
+                     filePattern="${magnolia.logs.dir}/magnolia-audit-%i.log"
+                     append="true">
+            <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss}%m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <Async name="log-audit">
+            <AppenderRef ref="sync-log-audit"/>
+        </Async>
+
+        <RollingFile name="sync-log-form"
+                     fileName="${magnolia.logs.dir}/magnolia-form.log"
+                     filePattern="${magnolia.logs.dir}/magnolia-form-%i.log"
+                     append="true">
+            <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss}%m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <Async name="log-form">
+            <AppenderRef ref="sync-log-form"/>
+        </Async>
     </Appenders>
+
     <Loggers>
         <!-- Magnolia categories -->
         <Logger name="info.magnolia" level="INFO"/>
-        <!-- Custom log categories -->
-        <Logger name="log-access" level="ALL"/>
-        <Logger name="log-audit" level="ALL"/>
-        <Logger name="log-form" level="ALL"/>
+
+        <Logger name="info.magnolia.publishing" level="INFO" additivity="true">
+            <AppenderRef ref="log-publishing"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="info.magnolia.importexport.Bootstrapper" level="INFO" additivity="true">
+            <AppenderRef ref="log-bootstrap"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="log-access" additivity="false">
+            <AppenderRef ref="log-access"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="log-audit" additivity="false">
+            <AppenderRef ref="log-audit"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="log-form" additivity="false">
+            <AppenderRef ref="log-form"/>
+            <AppenderRef ref="console"/>
+        </Logger>
+
         <!-- External libraries -->
         <Logger name="org" level="WARN"/>
         <Logger name="org.apache.jackrabbit" level="WARN"/>
@@ -23,11 +138,17 @@
         <Logger name="httpclient" level="WARN"/>
         <Logger name="openwfe.org.log" level="WARN"/>
         <Logger name="openwfe" level="WARN"/>
-{{- range .loggers }}
+        <Logger name="graphql" level="WARN"/>
+        <Logger name="notprivacysafe.graphql" level="WARN"/>
+        {{- range .loggers }}
         <Logger name="{{ .name }}" level="{{ .level }}"/>
- {{- end }}
-        <Root level="{{ .level }}">
+        {{- end }}
+
+        <Root level="ALL">
+            <AppenderRef ref="log-error"/>
+            <AppenderRef ref="log-debug"/>
             <AppenderRef ref="console"/>
         </Root>
+
     </Loggers>
 </Configuration>

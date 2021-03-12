@@ -24,6 +24,9 @@ data:
   JVM_RAM_MAX_PERCENTAGE: {{ default 80 .memory.maxPercentage | quote }}
   MGNL_AUTO_UPDATE: {{ default "true" .update.auto | quote }}
 {{- end }}
+{{- with .values.logging }}
+  MGNL_LOGS_DIR: {{ .path | quote }}
+{{- end }}
   MGNL_AUTHOR_INSTANCE: {{ eq $magnoliaMode "public" | ternary "false" "true" | quote }}
   EXTRA_LIBS: {{ $.Values.deploy.extraLibs | quote }}
   server.xml: |-

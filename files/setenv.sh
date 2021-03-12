@@ -34,7 +34,8 @@ CATALINA_OPTS="$CATALINA_OPTS \
 {{- end }}
  -Dmagnolia.home=${MGNL_HOME_DIR:-/mgnl-home} \
  -Dmagnolia.repositories.home=${MGNL_REPOSITORIES_HOME:-\$\{magnolia.home\}/repositories} \
- -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-\$\{magnolia.home\}/modules}"
+ -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-\$\{magnolia.home\}/modules} \
+ -Dmagnolia.logs.dir=${MGNL_LOGS_DIR:-/logs}"
 
 {{ if .Values.sharedDb.enabled -}}
 CATALINA_OPTS="$CATALINA_OPTS \

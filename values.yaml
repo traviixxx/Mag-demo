@@ -177,6 +177,7 @@ magnoliaAuthor:
   logging:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
+    path: /logs
   bootstrap:
     username: superuser
     password: ""
@@ -363,6 +364,7 @@ magnoliaPublic:
   logging:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
+    path: /logs
   bootstrap:
     username: "superuser"
     password: ""
