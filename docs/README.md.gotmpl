@@ -263,6 +263,81 @@ magnoliaPublic:
     prometheus.io/path: "/.monitoring/metrics"
 ```
 
+## JNDI Resources
+
+You can add additional JNDI resources (usually configured in Tomcat's `server.xml`) by adding the respective XML attribute keys and values. This definition for example ...
+
+```yaml
+magnoliaPublic:
+  jndiResources:
+    - name: "jdbc/custom-postgres"
+      auth: "Container"
+      type: "javax.sql.DataSource"
+      driverClassName: "org.postgresql.Driver"
+      url: "jdbc:postgresql://postgres.example.com:5432/database"
+      username: "${jndi.postgres.username}"
+      password: "${jndi.postgres.password}"
+      maxTotal: "20"
+      maxIdle: "10"
+      maxWaitMillis: "-1"
+```
+
+... results in a `server.xml` config section like this:
+
+```xml
+<Server port="-1" shutdown="SHUTDOWN">
+  <!-- Global JNDI resources
+        Documentation at /docs/jndi-resources-howto.html
+  -->
+  <GlobalNamingResources>
+    ...
+    <Resource
+              auth="Container"
+              driverClassName="org.postgresql.Driver"
+              maxIdle="10"
+              maxTotal="20"
+              maxWaitMillis="-1"
+              name="jdbc/custom-postgres"
+              password="${jndi.postgres.password}"
+              type="javax.sql.DataSource"
+              url="jdbc:postgresql://postgres.example.com:5432/database"
+              username="${jndi.postgres.username}"
+              />
+  </GlobalNamingResources>
+  ...
+</Server>
+```
+
+> **Note:** Any combination of XML attribute names and values can be used here. They will be copied 1:1 into the target XML structure.
+
+## Expanding `$CATALINA_OPTS`
+
+In the example about JNDI datasources we used variables which can be set by expanding `$CATALINA_OPTS`. This can be done in a declarative way in YAML:
+
+```yaml
+magnoliaPublic:
+  env:
+    - name: JNDI_POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          key: postgres.username
+          name: jndi
+    - name: JNDI_POSTGRES_PASSSWORD
+      valueFrom:
+        secretKeyRef:
+          key: postgres.password
+          name: jndi
+  catalinaExtraEnv:
+    jndi.postgres.username: "${JNDI_POSTGRES_USERNAME}"
+    jndi.postgres.password: "${JNDI_POSTGRES_PASSSWORD}"
+```
+
+This way we expect a previously existing secret with the username and password for the external database resource.
+
+> **Note**: You could also use the variable name directly, e.g.
+> `jndi.postgres.username` but the example here is about showing the declarative
+> expansion of `$CATALINA_OPTS`.
+
 ## Backups / DB Dumps
 
 The magnolia to object storage backup agent can be used for regular dumps and

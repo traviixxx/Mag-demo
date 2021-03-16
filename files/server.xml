@@ -42,6 +42,14 @@
                description="User database that can be updated and saved"
                factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
                pathname="conf/tomcat-users.xml" />
+
+    {{- range .values.jndiResources }}
+    <Resource
+    {{- range $key, $value := . }}
+              {{ $key }}={{ $value | quote }}
+    {{- end }}
+              />
+    {{- end }}
   </GlobalNamingResources>
 
   <Service name="Catalina">
