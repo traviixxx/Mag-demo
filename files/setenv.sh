@@ -36,7 +36,11 @@ CATALINA_OPTS="$CATALINA_OPTS \
 {{ if .Values.sharedDb.enabled -}}
 CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.repositories.jackrabbit.cluster.config=WEB-INF/config/repo-conf/jackrabbit-shared.xml \
- -Dmagnolia.repositories.jackrabbit.cluster.master={{ eq .magnoliaMode "public" | ternary "true" "false" }} \
+{{- if eq .magnoliaMode "author" }}
+ -Dmagnolia.repositories.jackrabbit.cluster.master=true \
+{{- else }}
+ -Dmagnolia.repositories.jackrabbit.cluster.master=false \
+{{- end }}
  -Dmagnolia.clusterid=cid_{{ .magnoliaMode }}"
 {{- end }}
 
