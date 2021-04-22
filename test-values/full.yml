@@ -14,7 +14,7 @@ ingress:
   tls:
     - hosts:
       - {{ $hostName }}
-      secretName: full-test-cert
+      secretName: full-{{ .Env.CI_COMMIT_REF_SLUG }}-cert
 
 bootstrap:
   enabled: True

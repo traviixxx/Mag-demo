@@ -59,6 +59,14 @@
             <param name="supportHighlighting" value="true"/>
             <!-- custom provider for getting an HTML excerpt in a query result with rep:excerpt() -->
             <param name="excerptProviderClass" value="info.magnolia.jackrabbit.lucene.SearchHTMLExcerpt"/>
+            {{- with .db.jackrabbit.extraSearchIndexParameters }}
+            <!-- CUSTOM PARAMETERS -->
+            {{- $list := list }}
+            {{ range $key, $value := . -}}
+            <param name="{{ $key }}" value="{{ $value }}"/>
+            {{- end }}
+            <!-- END CUSTOM PARAMETERS -->
+            {{- end }}
         </SearchIndex>
         <WorkspaceSecurity>
             <AccessControlProvider class="info.magnolia.cms.core.MagnoliaAccessProvider"/>

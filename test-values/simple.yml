@@ -14,4 +14,4 @@ ingress:
   tls:
     - hosts:
       - {{ $hostName }}
-      secretName: simple-test-cert
+      secretName: simple-{{ .Env.CI_COMMIT_REF_SLUG }}-cert

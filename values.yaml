@@ -54,6 +54,10 @@ sharedDb:
       mountPath: "/db"
       # -- Mount point is /db, PGDATA=/db/data
       subPath: "data"
+    jackrabbit:
+      # -- Extra search index paramters for jackrabbit configuration (e.g. overwrite
+      # search excerpt provider class with `excerptProviderClass`)
+      extraSearchIndexParameters: {}
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
@@ -193,6 +197,10 @@ magnoliaAuthor:
       mountPath: "/db"
       # -- Mount point is /db, PGDATA=/db/data
       subPath: "data"
+    jackrabbit:
+      # -- Extra search index paramters for jackrabbit configuration (e.g. overwrite
+      # search excerpt provider class with `excerptProviderClass`)
+      extraSearchIndexParameters: {}
     backup:
       # -- Enable db backup sidecar.
       enabled: False
@@ -348,6 +356,10 @@ magnoliaPublic:
       mountPath: "/db"
       # -- Mount point is /db, PGDATA=/db/data
       subPath: "data"
+    jackrabbit:
+      # -- Extra search index paramters for jackrabbit configuration (e.g. overwrite
+      # search excerpt provider class with `excerptProviderClass`)
+      extraSearchIndexParameters: {}
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
       tag: "v0.2.2"
