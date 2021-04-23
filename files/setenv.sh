@@ -41,7 +41,7 @@ CATALINA_OPTS="$CATALINA_OPTS \
 {{- else }}
  -Dmagnolia.repositories.jackrabbit.cluster.master=false \
 {{- end }}
- -Dmagnolia.clusterid=cid_{{ .magnoliaMode }}"
+ -Dmagnolia.clusterid=cid_${HOSTNAME}"
 {{- end }}
 
 {{- with .values.catalinaExtraEnv }}
