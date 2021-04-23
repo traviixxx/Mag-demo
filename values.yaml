@@ -104,6 +104,8 @@ sharedDb:
       enabled: False
       # # where to get the dump from
       # dump_url: https://s3...
+    # -- Custom annotations added to db pods.
+    podAnnotations: {}
     contentsync:
       enabled: False
 
@@ -251,6 +253,8 @@ magnoliaAuthor:
       enabled: False
       # # where to get the dump from
       # dump_url: https://s3...
+    # -- Custom annotations added to db pods.
+    podAnnotations: {}
     contentsync:
       enabled: false
   livenessProbe:
@@ -374,6 +378,8 @@ magnoliaPublic:
     restore:
       enabled: False
       dump_url: https://s3...
+      # -- Custom annotations added to db pods.
+    podAnnotations: {}
     contentsync:
       # -- Enable content sync on public instances. Depends on the backup being
       # enabled and configured correctly for pg_wal log shipping.

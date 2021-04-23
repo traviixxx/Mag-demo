@@ -39,6 +39,10 @@ spec:
       tier: database
   template:
     metadata:
+      annotations:
+        {{- range $key, $value := .db.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
       labels:
         {{- include "magnolia.labels" $ | nindent 8 }}
         component: {{ .db.name }}
