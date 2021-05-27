@@ -69,8 +69,12 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaAuthor.contextPath | string | `"/author"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaAuthor.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
+| magnoliaAuthor.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index paramters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | magnoliaAuthor.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaAuthor.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
+| magnoliaAuthor.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
+| magnoliaAuthor.db.restore.bundle_url | string | `"https://s3..."` | URL to backup bundle JSON file to use for restore. |
+| magnoliaAuthor.db.restore.enabled | bool | `false` | Enable restore operations. |
 | magnoliaAuthor.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
 | magnoliaAuthor.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
 | magnoliaAuthor.jndiResources | list | `[]` | Additional JDNI resources to be added in tomcat's `server.xml`. The key/value pairs will be mapped to xml. |
@@ -97,8 +101,11 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaPublic.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
 | magnoliaPublic.db.contentsync.enabled | bool | `true` | Enable content sync on public instances. Depends on the backup being enabled and configured correctly for pg_wal log shipping. |
+| magnoliaPublic.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index paramters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | magnoliaPublic.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaPublic.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
+| magnoliaPublic.db.restore.bundle_url | string | `"https://s3..."` | URL to backup bundle JSON file to use for restore. |
+| magnoliaPublic.db.restore.enabled | bool | `false` | Enable restore operations. |
 | magnoliaPublic.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
 | magnoliaPublic.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
 | magnoliaPublic.jndiResources | list | `[]` | Additional JDNI resources to be added in tomcat's `server.xml`. The key/value pairs will be mapped to xml. |
@@ -131,7 +138,11 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | service.ports[0].targetPort | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
 | sharedDb | object | See values below ... | Shared database (jackrabbit "clustering"). |
+| sharedDb.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index paramters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | sharedDb.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
+| sharedDb.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
+| sharedDb.db.restore.bundle_url | string | `"https://s3..."` | URL to backup bundle JSON file to use for restore. |
+| sharedDb.db.restore.enabled | bool | `false` | Enable restore operations. |
 | sharedDb.enabled | bool | `false` | Enable shared db |
 | timezone | string | `"Europe/Zurich"` | Timezone for Magnolia. |
 
