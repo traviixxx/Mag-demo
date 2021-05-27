@@ -61,7 +61,7 @@ sharedDb:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: v0.2.2
+      tag: "v0.3.0-rc1"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -101,7 +101,10 @@ sharedDb:
         - name: MGNLBACKUP_CYCLE
           value: "90,0,0" # Use only days for WAL archiving.
     restore:
+      # -- Enable restore operations.
       enabled: False
+      # -- URL to backup bundle JSON file to use for restore.
+      bundle_url: https://s3...
       # # where to get the dump from
       # dump_url: https://s3...
     # -- Custom annotations added to db pods.
@@ -210,7 +213,7 @@ magnoliaAuthor:
       # -- Enable db backup sidecar.
       enabled: False
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.2"
+      tag: "v0.3.0-rc1"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -250,7 +253,10 @@ magnoliaAuthor:
       - name: MGNLBACKUP_CYCLE
         value: "90,0,0" # Use only days for WAL archiving.
     restore:
+      # -- Enable restore operations.
       enabled: False
+      # -- URL to backup bundle JSON file to use for restore.
+      bundle_url: https://s3...
       # # where to get the dump from
       # dump_url: https://s3...
     # -- Custom annotations added to db pods.
@@ -369,15 +375,18 @@ magnoliaPublic:
       extraSearchIndexParameters: {}
     backup:
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.2.2"
+      tag: "v0.3.0-rc1"
       # -- Enable db backup sidecar.
       enabled: False
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
     restore:
+      # -- Enable restore operations.
       enabled: False
       dump_url: https://s3...
+      # -- URL to backup bundle JSON file to use for restore.
+      bundle_url: https://s3...
       # -- Custom annotations added to db pods.
     podAnnotations: {}
     contentsync:
