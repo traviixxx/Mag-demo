@@ -98,6 +98,10 @@ spec:
             - {{ printf "%s/%s" .db.persistence.mountPath .db.persistence.subPath }}
             - --service-name
             - {{ $appName }}
+          {{- if .db.restore.enabled }}
+            - --datasource
+            - {{ .db.restore.bundle_url | quote }}
+          {{- end }}
             - --loglevel
             - debug
           securityContext:
@@ -131,16 +135,7 @@ spec:
               value: {{ printf "%s/%s" .db.persistence.mountPath .db.persistence.subPath }}
 {{- end }}
           {{- if and .db.restore.enabled (eq .db.type "postgres") }}
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - su
-                  - -c
-                  - sh
-                  - -c
-                  - psql -c "DROP DATABASE {{ .db.name }}" && wget {{ .db.restore.dump_url | quote }} -O - | gunzip | psql postgres
-                  - postgres
+
           {{- end }}
           volumeMounts:
             - name: data
