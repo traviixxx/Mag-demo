@@ -1,5 +1,6 @@
 RELEASE=pruning-molly
 LOCAL_YAML=temp/local.yml
+LOCAL_YAML_S3=temp/s3-local.yml
 
 # HELP
 # This will output the help for each task
@@ -26,6 +27,9 @@ gen-doc: ## Generate docs. Install helm-docs for this to work (https://github.co
 
 install-local: ## Install helm chart on k8s.
 	helm upgrade --install $(RELEASE) . -f $(LOCAL_YAML)
+
+install-local-s3: ## Install helm chart on k8s.
+	helm upgrade --install $(RELEASE) . -f $(LOCAL_YAML_S3)
 
 install-remote: check-env ## Install helm chart on k8s.
 	helm install $(RELEASE) . -f $(REMOTE_YAML)
