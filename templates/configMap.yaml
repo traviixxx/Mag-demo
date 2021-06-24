@@ -3,7 +3,7 @@
 {{- $chartName := include "magnolia.chart" . -}}
 {{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
 {{- $magnoliaMode := .mode -}}
-{{- $rescueMode := .values.rescueMode }}
+{{- $rescueMode := or .values.rescueMode .values.rescueModeDX -}}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode -}}
 {{- $db := .values.db -}}
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}

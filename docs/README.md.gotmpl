@@ -175,12 +175,19 @@ value.
 
 To enable the
 [Groovy Rescue Console](https://documentation.magnolia-cms.com/display/DOCS61/Groovy+module#Groovymodule-RescueApp),
-deploy your Helm release with the following flag:
+deploy your Helm release with the following flag
 
+for CE projects:
 ```yaml
 magnoliaAuthor:
   rescueMode: true
 ```
+for DX Core projects:
+```yaml
+magnoliaAuthor:
+  rescueModeDX: true
+```
+
 
 This only takes effect if Magnolia is already installed.
 

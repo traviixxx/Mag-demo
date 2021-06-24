@@ -16,7 +16,11 @@
         </init-param>
         <init-param>
             <param-name>widgetset</param-name>
+            {{- if .values.rescueModeDX }}
+            <param-value>info.magnolia.widgetset.MagnoliaProWidgetSet</param-value>
+            {{- else }}
             <param-value>info.magnolia.widgetset.MagnoliaWidgetSet</param-value>
+            {{- end }}
         </init-param>
     </servlet>
     <servlet-mapping>

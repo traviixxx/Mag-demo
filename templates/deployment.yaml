@@ -118,7 +118,7 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- end }}
-{{- if .rescueMode }}
+{{- if or .rescueMode .rescueModeDX }}
         - name: rescue-web-xml
           configMap:
             items:
@@ -255,7 +255,7 @@ spec:
             - name: jackrabbit-config
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/config/repo-conf/jackrabbit.xml
               subPath: jackrabbit.xml
-{{- if .rescueMode }}
+{{- if or .rescueMode .rescueModeDX }}
             - name: rescue-web-xml
               mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/web.xml
               subPath: rescue-web.xml

@@ -129,6 +129,7 @@ magnoliaAuthor:
   extraInitContainers: []
   # -- Enable Groovy rescue console.
   rescueMode: False
+  rescueModeDX: False
   strategy:
     # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
@@ -288,6 +289,7 @@ magnoliaPublic:
   extraInitContainers: []
   # -- Enable Groovy rescue console.
   rescueMode: False
+  rescueModeDX: False
   stateful: True # Do not change this.
   # -- How many public instances to deploy.
   replicas: 1

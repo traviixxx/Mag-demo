@@ -80,7 +80,8 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.persistence.storageClassName | string | `""` | Empty string means: Use the default storage class. |
 | magnoliaAuthor.podAnnotations | object | `{}` | Custom annotations added to pod. |
 | magnoliaAuthor.redeploy | bool | `false` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
-| magnoliaAuthor.rescueMode | bool | `false` | Enable Groovy rescue console. |
+| magnoliaAuthor.rescueMode | bool | `false` | Enable Groovy rescue console for CE projects. |
+| magnoliaAuthor.rescueModeDX | bool | `false` | Enable Groovy rescue console for DX Core projects. |
 | magnoliaAuthor.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
 | magnoliaAuthor.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
 | magnoliaAuthor.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
@@ -109,7 +110,8 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.podAnnotations | object | `{}` | Custom annotations added to pods. |
 | magnoliaPublic.redeploy | bool | `true` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
 | magnoliaPublic.replicas | int | `1` | How many public instances to deploy. |
-| magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console. |
+| magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console for CE projects. |
+| magnoliaPublic.rescueModeDX | bool | `false` | Enable Groovy rescue console for DX Core projects. |
 | magnoliaPublic.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
 | magnoliaPublic.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
 | magnoliaPublic.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
@@ -268,11 +270,17 @@ value.
 
 To enable the
 [Groovy Rescue Console](https://documentation.magnolia-cms.com/display/DOCS61/Groovy+module#Groovymodule-RescueApp),
-deploy your Helm release with the following flag:
+deploy your Helm release with the following flag
 
+for CE projects:
 ```yaml
 magnoliaAuthor:
   rescueMode: true
+```
+for DX Core projects:
+```yaml
+magnoliaAuthor:
+  rescueModeDX: true
 ```
 
 This only takes effect if Magnolia is already installed.
