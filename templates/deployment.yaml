@@ -306,6 +306,8 @@ spec:
             {{- if $.Values.bootstrap.enabled }}
             - -i
             - /data/instructions.yml
+            - --path
+            - "{{ .livenessProbe.path }}"
             {{- end }}
             #- -vvv  # Trace mode.
           volumeMounts:

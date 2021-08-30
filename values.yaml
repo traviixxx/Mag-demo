@@ -262,6 +262,7 @@ magnoliaAuthor:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+    path: "/"
   # -- Custom annotations added to pod.
   podAnnotations: {}
   # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
@@ -391,6 +392,7 @@ magnoliaPublic:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
+    path: "/"
   # -- Custom annotations added to pods.
   podAnnotations: {}
   # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
@@ -455,6 +457,6 @@ postjob:
   # -- Where to get the bootstrapper from. This should not be changed under
   # normal circumstances.
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.2
+  tag: v0.2.3-rc1
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
