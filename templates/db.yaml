@@ -164,9 +164,28 @@ spec:
             - --tls-address
             - {{ .db.contentsync.address | quote }}
             {{- end }}
-          {{- with .db.backup.env }}
           env:
+          {{- if .db.backup.autoconfig.enabled }}
+            - name: MGNLBACKUP_TAGS_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MGNLBACKUP_TAGS_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MGNLBACKUP_PREFIX
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          {{- end }}
+          {{- with .db.backup.env }}
 {{ toYaml . | indent 12 }}
+          {{- end }}
+          {{- if .db.backup.autoconfig.enabled }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-backup-configmap-%s" $.Release.Name .db.name }}
           {{- end }}
           volumeMounts:
             - name: archive
