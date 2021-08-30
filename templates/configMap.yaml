@@ -47,4 +47,26 @@ data:
   jcr-repositories.xml: |-
 {{ tpl ($.Files.Get "files/jcr-repositories.xml") $data | indent 4 }}
 {{ end -}}
+{{- if $db.backup.autoconfig.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-backup-configmap-%s" $.Release.Name $db.name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+{{- include "magnolia.labels" $ | nindent 4 }}
+data:
+  MGNLBACKUP_CMD: "pg_basebackup"
+  MGNLBACKUP_ARGS: "--host localhost --user postgres -D /scratch -Fp"
+  MGNLBACKUP_USE_PG_WAL: "true"
+  MGNLBACKUP_SYNC_DIR: "/archive"
+  MGNLBACKUP_NO_STDOUT: "true"
+  MGNLBACKUP_LOGLEVEL: "info"
+  MGNLBACKUP_BUCKET: "backup"
+  MGNLBACKUP_HERITAGE: "magnolia-backup"
+  MGNLBACKUP_CRON: "@every 720h" # ~1 month.
+  MGNLBACKUP_TAGS_NAMESPACE: {{ quote $.Release.Namespace }}
+  MGNLBACKUP_TAGS_RELEASE: {{ quote $.Release.Name }}
+{{- end }}
 {{- end }}

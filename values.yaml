@@ -61,7 +61,7 @@ sharedDb:
     backup:
       enabled: False
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: "v0.3.0-rc1"
+      tag: "v0.3.0-rc3"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -212,8 +212,16 @@ magnoliaAuthor:
     backup:
       # -- Enable db backup sidecar.
       enabled: False
+      autoconfig:
+        # -- Configures the backup for pg_wal automatically in a k8s
+        # environment. It does this by including a configmap via the envFrom:
+        # directive which will be injected into the pod. You can override or
+        # pass other environment variables via the env: or the extraEnv:
+        # directive below.
+        enabled: False
+        extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.3.0-rc1"
+      tag: "v0.3.0-rc3"
       pg_wal_archive: "/archive"
       pg_wal_scratch: "/scratch"
       pg_wal_archive_size: "50Gi"
@@ -374,8 +382,16 @@ magnoliaPublic:
       # search excerpt provider class with `excerptProviderClass`)
       extraSearchIndexParameters: {}
     backup:
+      autoconfig:
+        # -- Configures the backup for pg_wal automatically in a k8s
+        # environment. It does this by including a configmap via the envFrom:
+        # directive which will be injected into the pod. You can override or
+        # pass other environment variables via the env: or the extraEnv:
+        # directive below.
+        enabled: False
+        extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.3.0-rc1"
+      tag: "v0.3.0-rc3"
       # -- Enable db backup sidecar.
       enabled: False
       pg_wal_archive: "/archive"
