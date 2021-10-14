@@ -1,60 +1,15 @@
-{{- if $.Values.magnoliaPublic.db.contentsync.enabled -}}
-{{- if $.Values.magnoliaPublic.db.enabled -}}
 {{- $fullName := include "magnolia.fullname" . -}}
-{{- $name := include "magnolia.name" . -}}
-{{- $appName := printf "%s-%s-db" $fullName $.Values.magnoliaPublic.db.name -}}
-# Create a self-signed issuer for our CA.
+{{- range list .Values.magnoliaAuthor .Values.magnoliaPublic -}}
+{{- if and .db.contentsync.enabled .db.enabled -}}
+{{- $appName := printf "%s-%s-db" $fullName .db.name -}}
+{{- $dbName := printf "%s-db" .db.name }}
 ---
-apiVersion: cert-manager.io/v1alpha2
-kind: Issuer
-metadata:
-  name: {{ $fullName }}-selfsigned-issuer
-  namespace: {{ $.Release.Namespace }}
-  labels:
-    {{- include "magnolia.labels" $ | nindent 4 }}
-spec:
-  selfSigned: {}
----
-# Create a root certificate.
-apiVersion: cert-manager.io/v1alpha2
+# This is our client cert used for all magnolia-backup clients to request new
+# base backups on-demand.
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ $fullName }}-ca
-  namespace: {{ $.Release.Namespace }}
-  labels:
-    {{- include "magnolia.labels" $ | nindent 4 }}
-spec:
-  secretName: {{ $appName }}-ca-tls
-  commonName: {{ $appName }}.svc.cluster.local
-  usages:
-    - server auth
-    - client auth
-  isCA: true
-  duration: 87600h # 10y
-  renewBefore: 1440h # 60d
-  keyAlgorithm: ecdsa
-  keySize: 256
-  issuerRef:
-    name: {{ $fullName }}-selfsigned-issuer
----
-# This is our CA issuer.
-apiVersion: cert-manager.io/v1alpha2
-kind: Issuer
-metadata:
-  name: {{ $fullName }}-ca-issuer
-  namespace: {{ $.Release.Namespace }}
-  labels:
-    {{- include "magnolia.labels" $ | nindent 4 }}
-spec:
-  ca:
-    secretName: {{ $appName }}-ca-tls
----
-# And this is our client cert used for all magnolia-backup clients to request
-# new base backups on-demand.
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
-metadata:
-  name: {{ $fullName }}-cs-cert
+  name: {{ $appName }}-cs-cert
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "magnolia.labels" $ | nindent 4 }}
@@ -70,10 +25,11 @@ spec:
   - "*.{{ $appName }}"
   duration: 43800h # 5y
   renewBefore: 1440h # 60d
-  keyAlgorithm: ecdsa
-  keySize: 256
+  privateKey:
+    algorithm: ECDSA
+    size: 256
   issuerRef:
-    name: {{ $fullName }}-ca-issuer
-
+    name: {{ $fullName }}-selfsigned-issuer
+---
 {{- end -}}
 {{- end -}}

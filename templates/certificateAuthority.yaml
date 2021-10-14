@@ -1,0 +1,36 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+---
+# Create a root certificate.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $fullName }}-ca
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "magnolia.labels" $ | nindent 4 }}
+spec:
+  secretName: {{ $fullName }}-ca-tls
+  commonName: {{ $fullName }}.svc.cluster.local
+  usages:
+    - server auth
+    - client auth
+  isCA: true
+  duration: 87600h # 10y
+  renewBefore: 1440h # 60d
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: {{ $fullName }}-selfsigned-issuer
+# Create a self-signed issuer for our CA.
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ $fullName }}-selfsigned-issuer
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "magnolia.labels" $ | nindent 4 }}
+spec:
+  selfSigned: {}
+---
