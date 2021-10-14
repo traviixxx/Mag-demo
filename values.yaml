@@ -271,6 +271,8 @@ magnoliaAuthor:
     podAnnotations: {}
     contentsync:
       enabled: false
+      # -- TLS port of the backup sidecar.
+      address: ":9998"
   livenessProbe:
     enabled: True
     failureThreshold: 4
