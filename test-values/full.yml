@@ -46,6 +46,8 @@ magnoliaAuthor:
       #cpu: 1000m
       memory: 2Gi
   db:
+    contentsync:
+      enabled: true
     restore:
       enabled: False
     backup:
@@ -107,6 +109,8 @@ magnoliaPublic:
       #cpu: 1000m
       memory: 2Gi
   db:
+    contentsync:
+      enabled: true
     backup:
       enabled: True
       env:
