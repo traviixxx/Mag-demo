@@ -60,6 +60,9 @@ sharedDb:
       extraSearchIndexParameters: {}
     backup:
       enabled: False
+      autoconfig:
+        enabled: False
+        extraEnv: []
       image: registry.gitlab.com/mironet/magnolia-backup
       tag: "v0.3.0-rc7"
       pg_wal_archive: "/archive"
