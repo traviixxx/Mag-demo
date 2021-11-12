@@ -84,7 +84,7 @@ magnoliaAuthor:
             name: full-s3-backup-key
             key: secretkey
       - name: MGNLBACKUP_S3_ENDPOINT
-        value: full-minio:9000
+        value: s3.eu-central-1.amazonaws.com
       - name: MGNLBACKUP_S3_CYCLE
         value: "2,0,0"
       - name: MGNLBACKUP_CRON
@@ -92,7 +92,19 @@ magnoliaAuthor:
       - name: MGNLBACKUP_PREFIX
         value: author-
       - name: MGNLBACKUP_S3_INSECURE
-        value: "true"
+        value: "false"
+      - name: MGNLBACKUP_TAGS_NODE_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: spec.nodeName
+      - name: MGNLBACKUP_TAGS_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: MGNLBACKUP_TAGS_POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
 
 magnoliaPublic:
   bootstrap:
@@ -133,7 +145,7 @@ magnoliaPublic:
             name: full-s3-backup-key
             key: secretkey
       - name: MGNLBACKUP_S3_ENDPOINT
-        value: full-minio:9000
+        value: s3.eu-central-1.amazonaws.com
       - name: MGNLBACKUP_S3_CYCLE
         value: "15,4,3"
       - name: MGNLBACKUP_CRON
@@ -141,4 +153,16 @@ magnoliaPublic:
       - name: MGNLBACKUP_PREFIX
         value: public-
       - name: MGNLBACKUP_S3_INSECURE
-        value: "true"
+        value: "false"
+      - name: MGNLBACKUP_TAGS_NODE_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: spec.nodeName
+      - name: MGNLBACKUP_TAGS_NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: MGNLBACKUP_TAGS_POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
