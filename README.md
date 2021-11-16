@@ -69,8 +69,11 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaAuthor.contextPath | string | `"/author"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaAuthor.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
+| magnoliaAuthor.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
+| magnoliaAuthor.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index paramters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | magnoliaAuthor.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaAuthor.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
+| magnoliaAuthor.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
 | magnoliaAuthor.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
 | magnoliaAuthor.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
 | magnoliaAuthor.jndiResources | list | `[]` | Additional JDNI resources to be added in tomcat's `server.xml`. The key/value pairs will be mapped to xml. |
@@ -80,8 +83,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.persistence.storageClassName | string | `""` | Empty string means: Use the default storage class. |
 | magnoliaAuthor.podAnnotations | object | `{}` | Custom annotations added to pod. |
 | magnoliaAuthor.redeploy | bool | `false` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
-| magnoliaAuthor.rescueMode | bool | `false` | Enable Groovy rescue console for CE projects. |
-| magnoliaAuthor.rescueModeDX | bool | `false` | Enable Groovy rescue console for DX Core projects. |
+| magnoliaAuthor.rescueMode | bool | `false` | Enable Groovy rescue console. |
 | magnoliaAuthor.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
 | magnoliaAuthor.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
 | magnoliaAuthor.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
@@ -98,6 +100,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaPublic.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
 | magnoliaPublic.db.contentsync.enabled | bool | `true` | Enable content sync on public instances. Depends on the backup being enabled and configured correctly for pg_wal log shipping. |
+| magnoliaPublic.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index paramters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | magnoliaPublic.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaPublic.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | magnoliaPublic.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
@@ -110,8 +113,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.podAnnotations | object | `{}` | Custom annotations added to pods. |
 | magnoliaPublic.redeploy | bool | `true` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
 | magnoliaPublic.replicas | int | `1` | How many public instances to deploy. |
-| magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console for CE projects. |
-| magnoliaPublic.rescueModeDX | bool | `false` | Enable Groovy rescue console for DX Core projects. |
+| magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console. |
 | magnoliaPublic.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
 | magnoliaPublic.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
 | magnoliaPublic.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
@@ -123,7 +125,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | nameOverride | string | `""` |  |
 | postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
 | postjob.imagePullPolicy | string | `"IfNotPresent"` |  |
-| postjob.tag | string | `"v0.2.2"` |  |
+| postjob.tag | string | `"v0.2.3-rc1"` |  |
 | postjob.waitFor | string | `"10m"` |  |
 | service.annotations | object | `{}` |  |
 | service.clusterIP | string | `"None"` |  |
@@ -133,7 +135,10 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | service.ports[0].targetPort | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
 | sharedDb | object | See values below ... | Shared database (jackrabbit "clustering"). |
+| sharedDb.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
+| sharedDb.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index paramters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | sharedDb.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
+| sharedDb.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
 | sharedDb.enabled | bool | `false` | Enable shared db |
 | timezone | string | `"Europe/Zurich"` | Timezone for Magnolia. |
 
