@@ -44,6 +44,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 |-----|------|---------|-------------|
 | bootstrap.enabled | bool | `true` | Do enable bootstrapping via REST. |
 | deploy.directory | string | `"/usr/local/tomcat/webapps"` | Deploy into this directory innside the app server container. |
+| deploy.extraLibs | string | `"/usr/local/tomcat/lib2"` |  |
 | deploy.securityContext.fsGroup | int | `1000` | Fixup file permissions for volumes mounted to the Magnolia pod. |
 | deploy.securityContext.runAsGroup | int | `1000` | Group ID. |
 | deploy.securityContext.runAsUser | int | `1000` | Run application pod under this user ID. **Note:** Do not use a privileged user here. |
@@ -63,6 +64,12 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | jars[0].name | string | `"postgres-jdbc"` |  |
 | jars[0].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8"` | Example of additional jar, here the Postgres JDBC driver. |
 | jars[0].tag | string | `"v0.0.1"` |  |
+| jars[1].env[0].name | string | `"INIT_DEST"` |  |
+| jars[1].env[0].value | string | `"/extraLibs/"` |  |
+| jars[1].initScript | string | `"/init.sh"` |  |
+| jars[1].name | string | `"jmx-exporter"` |  |
+| jars[1].repository | string | `"registry.gitlab.com/mironet/magnolia-jar"` |  |
+| jars[1].tag | string | `"jmx_prometheus_javaagent-0.13.0"` |  |
 | magnoliaAuthor | object | See values below ... | This is the author's configuration. It should not use H2 data base (the default). |
 | magnoliaAuthor.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
 | magnoliaAuthor.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
@@ -122,6 +129,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
 | magnoliaPublic.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
 | magnoliaPublic.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
+| metrics.enabled | bool | `true` | Enable JMX exporters. |
 | nameOverride | string | `""` |  |
 | postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
 | postjob.imagePullPolicy | string | `"IfNotPresent"` |  |

@@ -17,6 +17,7 @@ fullnameOverride: ""
 timezone: Europe/Zurich
 
 deploy:
+  extraLibs: /usr/local/tomcat/lib2
   # -- Deploy into this directory innside the app server container.
   directory: /usr/local/tomcat/webapps
   tempDir: /usr/local/tomcat/temp
@@ -416,6 +417,19 @@ jars:
         value: /app/magnolia/WEB-INF/lib
     # -- Where to find the init script which copies .jar files into tomcat/lib.
     initScript: /init.sh
+  - name: jmx-exporter
+    repository: registry.gitlab.com/mironet/magnolia-jar
+    tag: jmx_prometheus_javaagent-0.13.0
+    env:
+      - name: INIT_DEST
+        value: /extraLibs/
+    initScript: /init.sh
+
+metrics:
+  # -- Enable JMX exporters.
+  enabled: true
+  setPrometheusAnnotations: true
+  metricsServerPort: 8000
 
 service:
   annotations: {}

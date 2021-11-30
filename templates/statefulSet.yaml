@@ -28,6 +28,10 @@ spec:
         tier: app
         component: public-instance
       annotations:
+{{- if and $.Values.metrics.enabled $.Values.metrics.setPrometheusAnnotations }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ $.Values.metrics.metricsServerPort }}"
+{{- end }}
         {{- if $pub.redeploy }}
         timestamp: "{{ date "20060102150405" now }}"
         {{- end }}
@@ -64,6 +68,19 @@ spec:
             path: /usr/share/zoneinfo/{{ $.Values.timezone }}
         - name: app
           emptyDir: {}
+        # This volume's name has to conform to the rules for a dns name.
+        - name: extralibs
+          emptyDir: {}
+{{- if $.Values.metrics.enabled }}
+        - name: jmx-exporter-config
+          configMap:
+            items:
+            - key: jmx-exporter-config.yml
+              mode: 420
+              path: config.yml
+            name: {{ $.Release.Name }}-configmap-public
+            optional: False
+{{- end }}
 {{- if $pub.db.enabled }}
         - name: jackrabbit-config
           configMap:
@@ -164,6 +181,8 @@ spec:
               mountPath: /etc/localtime
             - name: app
               mountPath: /app
+            - name: extralibs
+              mountPath: /extraLibs
           {{- with .env }}
           env:
             {{- toYaml . | nindent 12 }}
@@ -222,6 +241,8 @@ spec:
               mountPath: {{ $pub.persistence.mountPath | default "/mgnl-home" }}
             - name: app
               mountPath: {{ $.Values.deploy.directory }}
+            - name: extralibs
+              mountPath: {{ $.Values.deploy.extraLibs }}
 {{- if $pub.db.enabled }}
 {{- if or $pub.rescueMode $pub.rescueModeDX }}
             - name: rescue-web-xml
@@ -249,6 +270,9 @@ spec:
             - name: logging-properties
               mountPath: /usr/local/tomcat/conf/logging.properties
               subPath: logging.properties
+            - name: jmx-exporter-config
+              mountPath: /jmxexporter/config.yml
+              subPath: config.yml
         - name: bootstrapper
           image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
           imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}

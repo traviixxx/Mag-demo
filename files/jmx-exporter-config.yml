@@ -1,0 +1,7 @@
+ssl: false
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+whitelistObjectNames:
+ - "java.lang:*"
+ - "Catalina:*"
+ - "Magnolia:*"

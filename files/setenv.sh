@@ -1,4 +1,4 @@
-CLASSPATH="${CATALINA_BASE}/lib2/*"
+CLASSPATH="${EXTRA_LIBS}/*"
 
 CATALINA_OPTS="$CATALINA_OPTS \
  -server \
@@ -15,6 +15,9 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -XX:G1ReservePercent=10 \
  -XX:ThreadStackSize=512k \
  -XX:+ExitOnOutOfMemoryError \
+{{- if .Values.metrics.enabled }}
+ -javaagent:${EXTRA_LIBS}/jmx_prometheus_javaagent.jar={{ $.Values.metrics.metricsServerPort }}:/jmxexporter/config.yml \
+{{- end }}
  -XshowSettings:vm"
 
 # -XX:+PrintFlagsFinal \

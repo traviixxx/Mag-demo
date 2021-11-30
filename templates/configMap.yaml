@@ -25,6 +25,7 @@ data:
   MGNL_AUTO_UPDATE: {{ default "true" .update.auto | quote }}
 {{- end }}
   MGNL_AUTHOR_INSTANCE: {{ eq $magnoliaMode "public" | ternary "false" "true" | quote }}
+  EXTRA_LIBS: {{ $.Values.deploy.extraLibs | quote }}
   server.xml: |-
 {{ tpl ($.Files.Get "files/server.xml") $data | indent 4 }}
   logging.properties: |-
@@ -46,5 +47,7 @@ data:
 {{ tpl ($.Files.Get "files/setenv.sh") $data | indent 4 }}
   jcr-repositories.xml: |-
 {{ tpl ($.Files.Get "files/jcr-repositories.xml") $data | indent 4 }}
+  jmx-exporter-config.yml: |-
+{{ tpl ($.Files.Get "files/jmx-exporter-config.yml") $data | indent 4 }}
 {{ end -}}
 {{- end }}
