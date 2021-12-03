@@ -419,7 +419,7 @@ magnoliaPublic:
     contentsync:
       # -- Enable content sync on public instances. Depends on the backup being
       # enabled and configured correctly for pg_wal log shipping.
-      enabled: true
+      enabled: false
       # -- TLS port of the backup sidecar.
       address: ":9998"
   livenessProbe:
