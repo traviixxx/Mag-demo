@@ -112,7 +112,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.contextPath | string | `"/"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaPublic.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaPublic.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
-| magnoliaPublic.db.contentsync.enabled | bool | `true` | Enable content sync on public instances. Depends on the backup being enabled and configured correctly for pg_wal log shipping. |
+| magnoliaPublic.db.contentsync.enabled | bool | `false` | Enable content sync on public instances. Depends on the backup being enabled and configured correctly for pg_wal log shipping. |
 | magnoliaPublic.db.jackrabbit.autoRepair | bool | `true` | Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log. |
 | magnoliaPublic.db.jackrabbit.enableConsistencyCheck | bool | `false` | If set to true a consistency check is performed depending on the parameter forceConsistencyCheck. If set to false no consistency check is performed on startup, even if a redo log had been applied. |
 | magnoliaPublic.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index parameters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
@@ -142,6 +142,8 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
 | magnoliaPublic.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
 | metrics.enabled | bool | `true` | Enable JMX exporters. |
+| metrics.metricsServerPort | int | `8000` |  |
+| metrics.setPrometheusAnnotations | bool | `true` |  |
 | nameOverride | string | `""` |  |
 | postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
 | postjob.imagePullPolicy | string | `"IfNotPresent"` |  |
