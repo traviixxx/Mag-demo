@@ -98,6 +98,10 @@ spec:
             - {{ printf "%s/%s" .db.persistence.mountPath .db.persistence.subPath }}
             - --service-name
             - {{ $appName }}
+          {{- if .db.restore.enabled }}
+            - --datasource
+            - {{ .db.restore.bundle_url | quote }}
+          {{- end }}
             - --loglevel
             - debug
           securityContext:
@@ -131,16 +135,7 @@ spec:
               value: {{ printf "%s/%s" .db.persistence.mountPath .db.persistence.subPath }}
 {{- end }}
           {{- if and .db.restore.enabled (eq .db.type "postgres") }}
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - su
-                  - -c
-                  - sh
-                  - -c
-                  - psql -c "DROP DATABASE {{ .db.name }}" && wget {{ .db.restore.dump_url | quote }} -O - | gunzip | psql postgres
-                  - postgres
+
           {{- end }}
           volumeMounts:
             - name: data
@@ -169,9 +164,28 @@ spec:
             - --tls-address
             - {{ .db.contentsync.address | quote }}
             {{- end }}
-          {{- with .db.backup.env }}
           env:
+          {{- if .db.backup.autoconfig.enabled }}
+            - name: MGNLBACKUP_TAGS_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MGNLBACKUP_TAGS_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MGNLBACKUP_PREFIX
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          {{- end }}
+          {{- with .db.backup.env }}
 {{ toYaml . | indent 12 }}
+          {{- end }}
+          {{- if .db.backup.autoconfig.enabled }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-backup-configmap-%s" $.Release.Name .db.name }}
           {{- end }}
           volumeMounts:
             - name: archive
