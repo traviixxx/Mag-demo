@@ -56,12 +56,12 @@ spec:
       volumes:
         - name: temp
           emptyDir: {}
-        {{- if $value.persistence.enabled }}
-        {{- if $value.persistence.existingClaim }}
         - name: magnolia-home
+        {{- if and $value.persistence.enabled $value.persistence.existingClaim }}
           persistentVolumeClaim:
             claimName: {{ $value.persistence.existingClaim }}
-        {{- end }}
+        {{- else }}
+          emptyDir: {}
         {{- end }}
         - name: tz-config
           hostPath:

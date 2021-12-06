@@ -75,6 +75,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
 | magnoliaAuthor.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaAuthor.contextPath | string | `"/author"` | The context path of this Magnolia instance. Always use a leading slash. |
+| magnoliaAuthor.db.backup.autoconfig.enabled | bool | `false` | Configures the backup for pg_wal automatically in a k8s environment. It does this by including a configmap via the envFrom: directive which will be injected into the pod. You can override or pass other environment variables via the env: or the extraEnv: directive below. |
 | magnoliaAuthor.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaAuthor.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
 | magnoliaAuthor.db.jackrabbit.autoRepair | bool | `true` | Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log. |
@@ -110,6 +111,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
 | magnoliaPublic.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaPublic.contextPath | string | `"/"` | The context path of this Magnolia instance. Always use a leading slash. |
+| magnoliaPublic.db.backup.autoconfig.enabled | bool | `false` | Configures the backup for pg_wal automatically in a k8s environment. It does this by including a configmap via the envFrom: directive which will be injected into the pod. You can override or pass other environment variables via the env: or the extraEnv: directive below. |
 | magnoliaPublic.db.backup.enabled | bool | `false` | Enable db backup sidecar. |
 | magnoliaPublic.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
 | magnoliaPublic.db.contentsync.enabled | bool | `false` | Enable content sync on public instances. Depends on the backup being enabled and configured correctly for pg_wal log shipping. |
@@ -163,6 +165,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | sharedDb.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index parameters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | sharedDb.db.jackrabbit.forceConsistencyCheck | bool | `false` | Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown. |
 | sharedDb.db.jackrabbit.onWorkspaceInconsistency | string | `"log"` | If set to log, the process will just log the inconsistency during the re-indexing on startup. If set to fail, the process will fail the re-indexing on startup. |
+| sharedDb.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | sharedDb.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | sharedDb.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
 | sharedDb.db.restore.bundle_url | string | `"https://s3..."` | URL to backup bundle JSON file to use for restore. |
