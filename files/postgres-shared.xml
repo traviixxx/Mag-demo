@@ -46,9 +46,10 @@
             <param name="maxFieldLength" value="10000"/>
             <param name="bufferSize" value="10"/>
             <param name="cacheSize" value="1000"/>
-            <param name="enableConsistencyCheck" value="true"/>
-            <param name="forceConsistencyCheck" value="true"/>
-            <param name="autoRepair" value="true"/>
+            <param name="enableConsistencyCheck" value="{{ .db.jackrabbit.enableConsistencyCheck | default "false" }}"/>
+            <param name="forceConsistencyCheck" value="{{ .db.jackrabbit.forceConsistencyCheck | default "false" }}"/>
+            <param name="autoRepair" value="{{ .db.jackrabbit.autoRepair | default "true" }}"/>
+            <param name="onWorkspaceInconsistency" value="{{ .db.jackrabbit.onWorkspaceInconsistency | default "log" }}"/>
             <param name="queryClass" value="org.apache.jackrabbit.core.query.QueryImpl"/>
             <param name="respectDocumentOrder" value="true"/>
             <param name="resultFetchSize" value="100"/>

@@ -56,7 +56,17 @@ sharedDb:
       # -- Mount point is /db, PGDATA=/db/data
       subPath: "data"
     jackrabbit:
-      # -- Extra search index paramters for jackrabbit configuration (e.g. overwrite
+      # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+      autoRepair: True
+      # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+      # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+      enableConsistencyCheck: False
+      # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+      forceConsistencyCheck: False
+      # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+      # If set to fail, the process will fail the re-indexing on startup.
+      onWorkspaceInconsistency: log
+      # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
       # search excerpt provider class with `excerptProviderClass`)
       extraSearchIndexParameters: {}
     backup:
@@ -213,7 +223,17 @@ magnoliaAuthor:
       # -- Mount point is /db, PGDATA=/db/data
       subPath: "data"
     jackrabbit:
-      # -- Extra search index paramters for jackrabbit configuration (e.g. overwrite
+      # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+      autoRepair: True
+      # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+      # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+      enableConsistencyCheck: False
+      # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+      forceConsistencyCheck: False
+      # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+      # If set to fail, the process will fail the re-indexing on startup.
+      onWorkspaceInconsistency: log
+      # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
       # search excerpt provider class with `excerptProviderClass`)
       extraSearchIndexParameters: {}
     backup:
@@ -389,7 +409,17 @@ magnoliaPublic:
       # -- Mount point is /db, PGDATA=/db/data
       subPath: "data"
     jackrabbit:
-      # -- Extra search index paramters for jackrabbit configuration (e.g. overwrite
+      # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+      autoRepair: True
+      # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+      # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+      enableConsistencyCheck: False
+      # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+      forceConsistencyCheck: False
+      # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+      # If set to fail, the process will fail the re-indexing on startup.
+      onWorkspaceInconsistency: log
+      # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
       # search excerpt provider class with `excerptProviderClass`)
       extraSearchIndexParameters: {}
     backup:
