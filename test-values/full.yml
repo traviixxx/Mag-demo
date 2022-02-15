@@ -1,4 +1,4 @@
-{{- $hostName := printf "%s.%s.magnolia-helm.mirohost.ch" .Env.CI_COMMIT_REF_SLUG .Env.RELEASE }}
+{{- $hostName := printf "%s.magnolia-helm.mirohost.ch" .Env.CI_COMMIT_REF_SLUG }}
 ---
 ingress:
   enabled: True
