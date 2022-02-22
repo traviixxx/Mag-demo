@@ -311,6 +311,17 @@ magnoliaAuthor:
   # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
   # key/value pairs will be mapped to xml.
   jndiResources: []
+  # -- Tomcat configuration
+  tomcat:
+    # -- Log JVM arguments
+    logArgs: False
+    # -- Error valve configuration
+    error:
+      # -- Show error report
+      showReport: False
+      # -- Show server info
+      showServerInfo: False
+
 
 # -- This is the public instance.
 # @default -- See values below ...
@@ -463,6 +474,16 @@ magnoliaPublic:
   # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
   # key/value pairs will be mapped to xml.
   jndiResources: []
+  # -- Tomcat configuration
+  tomcat:
+    # -- Log JVM arguments
+    logArgs: False
+    # -- Error valve configuration
+    error:
+      # -- Show error report
+      showReport: False
+      # -- Show server info
+      showServerInfo: False
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:
@@ -510,6 +531,8 @@ ingress:
   # @default -- {}
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 512m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_clear_headers "Server";
     # Use these if you want cert-manager to issue let's encrypt certs.
     #cert-manager.io/cluster-issuer: letsencrypt-prod
   # -- Specify hosts here as an array.

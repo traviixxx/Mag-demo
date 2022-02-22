@@ -104,6 +104,11 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaAuthor.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
 | magnoliaAuthor.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
+| magnoliaAuthor.tomcat | object | `{"error":{"showReport":false,"showServerInfo":false},"logArgs":false}` | Tomcat configuration |
+| magnoliaAuthor.tomcat.error | object | `{"showReport":false,"showServerInfo":false}` | Error valve configuration |
+| magnoliaAuthor.tomcat.error.showReport | bool | `false` | Show error report |
+| magnoliaAuthor.tomcat.error.showServerInfo | bool | `false` | Show server info |
+| magnoliaAuthor.tomcat.logArgs | bool | `false` | Log JVM arguments |
 | magnoliaAuthor.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
 | magnoliaAuthor.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
 | magnoliaPublic | object | See values below ... | This is the public instance. |
@@ -141,6 +146,11 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaPublic.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaPublic.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
 | magnoliaPublic.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
+| magnoliaPublic.tomcat | object | `{"error":{"showReport":false,"showServerInfo":false},"logArgs":false}` | Tomcat configuration |
+| magnoliaPublic.tomcat.error | object | `{"showReport":false,"showServerInfo":false}` | Error valve configuration |
+| magnoliaPublic.tomcat.error.showReport | bool | `false` | Show error report |
+| magnoliaPublic.tomcat.error.showServerInfo | bool | `false` | Show server info |
+| magnoliaPublic.tomcat.logArgs | bool | `false` | Log JVM arguments |
 | magnoliaPublic.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
 | magnoliaPublic.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
 | metrics.enabled | bool | `true` | Enable JMX exporters. |

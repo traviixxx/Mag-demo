@@ -21,7 +21,8 @@
  -->
 <!-- This file is managed by MiroNet, if you change it here, expect your changes to be overwritten. -->
 <Server port="-1" shutdown="SHUTDOWN">
-  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener"
+            logArgs="{{ .values.tomcat.logArgs | default "false" }}" />
   <!-- Security listener. Documentation at /docs/config/listeners.html
   <Listener className="org.apache.catalina.security.SecurityListener" />
   -->
@@ -99,6 +100,9 @@
           <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "unset" }}" />
         </Context>
 
+        <Valve className="org.apache.catalina.valves.ErrorReportValve"
+               showReport="{{ .values.tomcat.error.showReport | default "false" }}"
+               showServerInfo="{{ .values.tomcat.error.showServerInfo | default "false" }}" />
       </Host>
     </Engine>
   </Service>
