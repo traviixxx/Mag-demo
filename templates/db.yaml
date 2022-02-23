@@ -179,6 +179,8 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
           {{- end }}
+            - name: MGNLBACKUP_PG_DATA
+              value: {{ printf "%s/data" .db.persistence.mountPath }}
           {{- with .db.backup.env }}
 {{ toYaml . | indent 12 }}
           {{- end }}
@@ -188,10 +190,10 @@ spec:
                 name: {{ printf "%s-backup-configmap-%s" $.Release.Name .db.name }}
           {{- end }}
           volumeMounts:
+            - name: data
+              mountPath: {{ .db.persistence.mountPath }}
             - name: archive
               mountPath: {{ .db.backup.pg_wal_archive }}
-            - name: scratch
-              mountPath: {{ .db.backup.pg_wal_scratch }}
             {{- if .db.contentsync.enabled }}
             - name: mtls-certs
               mountPath: "/opt/tls"
@@ -214,8 +216,6 @@ spec:
         - name: archive
           persistentVolumeClaim:
             claimName: archive
-        - name: scratch
-          emptyDir: {}
         - name: postgres-conf
           configMap:
             items:

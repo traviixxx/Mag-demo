@@ -50,8 +50,6 @@ syntax-check:
   image:
     name: garethr/kubeval:0.15.0
     entrypoint: [""]
-  before_script:
-    - *test_before
   script:
     - for i in `ls tmp/*.yml`; do echo $i; cat $i | kubeval --ignore-missing-schemas; done
 
