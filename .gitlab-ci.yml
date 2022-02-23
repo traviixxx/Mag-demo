@@ -8,6 +8,7 @@ stages:
 .test_before: &test_before
     - export GIT_TAG=$(git describe --always --tags)
     - export CHART_VERSION=$GIT_TAG
+    - mkdir tmp || true
 
 .test_gomplate: &test_gomplate
     - cat test-values/${RELEASE}.yml | gomplate > test-values/${RELEASE}.yaml
@@ -28,69 +29,105 @@ lint:
   script:
     - helm lint
 
-test-simple:
-  stage: test
+prep-syntax-check:
+  stage: lint
   image:
     name: registry.gitlab.com/mironet/helm-kubectl-gomplate
     entrypoint: [""]
   before_script:
-    - export RELEASE=simple
     - *test_before
-    - *test_gomplate
   script:
-    # Remove old stuff if it's still running.
-    - *test_after
-    - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
-    - helm test --logs ${RELEASE}
-  environment:
-    name: simple/$CI_COMMIT_REF_NAME
-    url: https://$CI_COMMIT_REF_SLUG.simple.magnolia-helm.mirohost.ch
-    on_stop: stop-test-simple
-    auto_stop_in: 1 days
+    - for i in `ls test-values/*.yml`; do echo $i; cat $i | gomplate | helm template test . --values - > tmp/$(basename -- $i); done
+  artifacts:
+    paths:
+      - tmp/*.yml
+    expire_in: 15 days
 
-stop-test-simple:
+syntax-check:
   stage: test
-  image: registry.gitlab.com/mironet/helm-kubectl-gomplate
-  environment:
-      name: simple/$CI_COMMIT_REF_NAME
-      action: stop
-  before_script:
-    - export RELEASE=simple
-  script:
-    - *test_after
-  when: manual
-
-test-full:
-  stage: test
+  dependencies:
+    - prep-syntax-check
   image:
-    name: registry.gitlab.com/mironet/helm-kubectl-gomplate
-    entrypoint: [ "" ]
-  before_script:
-    - export RELEASE=full
-    - *test_before
-    - *test_gomplate
+    name: garethr/kubeval:0.15.0
+    entrypoint: [""]
   script:
-    # Remove old stuff if it's still running.
-    - *test_after
-    - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
-    - helm test --logs ${RELEASE}
-  environment:
-    name: full/$CI_COMMIT_REF_NAME
-    url: https://$CI_COMMIT_REF_SLUG.full.magnolia-helm.mirohost.ch
-    on_stop: stop-test-full
-    auto_stop_in: 1 days
+    - for i in `ls tmp/*.yml`; do echo $i; cat $i | kubeval --ignore-missing-schemas; done
 
-stop-test-full:
-  stage: test
-  image: registry.gitlab.com/mironet/helm-kubectl-gomplate
-  environment:
-      name: full/$CI_COMMIT_REF_NAME
-      action: stop
-  before_script:
-    - export RELEASE=full
-  script:
-    - *test_after
-  when: manual
+# test-simple:
+#   stage: test
+#   image:
+#     name: registry.gitlab.com/mironet/helm-kubectl-gomplate
+#     entrypoint: [""]
+#   before_script:
+#     - export RELEASE=simple
+#     - *test_before
+#     - *test_gomplate
+#   script:
+#     # Remove old stuff if it's still running.
+#     - *test_after
+#     - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
+#     - helm test --logs ${RELEASE}
+#   environment:
+#     name: simple/$CI_COMMIT_REF_NAME
+#     url: https://$CI_COMMIT_REF_SLUG.simple.magnolia-helm.mirohost.ch
+#     on_stop: stop-test-simple
+#     auto_stop_in: 1 days
+#   only:
+#     - master
+#   allow_failure: true
+
+# stop-test-simple:
+#   stage: test
+#   image: registry.gitlab.com/mironet/helm-kubectl-gomplate
+#   environment:
+#       name: simple/$CI_COMMIT_REF_NAME
+#       action: stop
+#   before_script:
+#     - export RELEASE=simple
+#   script:
+#     - *test_after
+#   when: manual
+#   only:
+#     - master
+#   allow_failure: true
+
+# test-full:
+#   stage: test
+#   image:
+#     name: registry.gitlab.com/mironet/helm-kubectl-gomplate
+#     entrypoint: [ "" ]
+#   before_script:
+#     - export RELEASE=full
+#     - *test_before
+#     - *test_gomplate
+#   script:
+#     # Remove old stuff if it's still running.
+#     - *test_after
+#     - helm upgrade --install ${RELEASE} . -f test-values/base.yml -f test-values/${RELEASE}.yaml
+#     - helm test --logs ${RELEASE}
+#   environment:
+#     name: full/$CI_COMMIT_REF_NAME
+#     url: https://$CI_COMMIT_REF_SLUG.full.magnolia-helm.mirohost.ch
+#     on_stop: stop-test-full
+#     auto_stop_in: 1 days
+#   only:
+#     - master
+#   allow_failure: true
+
+# stop-test-full:
+#   stage: test
+#   image: registry.gitlab.com/mironet/helm-kubectl-gomplate
+#   environment:
+#       name: full/$CI_COMMIT_REF_NAME
+#       action: stop
+#   before_script:
+#     - export RELEASE=full
+#   script:
+#     - *test_after
+#   when: manual
+#   only:
+#     - master
+#   allow_failure: true
 
 upload:
   stage: deploy
