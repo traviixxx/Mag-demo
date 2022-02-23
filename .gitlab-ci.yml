@@ -74,6 +74,7 @@ test-simple:
     auto_stop_in: 1 days
   only:
     - master
+  allow_failure: true
 
 stop-test-simple:
   stage: test
@@ -88,6 +89,7 @@ stop-test-simple:
   when: manual
   only:
     - master
+  allow_failure: true
 
 test-full:
   stage: test
@@ -110,6 +112,7 @@ test-full:
     auto_stop_in: 1 days
   only:
     - master
+  allow_failure: true
 
 stop-test-full:
   stage: test
@@ -124,6 +127,7 @@ stop-test-full:
   when: manual
   only:
     - master
+  allow_failure: true
 
 upload:
   stage: deploy
