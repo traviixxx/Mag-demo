@@ -88,6 +88,7 @@ If you want to do this non-disruptively in production we recommend you restore/c
 | magnoliaAuthor.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
 | magnoliaAuthor.db.restore.bundle_url | string | `"https://s3..."` | URL to backup bundle JSON file to use for restore. |
 | magnoliaAuthor.db.restore.enabled | bool | `false` | Enable restore operations. |
+| magnoliaAuthor.enabled | bool | `true` | If false, does not deploy the author instance. |
 | magnoliaAuthor.extraContainers | list | `[]` | Extra sidecar containers added to the Magnolia pod. |
 | magnoliaAuthor.extraInitContainers | list | `[]` | Extra init containers added to the Magnolia pod. |
 | magnoliaAuthor.jndiResources | list | `[]` | Additional JDNI resources to be added in tomcat's `server.xml`. The key/value pairs will be mapped to xml. |

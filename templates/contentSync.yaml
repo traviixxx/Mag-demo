@@ -1,5 +1,9 @@
 {{- $fullName := include "magnolia.fullname" . -}}
-{{- range list .Values.magnoliaAuthor .Values.magnoliaPublic -}}
+{{- $instanceList := list .Values.magnoliaPublic -}}
+{{- if .Values.magnoliaAuthor.enabled }}
+{{- $instanceList = list .Values.magnoliaAuthor .Values.magnoliaPublic -}}
+{{- end }}
+{{- range $instanceList -}}
 {{- if and .db.contentsync.enabled .db.enabled -}}
 {{- $appName := printf "%s-%s-db" $fullName .db.name -}}
 {{- $dbName := printf "%s-db" .db.name }}

@@ -1,6 +1,10 @@
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
-{{- range list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- $instanceList := list (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- if .Values.magnoliaAuthor.enabled }}
+{{- $instanceList = list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
+{{- end }}
+{{- range $instanceList -}}
 {{- $magnoliaMode := .mode -}}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode }}
 ---

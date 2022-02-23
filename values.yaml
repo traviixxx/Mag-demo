@@ -134,6 +134,8 @@ magnoliaAuthor:
   restartPolicy: Always
   # -- If true, redeploy on "helm upgrade/install" even if no changes were made.
   redeploy: false
+  # -- If false, does not deploy the author instance.
+  enabled: True
   # -- The context path of this Magnolia instance. Always use a leading slash.
   contextPath: /author
   webarchive:
