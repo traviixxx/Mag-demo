@@ -131,11 +131,11 @@ sharedDb:
 # default).
 # @default -- See values below ...
 magnoliaAuthor:
+  # -- If false, does not deploy the author instance.
+  enabled: True
   restartPolicy: Always
   # -- If true, redeploy on "helm upgrade/install" even if no changes were made.
   redeploy: false
-  # -- If false, does not deploy the author instance.
-  enabled: True
   # -- The context path of this Magnolia instance. Always use a leading slash.
   contextPath: /author
   webarchive:
@@ -326,6 +326,7 @@ magnoliaAuthor:
 # -- This is the public instance.
 # @default -- See values below ...
 magnoliaPublic:
+  enabled: True # -- Set to false if you don't need any public instances.
   restartPolicy: Always # Always use a leading slash.
   # -- If true, redeploy on "helm upgrade/install" even if no changes were made.
   redeploy: true

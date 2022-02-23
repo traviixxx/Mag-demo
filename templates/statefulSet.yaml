@@ -2,6 +2,7 @@
 {{- $chartName := include "magnolia.chart" . -}}
 {{- $instances := dict "author" .Values.magnoliaAuthor "public" .Values.magnoliaPublic }}
 {{- range $magnoliaMode, $value := $instances }}
+{{- if $value.enabled }}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode }}
 ---
 apiVersion: apps/v1
@@ -440,4 +441,5 @@ spec:
           tier: app
           component: {{ $magnoliaMode }}-instance
     {{- end }}
+{{- end }}
 {{- end }}
