@@ -75,7 +75,7 @@ sharedDb:
         enabled: False
         extraEnv: []
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: "v0.5.0"
+      tag: "v0.5.1"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
@@ -249,20 +249,14 @@ magnoliaAuthor:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.5.0"
+      tag: "v0.5.1"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
-      - name: MGNLBACKUP_CMD
-        value: "pg_basebackup"
-      - name: MGNLBACKUP_ARGS
-        value: "--host localhost --user postgres -D /scratch -Fp"
       - name: MGNLBACKUP_USE_PG_WAL
         value: "true"
       - name: MGNLBACKUP_SYNC_DIR
         value: "/archive"
-      - name: MGNLBACKUP_NO_STDOUT
-        value: "true"
       - name: MGNLBACKUP_LOGLEVEL
         value: "debug"
       - name: MGNLBACKUP_BUCKET
@@ -444,7 +438,7 @@ magnoliaPublic:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.5.0"
+      tag: "v0.5.1"
       # -- Enable db backup sidecar.
       enabled: False
       pg_wal_archive: "/archive"
