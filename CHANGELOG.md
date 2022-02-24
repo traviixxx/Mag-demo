@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [v1.5.0] - 2022-02-24
 
-Version v1.5.0 changes the underlying backup system when using `pg_wal` archiving. This means existing deployments need to be removed and redeployed.
+Version v1.5.0 changes the underlying backup system when using `pg_wal` archiving. This means existing deployments need to be removed and redeployed. See the section about [upgrades in the readme](https://gitlab.com/mironet/magnolia-helm/-/tree/master#upgrade).
 
 ### Added
 
