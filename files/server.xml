@@ -94,9 +94,14 @@
             deployXML="true"
             name="localhost"
             unpackWARs="false">
+        {{- if .values.tomcat.activateWebsockets }}
         <Context path="{{ .values.contextPath }}"
-                docBase="magnolia"
-                containerSciFilter="WsSci">
+                docBase="magnolia">
+        {{- else }}
+        <Context path="{{ .values.contextPath }}"
+                 docBase="magnolia"
+                 containerSciFilter="WsSci">
+        {{- end }}
           <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "unset" }}" />
         </Context>
 

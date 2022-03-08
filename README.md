@@ -109,7 +109,8 @@ See [here](CHANGELOG.md).
 | magnoliaAuthor.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaAuthor.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
 | magnoliaAuthor.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
-| magnoliaAuthor.tomcat | object | `{"error":{"showReport":false,"showServerInfo":false},"logArgs":false}` | Tomcat configuration |
+| magnoliaAuthor.tomcat | object | `{"activateWebsockets":false,"error":{"showReport":false,"showServerInfo":false},"logArgs":false}` | Tomcat configuration |
+| magnoliaAuthor.tomcat.activateWebsockets | bool | `false` | Activate the websockets |
 | magnoliaAuthor.tomcat.error | object | `{"showReport":false,"showServerInfo":false}` | Error valve configuration |
 | magnoliaAuthor.tomcat.error.showReport | bool | `false` | Show error report |
 | magnoliaAuthor.tomcat.error.showServerInfo | bool | `false` | Show server info |

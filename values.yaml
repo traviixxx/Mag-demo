@@ -307,6 +307,8 @@ magnoliaAuthor:
   tomcat:
     # -- Log JVM arguments
     logArgs: False
+    # -- Activate the websockets
+    activateWebsockets: False
     # -- Error valve configuration
     error:
       # -- Show error report
