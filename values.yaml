@@ -6,7 +6,7 @@ image:
     # -- The tomcat image we're going to use.
     repository: tomcat
     # -- Tomcat repo tag.
-    tag: 9-jre11-slim
+    tag: 9.0-jre11-temurin
     # -- Tomcat repo pull policy.
     pullPolicy: IfNotPresent
   pullSecrets: []
