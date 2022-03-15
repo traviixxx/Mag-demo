@@ -1,6 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "magnolia.fullname" . -}}
-apiVersion: extensions/v1beta1
+# For 'networking.k8s.io/v1' refer to https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/ 
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -29,9 +30,12 @@ spec:
         paths:
         {{- range .paths }}
           - path: {{ .path }}
+            pathType: {{ .pathType | default "Prefix" }}
             backend:
-              serviceName: {{ printf "%s-svc" (printf "%s-%s" $fullName .instance) }}
-              servicePort: {{ .port | default "http" }}
+              service:
+                name: {{ printf "%s-svc" (printf "%s-%s" $fullName .instance) }}
+                port: 
+                  name: {{ .port | default "http" }}
         {{- end }}
   {{- end }}
 {{- end }}

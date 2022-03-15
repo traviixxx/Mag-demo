@@ -534,6 +534,7 @@ ingress:
     # - host: k8s.local
     #   paths:
     #     - path: /
+    #       pathType: Prefix
     #       instance: author
     #       port: http # can be changed to e.g. "9090"
 
