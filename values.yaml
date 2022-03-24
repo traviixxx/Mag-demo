@@ -18,7 +18,7 @@ timezone: Europe/Zurich
 
 deploy:
   extraLibs: /usr/local/tomcat/lib2
-  # -- Deploy into this directory innside the app server container.
+  # -- Deploy into this directory inside the app server container.
   directory: /usr/local/tomcat/webapps
   tempDir: /usr/local/tomcat/temp
   securityContext:
@@ -33,6 +33,215 @@ deploy:
 bootstrap:
   # -- Do enable bootstrapping via REST.
   enabled: True
+
+# -- Deploy a combined application server, usually with author and public in the
+# same one. @default -- See values below ...
+magnoliaCombined:
+  # -- If true, everything defined below other keys starting with `magnolia.*`
+  # will be ignored, specifically `magnoliaAuthor` and `magnoliaPublic`. Either
+  # use a combined deployment or a split deployment (author and publics on
+  # different pods).
+  enabled: False
+  restartPolicy: Always
+
+  webarchive:
+    # -- The docker image where to fetch compiled Magnolia libs from.
+    repository: registry.gitlab.com/mironet/magnolia-demo
+    # -- Do not use 'latest' in production.
+    tag: latest
+  # -- Extra sidecar containers added to the Magnolia pod.
+  extraContainers: []
+  # -- Extra init containers added to the Magnolia pod.
+  extraInitContainers: []
+  # -- Enable Groovy rescue console.
+  rescueMode: False
+  rescueModeDX: False
+  strategy:
+    # -- Kubernetes rollout strategy on `helm upgrade ...`.
+    type: Recreate
+  # -- These key/value pairs will be added to CATALINA_OPTS.
+  catalinaExtraEnv: {}
+  setenv:
+    memory:
+      # -- Minimum amount allocated to heap as a percentage of the pod's
+      # resources.
+      minPercentage: 25
+      # -- Maximum amount allocated to heap as a percentage of the pod's
+      # resources.
+      maxPercentage: 60
+    update:
+      # -- Auto-update Magnolia if repositories are empty (usually on the first
+      # run).
+      auto: "true"
+  resources:
+    requests:
+      # -- Minimum amount of memory this pod requests.
+      memory: 512Mi
+    limits:
+      # -- Maximum amount of memory this pod is allowed to use. This is not the
+      # heap size, the heap size is smaller, see `setenv.memory` for details.
+      memory: 512Mi
+  logging:
+    level: DEBUG
+    pattern: "%d %-5p %-50.50c: %m%n"
+  bootstrap:
+    username: superuser
+    password: ""
+    # -- Verbatim content of the instructions for this instance. If empty use a
+    # default. This is intended to be used with the --set-file flag of "helm
+    # install".
+    instructions: ""
+    extraEnv: []
+  activation:
+    privateKey: null
+    publicKey: null
+    # -- Set this to `true` in case you want to use an existing activation key
+    # stored as a secret and provide its name.
+    useExistingSecret: False
+    keyLocation: /keys/activation/magnolia-activation-keypair.properties
+    secret:
+      name: my-activation-secret
+      key: my-activation-secret-key # The name of they inside the secret to use.
+  persistence:
+    # -- Enable persistence for indexes, cache, tmp files. If this is enabled
+    # the MGNL_HOME_DIR env var will be set and a volume will be mounted to the
+    # default location unless it's specified here as mountPath.
+    enabled: True
+    # -- Existing volumes can be mounted into the container. If not specified,
+    # helm will create a new PVC.
+    existingClaim:
+    # -- In case of local-path provisioners this is not enforced.
+    size: 10Gi
+    mountPath: /mgnl-home
+    # -- Empty string means: Use the default storage class.
+    storageClassName: ""
+  db:
+    enabled: True
+    repository: postgres
+    tag: 11.9-alpine
+    type: postgres
+    name: author
+    author:
+      jackrabbit:
+        # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+        autoRepair: True
+        # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+        # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+        enableConsistencyCheck: False
+        # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+        forceConsistencyCheck: False
+        # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+        # If set to fail, the process will fail the re-indexing on startup.
+        onWorkspaceInconsistency: log
+        # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
+        # search excerpt provider class with `excerptProviderClass`)
+        extraSearchIndexParameters: {}
+    public:
+      jackrabbit:
+        # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+        autoRepair: True
+        # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+        # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+        enableConsistencyCheck: False
+        # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+        forceConsistencyCheck: False
+        # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+        # If set to fail, the process will fail the re-indexing on startup.
+        onWorkspaceInconsistency: log
+        # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
+        # search excerpt provider class with `excerptProviderClass`)
+        extraSearchIndexParameters: {}
+    persistence:
+      enabled: True
+      size: 10Gi
+      volumePermissions: true # Fix volume permissions by chowning pvc to RunAsUser:fsGroup.
+      # -- Mount point is /db, PGDATA=/db/data
+      mountPath: "/db"
+      # -- Mount point is /db, PGDATA=/db/data
+      subPath: "data"
+    backup:
+      # -- Enable db backup sidecar.
+      enabled: False
+      autoconfig:
+        # -- Configures the backup for pg_wal automatically in a k8s
+        # environment. It does this by including a configmap via the envFrom:
+        # directive which will be injected into the pod. You can override or
+        # pass other environment variables via the env: or the extraEnv:
+        # directive below.
+        enabled: False
+        extraEnv: []
+      image: "registry.gitlab.com/mironet/magnolia-backup"
+      tag: "v0.5.3"
+      pg_wal_archive: "/archive"
+      pg_wal_archive_size: "50Gi"
+      env:
+      - name: MGNLBACKUP_PG_DATA
+        value: /db/data
+      - name: MGNLBACKUP_USE_PG_WAL
+        value: "true"
+      - name: MGNLBACKUP_SYNC_DIR
+        value: "/archive"
+      - name: MGNLBACKUP_LOGLEVEL
+        value: "debug"
+      - name: MGNLBACKUP_BUCKET
+        value: "backup"
+      - name: MGNLBACKUP_PREFIX
+        value: "author"
+      - name: MGNLBACKUP_HERITAGE
+        value: "magnolia-backup"
+      - name: MGNLBACKUP_CRON
+        value: "@every 720h" # ~1 month.
+      - name: MGNLBACKUP_S3_ACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: s3-backup-key
+            key: accesskey
+      - name: MGNLBACKUP_S3_SECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: s3-backup-key
+            key: secretkey
+      - name: MGNLBACKUP_S3_ENDPOINT
+        value: "minio:9000"
+      - name: MGNLBACKUP_CYCLE
+        value: "90,0,0" # Use only days for WAL archiving.
+    restore:
+      # -- Enable restore operations.
+      enabled: False
+      # -- URL to backup bundle JSON file to use for restore.
+      bundle_url: https://s3...
+      # # where to get the dump from
+      # dump_url: https://s3...
+    # -- Custom annotations added to db pods.
+    podAnnotations: {}
+    contentsync:
+      enabled: false
+      # -- TLS port of the backup sidecar.
+      address: ":9998"
+  livenessProbe:
+    enabled: True
+    failureThreshold: 4
+    periodSeconds: 10
+    expectedCodes: "200-399,401,404"
+    path: "/"
+  # -- Custom annotations added to pod.
+  podAnnotations: {}
+  # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
+  # key/value pairs will be mapped to xml.
+  jndiResources: []
+  # -- Tomcat configuration
+  tomcat:
+    # -- Log JVM arguments
+    logArgs: False
+    # -- Activate the websockets
+    activateWebsockets: False
+    # -- Error valve configuration
+    error:
+      # -- Show error report
+      showReport: False
+      # -- Show server info
+      showServerInfo: False
+
 
 # -- Shared database (jackrabbit "clustering").
 # @default -- See values below ...

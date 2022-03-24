@@ -1,8 +1,10 @@
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $name := include "magnolia.name" . -}}
 {{- $chartName := include "magnolia.chart" . -}}
-{{- $instanceList := list (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
-{{- if .Values.magnoliaAuthor.enabled }}
+{{- $instanceList := list -}}
+{{- if .Values.magnoliaCombined.enabled -}}
+{{- $instanceList = list (dict "mode" "combined" "values" .Values.magnoliaCombined) -}}
+{{- else }}
 {{- $instanceList = list (dict "mode" "author" "values" .Values.magnoliaAuthor) (dict "mode" "public" "values" .Values.magnoliaPublic) -}}
 {{- end }}
 {{- range $instanceList -}}
@@ -35,8 +37,17 @@ data:
   logging.properties: |-
 {{ tpl ($.Files.Get "files/logging.properties") $data | indent 4 }}
 {{- with $db }}
+{{- if eq $magnoliaMode "combined" }}
+{{- $_ := set $data "name" "public" }}
+  jackrabbit-public.xml: |-
+{{ tpl (printf "files/%s-combined.xml" .type | $.Files.Get) $data | indent 4 }}
+{{- $_ := set $data "name" "author" }}
+  jackrabbit-author.xml: |-
+{{ tpl (printf "files/%s-combined.xml" .type | $.Files.Get) $data | indent 4 }}
+{{- else }}
   jackrabbit.xml: |-
 {{ tpl (printf "files/%s.xml" .type | $.Files.Get) $data | indent 4 }}
+{{- end }}
 {{ if $.Values.sharedDb.enabled }}
   jackrabbit-shared.xml: |-
 {{ tpl (printf "files/%s-shared.xml" .type | $.Files.Get) $data | indent 4 }}

@@ -4,7 +4,7 @@
     <DataSources>
         <DataSource name="magnolia">
             <param name="driver" value="org.postgresql.Driver"/>
-            <param name="url" value="jdbc:postgresql://{{ .clusterDbHost }}:5432/{{ .clusterDb.name }}"/>
+            <param name="url" value="jdbc:postgresql://{{ .dbHost }}:5432/{{ .name }}"/>
             <param name="user" value="postgres"/>
             <param name="password" value=""/>
             <param name="databaseType" value="postgresql"/>
@@ -34,7 +34,7 @@
             <param name="dataSourceName" value="magnolia"/>
             <param name="schemaObjectPrefix" value="pm_${wsp.name}_"/>
         </PersistenceManager>
-        <SearchIndex class="info.magnolia.jackrabbit.lucene.SearchIndex">
+        <SearchIndex class="{{ .db.jackrabbit.searchIndexClass | default "info.magnolia.jackrabbit.lucene.SearchIndex" }}">
             <param name="path" value="${wsp.home}/index"/>
             <!-- SearchIndex will get the indexing configuration from the classpath, if not found in the workspace home -->
             <param name="indexingConfiguration" value="/info/magnolia/jackrabbit/indexing_configuration_${wsp.name}.xml"/>
@@ -82,11 +82,4 @@
             <param name="schemaObjectPrefix" value="version_"/>
         </PersistenceManager>
     </Versioning>
-    <Cluster syncDelay="2000">
-        <Journal class="org.apache.jackrabbit.core.journal.DatabaseJournal">
-            <param name="revision" value="${rep.home}/revision.log"/>
-            <param name="dataSourceName" value="magnolia"/>
-            <param name="schemaObjectPrefix" value="journal_"/>
-        </Journal>
-    </Cluster>
 </Repository>
