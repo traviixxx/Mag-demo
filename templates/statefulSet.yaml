@@ -413,19 +413,6 @@ spec:
       {{- toYaml $.Values.tolerations | nindent 8 }}
     {{- end }}
   volumeClaimTemplates:
-    - spec:
-        resources:
-          requests:
-            storage: {{ $value.db.backup.pg_wal_archive_size | default "50Gi" }}
-        storageClassName: {{ $value.db.backup.pg_wal_storageClassName | default "" }}
-        accessModes:
-          - ReadWriteOnce
-      metadata:
-        name: archive
-        labels:
-          {{- include "magnolia.labels" $ | nindent 10 }}
-          tier: app
-          component: {{ $magnoliaMode }}-instance
     {{- if $value.persistence.enabled }}
     - spec:
         resources:
