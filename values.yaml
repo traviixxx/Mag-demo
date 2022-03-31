@@ -44,6 +44,51 @@ magnoliaCombined:
   enabled: False
   restartPolicy: Always
 
+  author:
+    # -- The context path of this Magnolia instance. Always use a leading slash.
+    contextPath: /author
+    # -- Enable Groovy rescue console.
+    rescueMode: False
+    logging:
+      level: DEBUG
+      pattern: "%d %-5p %-50.50c: %m%n"
+    jackrabbit:
+      # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+      autoRepair: True
+      # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+      # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+      enableConsistencyCheck: False
+      # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+      forceConsistencyCheck: False
+      # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+      # If set to fail, the process will fail the re-indexing on startup.
+      onWorkspaceInconsistency: log
+      # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
+      # search excerpt provider class with `excerptProviderClass`)
+      extraSearchIndexParameters: {}
+  public:
+    # -- The context path of this Magnolia instance. Always use a leading slash.
+    contextPath: /
+    # -- Enable Groovy rescue console.
+    rescueMode: False
+    logging:
+      level: DEBUG
+      pattern: "%d %-5p %-50.50c: %m%n"
+    jackrabbit:
+      # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
+      autoRepair: True
+      # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
+      # If set to false no consistency check is performed on startup, even if a redo log had been applied.
+      enableConsistencyCheck: False
+      # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
+      forceConsistencyCheck: False
+      # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
+      # If set to fail, the process will fail the re-indexing on startup.
+      onWorkspaceInconsistency: log
+      # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
+      # search excerpt provider class with `excerptProviderClass`)
+      extraSearchIndexParameters: {}
+
   webarchive:
     # -- The docker image where to fetch compiled Magnolia libs from.
     repository: registry.gitlab.com/mironet/magnolia-demo
@@ -53,9 +98,7 @@ magnoliaCombined:
   extraContainers: []
   # -- Extra init containers added to the Magnolia pod.
   extraInitContainers: []
-  # -- Enable Groovy rescue console.
-  rescueMode: False
-  rescueModeDX: False
+
   strategy:
     # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
@@ -81,76 +124,30 @@ magnoliaCombined:
       # -- Maximum amount of memory this pod is allowed to use. This is not the
       # heap size, the heap size is smaller, see `setenv.memory` for details.
       memory: 512Mi
-  logging:
-    level: DEBUG
-    pattern: "%d %-5p %-50.50c: %m%n"
   bootstrap:
     username: superuser
     password: ""
-    # -- Verbatim content of the instructions for this instance. If empty use a
-    # default. This is intended to be used with the --set-file flag of "helm
-    # install".
-    instructions: ""
     extraEnv: []
-  activation:
-    privateKey: null
-    publicKey: null
-    # -- Set this to `true` in case you want to use an existing activation key
-    # stored as a secret and provide its name.
-    useExistingSecret: False
-    keyLocation: /keys/activation/magnolia-activation-keypair.properties
-    secret:
-      name: my-activation-secret
-      key: my-activation-secret-key # The name of they inside the secret to use.
+
+  ## TODO: bootstrapper should auto-generate rsa 1024 bit key and store the
+  ## public key in the public instance. It should also watch the filesystem for
+  ## changes if the activation key is regenerated from within admin central.
+
+  # -- This section is used for the magnolia home path.
   persistence:
-    # -- Enable persistence for indexes, cache, tmp files. If this is enabled
-    # the MGNL_HOME_DIR env var will be set and a volume will be mounted to the
-    # default location unless it's specified here as mountPath.
-    enabled: True
-    # -- Existing volumes can be mounted into the container. If not specified,
-    # helm will create a new PVC.
-    existingClaim:
     # -- In case of local-path provisioners this is not enforced.
     size: 10Gi
+    # -- Where to mount the magnolia home path inside the container.
     mountPath: /mgnl-home
     # -- Empty string means: Use the default storage class.
     storageClassName: ""
+
   db:
     enabled: True
     repository: postgres
     tag: 11.9-alpine
     type: postgres
-    name: author
-    author:
-      jackrabbit:
-        # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
-        autoRepair: True
-        # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
-        # If set to false no consistency check is performed on startup, even if a redo log had been applied.
-        enableConsistencyCheck: False
-        # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
-        forceConsistencyCheck: False
-        # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
-        # If set to fail, the process will fail the re-indexing on startup.
-        onWorkspaceInconsistency: log
-        # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
-        # search excerpt provider class with `excerptProviderClass`)
-        extraSearchIndexParameters: {}
-    public:
-      jackrabbit:
-        # -- Errors detected by a consistency check are automatically repaired. If false, errors are only written to the log.
-        autoRepair: True
-        # -- If set to true a consistency check is performed depending on the parameter forceConsistencyCheck.
-        # If set to false no consistency check is performed on startup, even if a redo log had been applied.
-        enableConsistencyCheck: False
-        # -- Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown.
-        forceConsistencyCheck: False
-        # -- If set to log, the process will just log the inconsistency during the re-indexing on startup.
-        # If set to fail, the process will fail the re-indexing on startup.
-        onWorkspaceInconsistency: log
-        # -- Extra search index parameters for jackrabbit configuration (e.g. overwrite
-        # search excerpt provider class with `excerptProviderClass`)
-        extraSearchIndexParameters: {}
+    name: combined
     persistence:
       enabled: True
       size: 10Gi
@@ -171,7 +168,7 @@ magnoliaCombined:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.5.3"
+      tag: "v0.5.5"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
@@ -186,9 +183,7 @@ magnoliaCombined:
       - name: MGNLBACKUP_BUCKET
         value: "backup"
       - name: MGNLBACKUP_PREFIX
-        value: "author"
-      - name: MGNLBACKUP_HERITAGE
-        value: "magnolia-backup"
+        value: "combined"
       - name: MGNLBACKUP_CRON
         value: "@every 720h" # ~1 month.
       - name: MGNLBACKUP_S3_ACCESSKEY
@@ -215,7 +210,7 @@ magnoliaCombined:
     # -- Custom annotations added to db pods.
     podAnnotations: {}
     contentsync:
-      enabled: false
+      enabled: true
       # -- TLS port of the backup sidecar.
       address: ":9998"
   livenessProbe:

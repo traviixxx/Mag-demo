@@ -15,7 +15,10 @@
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
 {{- $clusterDbHost := printf "%s-%s-db" $fullName $.Values.sharedDb.db.name -}}
 {{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "clusterDbHost" $clusterDbHost "clusterDb" $.Values.sharedDb.db "name" $name "magnoliaMode" $magnoliaMode "values" .values -}}
-{{- $logging := dict "Template" $.Template "Values" $.Values "pattern" .values.logging.pattern "level" .values.logging.level "loggers" .values.logging.loggers -}}
+{{- $logging := dict "" }}
+{{- if not (eq $magnoliaMode "combined") }}
+  {{- $logging = dict "Template" $.Template "Values" $.Values "pattern" .values.logging.pattern "level" .values.logging.level "loggers" .values.logging.loggers -}}
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -56,8 +59,15 @@ data:
   rescue-web.xml: |-
 {{ tpl ($.Files.Get "files/rescue-web.xml") $data | indent 4 }}
 {{- end }}
+{{- if eq $magnoliaMode "combined" }}
+  log4j2-author.xml: |-
+{{ tpl ($.Files.Get "files/log4j2.xml") $.Values.magnoliaCombined.author.logging | indent 4 }}
+  log4j2-public.xml: |-
+{{ tpl ($.Files.Get "files/log4j2.xml") $.Values.magnoliaCombined.public.logging | indent 4 }}
+{{- else }}
   log4j2.xml: |-
 {{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}
+{{- end }}
   setenv.sh: |-
 {{ tpl ($.Files.Get "files/setenv.sh") $data | indent 4 }}
   jcr-repositories.xml: |-

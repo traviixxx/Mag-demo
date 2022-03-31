@@ -94,16 +94,19 @@
             deployXML="true"
             name="localhost"
             unpackWARs="false">
-        {{- if .values.tomcat.activateWebsockets }}
+
+      {{- if $.Values.magnoliaCombined.enabled }}
+        <Context path="{{ .values.author.contextPath }}"
+                docBase="magnoliaAuthor" />
+        <Context path="{{ .values.public.contextPath }}"
+                docBase="magnoliaPublic" />
+          <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "unset" }}" />
+      {{- else }}
         <Context path="{{ .values.contextPath }}"
                 docBase="magnolia">
-        {{- else }}
-        <Context path="{{ .values.contextPath }}"
-                 docBase="magnolia"
-                 containerSciFilter="WsSci">
-        {{- end }}
           <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "unset" }}" />
         </Context>
+      {{- end }}
 
         <Valve className="org.apache.catalina.valves.ErrorReportValve"
                showReport="{{ .values.tomcat.error.showReport | default "false" }}"
