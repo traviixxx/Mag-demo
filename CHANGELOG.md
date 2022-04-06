@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.5.4] - 2022-04-06
+
+Bugfix release regarding backups and several upgrades of underlying software.
+
+### Added
+
+- [MR-70](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/70)
+  Make the websocket deactivation in Tomcat configurable
+
+### Changed
+
+- [MR-72](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/72)
+  Change the default tomcat docker image tag to 9.0-jre11-temurin
+- [MR-74](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/74)
+  Remove unneeded archive volume from statefulsets.
+- [MR-75](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/75)
+  Bump magnolia-backup version.
+
+### Fixed
+
+- [MR-71](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/71)
+  Update Ingress to from deprecated 'extensions/v1beta1' to 'networking.k8s.io/v1' K8s API
+- [MR-73](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/73)
+  Fix/ingress network api v1 doc
+
 ## [v1.5.0] - 2022-02-24
 
 Version v1.5.0 changes the underlying backup system when using `pg_wal` archiving. This means existing deployments need to be removed and redeployed. See the section about [upgrades in the readme](https://gitlab.com/mironet/magnolia-helm/-/tree/master#upgrade).
