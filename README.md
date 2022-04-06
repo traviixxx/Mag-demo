@@ -169,8 +169,8 @@ See [here](CHANGELOG.md).
 | postjob.waitFor | string | `"10m"` |  |
 | service.annotations | object | `{}` |  |
 | service.clusterIP | string | `"None"` |  |
-| service.ports[0].name | string | `"http"` |  |
-| service.ports[0].port | int | `80` |  |
+| service.ports[0].name | string | `"http"` | Checkout [Compatibility](#compatibility) |
+| service.ports[0].port | int | `80` | Checkout [Compatibility](#compatibility) |
 | service.ports[0].protocol | string | `"TCP"` |  |
 | service.ports[0].targetPort | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
@@ -544,7 +544,7 @@ of how to create one:
 ```bash
 # Create files needed for the rest of the example.
 echo -n 's3user' > accesskey.txt
- echo -n 'supersecrets3pass' > secretkey.txt
+echo -n 'supersecrets3pass' > secretkey.txt
 
 kubectl create secret generic s3-backup-key --from-file=accesskey=./accesskey.txt --from-file=secretkey=./secretkey.txt
 
@@ -695,6 +695,15 @@ standard and try to maintain backwards compatiblity within major releases.
 Values used with older chart versions should always work with newer chart versions and provide the same results.
 
 > **Note:** This does not mean a certain deployment will upgrade non-disruptively, i.e. without having to remove it first. See the [Upgrade](#upgrade) section about upgrades in general.
+
+> **Note**: Ingress API `extensions/v1beta1` [deprecated for Kuberenetes `v1.22` and above](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes) and has been replaced by `networking.k8s.io/v1`. If you encounter any issues like:
+>```
+> Error: UPGRADE FAILED: unable to recognize "": no matches for kind "Ingress" in version "networking.k8s.io/v1"
+>```
+> Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced. 
+> 
+> Also ensure using a [proper ingress port name value](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/#IngressBackend) (_a string, not a number!_) in `service.ports[0].name` rather than a `service.ports[0].number`.
+> As they are mutually exlusive, only using a `service.ports[0].name` will be supported in future releases
 
 ## Maintainers
 

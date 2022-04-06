@@ -24,7 +24,7 @@ magnoliaAuthor:
   contextPath: /magnoliaAuthor
   extraContainers:
     - name: test
-      image: registry.gitlab.com/mironet/magnolia-bootstrap:v0.2.1-rc2
+      image: registry.gitlab.com/mironet/magnolia-bootstrap:v0.2.3-rc1
       command:
         - /app
         - serve

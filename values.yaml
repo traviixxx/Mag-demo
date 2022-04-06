@@ -536,7 +536,7 @@ ingress:
     #     - path: /
     #       pathType: Prefix
     #       instance: author
-    #       port: http # can be changed to e.g. "9090"
+    #       port: http # use a defined service name (see above --> service.ports.name)
 
   tls: []
     # # Specify hosts here if you want to use TLS.

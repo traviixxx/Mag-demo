@@ -35,7 +35,7 @@ spec:
               service:
                 name: {{ printf "%s-svc" (printf "%s-%s" $fullName .instance) }}
                 port: 
-                  name: {{ .port | default "http" }}
+                  name: {{ .port | quote | default "http" }}
         {{- end }}
   {{- end }}
 {{- end }}
