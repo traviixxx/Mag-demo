@@ -15,10 +15,7 @@
 {{- $dbHost := printf "%s-%s-db" $fullName $db.name -}}
 {{- $clusterDbHost := printf "%s-%s-db" $fullName $.Values.sharedDb.db.name -}}
 {{- $data := dict "Template" $.Template "Values" $.Values "dbHost" $dbHost "db" $db "clusterDbHost" $clusterDbHost "clusterDb" $.Values.sharedDb.db "name" $name "magnoliaMode" $magnoliaMode "values" .values -}}
-{{- $logging := dict "" }}
-{{- if not (eq $magnoliaMode "combined") }}
-  {{- $logging = dict "Template" $.Template "Values" $.Values "pattern" .values.logging.pattern "level" .values.logging.level "loggers" .values.logging.loggers -}}
-{{- end }}
+{{- $logging := dict "Template" $.Template "Values" $.Values "logging" .values.logging -}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -39,31 +36,34 @@ data:
 {{ tpl ($.Files.Get "files/server.xml") $data | indent 4 }}
   logging.properties: |-
 {{ tpl ($.Files.Get "files/logging.properties") $data | indent 4 }}
-{{- with $db }}
 {{- if eq $magnoliaMode "combined" }}
 {{- $_ := set $data "name" "public" }}
+{{- $_ := set $data "jackrabbit" .values.public.jackrabbit }}
   jackrabbit-public.xml: |-
-{{ tpl (printf "files/%s-combined.xml" .type | $.Files.Get) $data | indent 4 }}
+{{ tpl (printf "files/%s-combined.xml" $db.type | $.Files.Get) $data | indent 4 }}
 {{- $_ := set $data "name" "author" }}
+{{- $_ := set $data "jackrabbit" .values.author.jackrabbit }}
   jackrabbit-author.xml: |-
-{{ tpl (printf "files/%s-combined.xml" .type | $.Files.Get) $data | indent 4 }}
+{{ tpl (printf "files/%s-combined.xml" $db.type | $.Files.Get) $data | indent 4 }}
 {{- else }}
   jackrabbit.xml: |-
-{{ tpl (printf "files/%s.xml" .type | $.Files.Get) $data | indent 4 }}
+{{ tpl (printf "files/%s.xml" $db.type | $.Files.Get) $data | indent 4 }}
 {{- end }}
 {{ if $.Values.sharedDb.enabled }}
   jackrabbit-shared.xml: |-
-{{ tpl (printf "files/%s-shared.xml" .type | $.Files.Get) $data | indent 4 }}
+{{ tpl (printf "files/%s-shared.xml" $db.type | $.Files.Get) $data | indent 4 }}
 {{- end }}
 {{ if $rescueMode }}
   rescue-web.xml: |-
 {{ tpl ($.Files.Get "files/rescue-web.xml") $data | indent 4 }}
 {{- end }}
 {{- if eq $magnoliaMode "combined" }}
+{{- $_ := set $logging "logging" .values.author.logging }}
   log4j2-author.xml: |-
-{{ tpl ($.Files.Get "files/log4j2.xml") $.Values.magnoliaCombined.author.logging | indent 4 }}
+{{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}
+{{- $_ := set $logging "logging" .values.public.logging }}
   log4j2-public.xml: |-
-{{ tpl ($.Files.Get "files/log4j2.xml") $.Values.magnoliaCombined.public.logging | indent 4 }}
+{{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}
 {{- else }}
   log4j2.xml: |-
 {{ tpl ($.Files.Get "files/log4j2.xml") $logging | indent 4 }}
@@ -74,7 +74,6 @@ data:
 {{ tpl ($.Files.Get "files/jcr-repositories.xml") $data | indent 4 }}
   jmx-exporter-config.yml: |-
 {{ tpl ($.Files.Get "files/jmx-exporter-config.yml") $data | indent 4 }}
-{{ end -}}
 {{- if $db.backup.autoconfig.enabled }}
 ---
 apiVersion: v1

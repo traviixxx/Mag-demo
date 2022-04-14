@@ -34,7 +34,7 @@
             <param name="dataSourceName" value="magnolia"/>
             <param name="schemaObjectPrefix" value="pm_${wsp.name}_"/>
         </PersistenceManager>
-        <SearchIndex class="{{ .db.jackrabbit.searchIndexClass | default "info.magnolia.jackrabbit.lucene.SearchIndex" }}">
+        <SearchIndex class="{{ .jackrabbit.searchIndexClass | default "info.magnolia.jackrabbit.lucene.SearchIndex" }}">
             <param name="path" value="${wsp.home}/index"/>
             <!-- SearchIndex will get the indexing configuration from the classpath, if not found in the workspace home -->
             <param name="indexingConfiguration" value="/info/magnolia/jackrabbit/indexing_configuration_${wsp.name}.xml"/>
@@ -46,10 +46,10 @@
             <param name="maxFieldLength" value="10000"/>
             <param name="bufferSize" value="10"/>
             <param name="cacheSize" value="1000"/>
-            <param name="enableConsistencyCheck" value="{{ .db.jackrabbit.enableConsistencyCheck | default "false" }}"/>
-            <param name="forceConsistencyCheck" value="{{ .db.jackrabbit.forceConsistencyCheck | default "false" }}"/>
-            <param name="autoRepair" value="{{ .db.jackrabbit.autoRepair | default "true" }}"/>
-            <param name="onWorkspaceInconsistency" value="{{ .db.jackrabbit.onWorkspaceInconsistency | default "log" }}"/>
+            <param name="enableConsistencyCheck" value="{{ .jackrabbit.enableConsistencyCheck | default "false" }}"/>
+            <param name="forceConsistencyCheck" value="{{ .jackrabbit.forceConsistencyCheck | default "false" }}"/>
+            <param name="autoRepair" value="{{ .jackrabbit.autoRepair | default "true" }}"/>
+            <param name="onWorkspaceInconsistency" value="{{ .jackrabbit.onWorkspaceInconsistency | default "log" }}"/>
             <param name="queryClass" value="org.apache.jackrabbit.core.query.QueryImpl"/>
             <param name="respectDocumentOrder" value="true"/>
             <param name="resultFetchSize" value="100"/>
@@ -60,7 +60,7 @@
             <param name="supportHighlighting" value="true"/>
             <!-- custom provider for getting an HTML excerpt in a query result with rep:excerpt() -->
             <param name="excerptProviderClass" value="info.magnolia.jackrabbit.lucene.SearchHTMLExcerpt"/>
-            {{- with .db.jackrabbit.extraSearchIndexParameters }}
+            {{- with .jackrabbit.extraSearchIndexParameters }}
             <!-- CUSTOM PARAMETERS -->
             {{- $list := list }}
             {{ range $key, $value := . -}}

@@ -2,7 +2,7 @@
 <Configuration>
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout pattern='{{ .pattern }}'/>
+            <PatternLayout pattern='{{ .logging.pattern }}'/>
         </Console>
     </Appenders>
     <Loggers>
@@ -23,10 +23,10 @@
         <Logger name="httpclient" level="WARN"/>
         <Logger name="openwfe.org.log" level="WARN"/>
         <Logger name="openwfe" level="WARN"/>
-{{- range .loggers }}
+{{- range .logging.loggers }}
         <Logger name="{{ .name }}" level="{{ .level }}"/>
  {{- end }}
-        <Root level="{{ .level }}">
+        <Root level="{{ .logging.level }}">
             <AppenderRef ref="console"/>
         </Root>
     </Loggers>
