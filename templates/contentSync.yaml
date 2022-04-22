@@ -3,10 +3,12 @@
 {{- if .Values.magnoliaAuthor.enabled }}
 {{- $instanceList = list .Values.magnoliaAuthor .Values.magnoliaPublic -}}
 {{- end }}
+{{- if .Values.magnoliaCombined.enabled -}}
+{{- $instanceList = list .Values.magnoliaCombined -}}
+{{- end }}
 {{- range $instanceList -}}
 {{- if and .db.contentsync.enabled .db.enabled -}}
 {{- $appName := printf "%s-%s-db" $fullName .db.name -}}
-{{- $dbName := printf "%s-db" .db.name }}
 ---
 # This is our client cert used for all magnolia-backup clients to request new
 # base backups on-demand.

@@ -154,6 +154,12 @@ spec:
               mountPath: /etc/postgresql/postgres.conf
               subPath: postgres.conf
             {{- end }}
+            {{- if $.Values.magnoliaCombined.enabled }}
+            - name: postgres-init-scripts
+              # https://github.com/docker-library/docs/blob/master/postgres/README.md#initialization-scripts
+              mountPath: "/docker-entrypoint-initdb.d"
+              readOnly: true
+            {{- end }}
           readinessProbe:
             exec:
               command: ["psql", "-w", "-U", "postgres", "-d", "{{ .db.name }}", "-c", "SELECT 1"]
@@ -242,6 +248,11 @@ spec:
         - name: mtls-certs
           secret:
             secretName: {{ printf "%s-client-tls" $appName | quote }}
+        {{- end }}
+        {{- if $.Values.magnoliaCombined.enabled }}
+        - name: postgres-init-scripts
+          configMap:
+            name: {{ printf "%s-init-user-db" $.Release.Name }}
         {{- end }}
   volumeClaimTemplates:
     - metadata:

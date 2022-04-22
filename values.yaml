@@ -691,7 +691,7 @@ jars:
     tag: v0.0.1
     env:
       - name: INIT_DEST
-        value: /app/magnolia/WEB-INF/lib
+        value: /app/magnolia/WEB-INF/lib # Make this more generic (i.e. /app/magnolia*/WEB-INF/lib) to enable multi-target copies :)
     # -- Where to find the init script which copies .jar files into tomcat/lib.
     initScript: /init.sh
   - name: jmx-exporter

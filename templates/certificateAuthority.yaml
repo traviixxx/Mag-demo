@@ -1,7 +1,8 @@
 {{- $fullName := include "magnolia.fullname" . -}}
 {{- $aut := .Values.magnoliaAuthor }}
 {{- $pub := .Values.magnoliaPublic }}
-{{- if or (and $aut.db.enabled $aut.db.contentsync.enabled) (and $pub.db.enabled $pub.db.contentsync.enabled) }}
+{{- $com := .Values.magnoliaCombined }}
+{{- if or (and $aut.db.enabled $aut.db.contentsync.enabled) (and $pub.db.enabled $pub.db.contentsync.enabled) (and $com.db.enabled $com.db.contentsync.enabled) }}
 ---
 # Create a root certificate.
 apiVersion: cert-manager.io/v1

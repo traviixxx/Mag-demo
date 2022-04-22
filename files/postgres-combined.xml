@@ -4,8 +4,8 @@
     <DataSources>
         <DataSource name="magnolia">
             <param name="driver" value="org.postgresql.Driver"/>
-            <param name="url" value="jdbc:postgresql://{{ .dbHost }}:5432/{{ .name }}"/>
-            <param name="user" value="postgres"/>
+            <param name="url" value="jdbc:postgresql://{{ .dbHost }}-0.{{ .dbHost }}:5432/magnolia_{{ .name }}"/>
+            <param name="user" value="magnolia_{{ .name }}"/>
             <param name="password" value=""/>
             <param name="databaseType" value="postgresql"/>
         </DataSource>
