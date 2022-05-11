@@ -102,7 +102,7 @@
                  docBase="magnolia"
                  containerSciFilter="WsSci">
         {{- end }}
-          <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "unset" }}" />
+          <CookieProcessor sameSiteCookies="{{ .values.sameSiteCookies | default "strict" }}" />
         </Context>
 
         <Valve className="org.apache.catalina.valves.ErrorReportValve"
