@@ -146,6 +146,8 @@ magnoliaAuthor:
   # -- Enable Groovy rescue console.
   rescueMode: False
   rescueModeDX: False
+  # -- JSession sameSite cookie value.
+  sameSiteCookies: strict
   strategy:
     # -- Kubernetes rollout strategy on `helm upgrade ...`.
     type: Recreate
@@ -338,6 +340,8 @@ magnoliaPublic:
   # -- Enable Groovy rescue console.
   rescueMode: False
   rescueModeDX: False
+  # -- JSession sameSite cookie value.
+  sameSiteCookies: strict
   stateful: True # Do not change this.
   # -- How many public instances to deploy.
   replicas: 1
