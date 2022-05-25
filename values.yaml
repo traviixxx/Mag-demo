@@ -525,8 +525,6 @@ ingress:
   # @default -- {}
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 512m
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_clear_headers "Server";
     # Use these if you want cert-manager to issue let's encrypt certs.
     #cert-manager.io/cluster-issuer: letsencrypt-prod
   # -- Specify hosts here as an array.
