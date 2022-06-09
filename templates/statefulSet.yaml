@@ -40,6 +40,7 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
+      serviceAccountName: bootstrapper-sa
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
       restartPolicy: {{ $value.restartPolicy | default "Always" }}
@@ -241,6 +242,20 @@ spec:
             - waitfor
             - --names
             - {{ $dbHost }}-{{ "{{ .Env.HOSTNAME | podordinal }}" }}.{{ $dbHost }}
+        - name: create-auth-key
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
+          command:
+            - /app
+            - createauthkey
+            - --public-key-path
+            - "{{ $value.persistence.mountPath | default "/mgnl-home" }}/pub.pem"
+          volumeMounts:
+            - name: magnolia-home
+              mountPath: {{ $value.persistence.mountPath | default "/mgnl-home" }}
+          env:
+            - name: MGNLBOOT_PUBLIC_SERVICE_NAME
+              value: {{ printf "%s-%s-svc" $fullName "public" }}
       containers:
         - name: {{ $.Release.Name }}
           image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
@@ -322,6 +337,8 @@ spec:
             - /data/instructions.yml
             - --path
             - "{{ .livenessProbe.path }}"
+            - --magnolia-auth-secret-name
+            - magnolia-auth-key
             {{- end }}
             #- -vvv  # Trace mode.
           volumeMounts:

@@ -6,26 +6,6 @@ endpoints:
     url: {{ .Env.MGNLBOOT_AUTHOR_INSTANCE }}
 
 playbook:
-  - name: add_new_subs
-    method: put
-    endpoints:
-      - magnolia-author
-    username: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_AUTHOR_SUPERUSER_PW | quote }}
-    path: "config/modules/publishing-core/config/receivers"
-    data:
-      name: {{ .Env.HOSTNAME | quote }}
-      type: "mgnl:contentNode"
-      properties:
-        - name: url
-          type: String
-          values:
-            - "http://{{ .Env.HOSTNAME }}.{{ .Env.MGNLBOOT_PUBLIC_SERVICE_NAME }}:8765/"
-        - name: enabled
-          type: String
-          values:
-            - "true"
-
   - name: updateSuperuserPw
     endpoints:
       - magnolia-public

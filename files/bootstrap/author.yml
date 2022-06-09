@@ -22,14 +22,6 @@ playbook:
             {{ bcrypt (.Env.MGNLBOOT_NEW_SUPERUSER_PW) | quote }}
           ]
 
-  - name: remove_sub
-    endpoints:
-      - magnolia-author
-    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_NEW_SUPERUSER_PW | quote }}
-    method: delete
-    path: "config/modules/publishing-core/config/receivers/magnoliaPublic8080"
-
   {{- if .Env.MGNL_ACTIVATION_PUBKEY }}
   - name: set_pubkey
     endpoints:
