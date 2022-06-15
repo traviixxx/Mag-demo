@@ -297,7 +297,7 @@ magnoliaAuthor:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
-    path: "/"
+    path: "/.rest/status"
   # -- Custom annotations added to pod.
   podAnnotations: {}
   # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
@@ -462,7 +462,7 @@ magnoliaPublic:
     failureThreshold: 4
     periodSeconds: 10
     expectedCodes: "200-399,401,404"
-    path: "/"
+    path: "/.rest/status"
   # -- Custom annotations added to pods.
   podAnnotations: {}
   # -- Additional JDNI resources to be added in tomcat's `server.xml`. The
