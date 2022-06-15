@@ -551,6 +551,6 @@ postjob:
   # -- Where to get the bootstrapper from. This should not be changed under
   # normal circumstances.
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.3-rc1
+  tag: v0.2.4-rc2
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
