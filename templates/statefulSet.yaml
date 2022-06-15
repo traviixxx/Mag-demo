@@ -348,6 +348,8 @@ spec:
             - name: instructions
               mountPath: /data/instructions.yml
               subPath: instructions.yml
+            - name: magnolia-home
+              mountPath: {{ $value.persistence.mountPath | default "/mgnl-home" }}
             {{- end }}
           env:
           {{- if $.Values.bootstrap.enabled }}
