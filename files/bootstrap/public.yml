@@ -10,8 +10,6 @@ playbook:
     endpoints:
       - magnolia-public
     method: "post"
-    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_SUPERUSER_PW | default "superuser" }}
     path: "users/system/{{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}"
     allow_failure: true
     data:
@@ -27,8 +25,6 @@ playbook:
     endpoints:
       - magnolia-public
     method: post
-    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_NEW_SUPERUSER_PW | quote }}
     path: "config/server/activation"
     allow_failure: false
     data:
@@ -49,8 +45,6 @@ playbook:
     endpoints:
       - magnolia-public
     method: "post"
-    username: {{ .Env.MGNLBOOT_SUPERUSER_NAME | default "superuser" }}
-    password: {{ .Env.MGNLBOOT_NEW_SUPERUSER_PW | quote }}
     path: "config/server"
     data:
       properties:
