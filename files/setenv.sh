@@ -35,7 +35,7 @@ CATALINA_OPTS="$CATALINA_OPTS \
  -Dmagnolia.home=${MGNL_HOME_DIR:-/mgnl-home} \
  -Dmagnolia.repositories.home=${MGNL_REPOSITORIES_HOME:-\$\{magnolia.home\}/repositories} \
  -Dmagnolia.resources.dir=${MGNL_RESOURCES_DIR:-\$\{magnolia.home\}/modules} \
- -Dmagnolia.cloud.bootstrapper.pem.file=\$\{magnolia.home\}/pub.pem}"
+ -Dmagnolia.cloud.bootstrapper.pem.file=${MGNL_HOME_DIR:-/mgnl-home}/pub.pem"
 
 {{ if .Values.sharedDb.enabled -}}
 CATALINA_OPTS="$CATALINA_OPTS \
