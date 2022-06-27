@@ -6,26 +6,6 @@ endpoints:
     url: {{ .Env.MGNLBOOT_AUTHOR_INSTANCE }}
 
 playbook:
-  {{- if .Env.MGNL_ACTIVATION_PUBKEY }}
-  - name: set_pubkey
-    endpoints:
-      - magnolia-public
-    method: post
-    path: "config/server/activation"
-    allow_failure: false
-    data:
-      properties:
-        - name: class
-          type: String
-          values:
-          - "info.magnolia.publishing.manager.ActivationManagerAdapter"
-        - name: publicKey
-          type: String
-          values:
-            - {{ .Env.MGNL_ACTIVATION_PUBKEY | pubkey }}
-  {{- end }}
-
-
   {{- if .Env.MGNL_DEFAULT_BASE_URL }}
   - name: setDefaultBaseURL
     endpoints:
