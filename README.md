@@ -324,11 +324,14 @@ To enable the
 deploy your Helm release with the following flag
 
 for CE projects:
+
 ```yaml
 magnoliaAuthor:
   rescueMode: true
 ```
+
 for DX Core projects:
+
 ```yaml
 magnoliaAuthor:
   rescueModeDX: true
@@ -495,7 +498,7 @@ This way we expect a previously existing secret with the username and password f
 The magnolia to object storage backup agent can be used for regular dumps and
 backups of the data bases.
 
-### Prerequisites
+### Backup Prerequisites
 
 - S3 bucket with credentials (accesskey and secretkey) **or**
 - GCS storage access (key.json file from the Google Console)
@@ -576,7 +579,7 @@ After the port forwarding is established, visit
 
 This chart supports spinning up new public instances by synchronizing the database before starting Magnolia resulting in a clone of other (available) public instances.
 
-### Prerequisites
+### Content Sync Prerequisites
 
 For this to work a few things need to be configured correctly:
 
@@ -592,7 +595,7 @@ For this to work a few things need to be configured correctly:
 When spinning up new public databases by setting the `replica: n` value and if
 `contentsync.enabled == true`, the new database will try to sync the content
 from an already running public database. It will copy the whole database using a
-*base backup*. This feature thus only works with PostgreSQL.
+_base backup_. This feature thus only works with PostgreSQL.
 
 After starting the database it is safe to start a new public instance too by
 setting `replica: n` of the public `StatefulSet`. It will match the ordinal
@@ -695,13 +698,15 @@ standard and try to maintain backwards compatiblity within major releases.
 Values used with older chart versions should always work with newer chart versions and provide the same results.
 
 > **Note:** This does not mean a certain deployment will upgrade non-disruptively, i.e. without having to remove it first. See the [Upgrade](#upgrade) section about upgrades in general.
-
+>
 > **Note**: Ingress API `extensions/v1beta1` [deprecated for Kuberenetes `v1.22` and above](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes) and has been replaced by `networking.k8s.io/v1`. If you encounter any issues like:
->```
+>
+>```text
 > Error: UPGRADE FAILED: unable to recognize "": no matches for kind "Ingress" in version "networking.k8s.io/v1"
 >```
-> Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced. 
-> 
+>
+> Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced.
+>
 > Also ensure using a [proper ingress port name value](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/#IngressBackend) (_a string, not a number!_) in `service.ports[0].name` rather than a `service.ports[0].number`.
 > As they are mutually exlusive, only using a `service.ports[0].name` will be supported in future releases
 
@@ -709,8 +714,8 @@ Values used with older chart versions should always work with newer chart versio
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| MiroNet AG | mathias.seiler@mironet.ch | https://www.mironet.ch/ |
-| fastforward websolutions | pzingg@fastforward.ch | https://www.fastforward.ch/ |
+| MiroNet AG | mathias.seiler@mironet.ch | <https://www.mironet.ch/> |
+| fastforward websolutions | pzingg@fastforward.ch | <https://www.fastforward.ch/> |
 
 ## Legal Notes
 
