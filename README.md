@@ -406,6 +406,33 @@ magnoliaPublic:
     ... # Same syntax as k8s initContainers definition.
 ```
 
+## Magnolia auth key init container
+
+As of `magnolia-helm@v1.5.7` each magnolia pod uses an init container which
+tries to create a secret called `magnolia-auth-key` in the same namespace the
+magnolia pod is running in.
+
+> **Note:** The secret is not created, if it already exists.
+
+The secret contains the key pair (private & public key in pem format) which can
+be used to authorize requests to magnolia. In the secret the privat key is
+stored under key `private.pem` and the public key is stored under key
+`public.pem`.
+
+> **Handy use case:** Use the private key in that secret to sign JSON web tokens
+> which authorize requests to magnolia.
+
+The public key of that key pair is stored by the init container in a file called
+`pub.pem` in the magnolia volume's home directory (`/mgnl-home` by default).
+
+> **Note:** The magnolia home's mount path can be configured in the
+> `values.yaml` under `persistence.mountPath`.
+
+The helm chart version `v1.5.7` also adds an option
+`magnolia.cloud.bootstrapper.pem.file=${MGNL_HOME_DIR:-/mgnl-home}/pub.pem` to
+`$CATALINA_OPTS` to inform magnolia (via the magnolia cloud bootstrapper) where
+the public auth key is located.
+
 ## Pod Annotations
 
 You can add your own pod annotations for Magnolia deployments with the `podAnnotations` dictionary. Let's say you want to add Prometheus annotations for your pods running Magnolia:
