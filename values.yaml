@@ -484,50 +484,50 @@ jars:
   - name: postgres-jdbc
     # -- Example of additional jar, here the Postgres JDBC driver.
     repository: registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8
-    tag: v0.0.1
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
     # -- Where to find the init script which copies .jar files into tomcat/lib.
     initScript: /init.sh
   - name: jmx-exporter
-    repository: registry.gitlab.com/mironet/magnolia-jar
-    tag: jmx_prometheus_javaagent-0.13.0
+    repository: registry.gitlab.com/mironet/magnolia-jar/jmx_prometheus_javaagent-0.13.0
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /extraLibs/
     initScript: /init.sh
   - name: jjwt-jackson
     repository: registry.gitlab.com/mironet/magnolia-jar/jjwt-jackson-0.11.2
-    tag: v0.0.1-8-g33dadfc
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
     initScript: /init.sh
   - name: jjwt-impl
     repository: registry.gitlab.com/mironet/magnolia-jar/jjwt-impl-0.11.2
-    tag: v0.0.1-8-g33dadfc
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
     initScript: /init.sh
   - name: jjwt-api
     repository: registry.gitlab.com/mironet/magnolia-jar/jjwt-api-0.11.2
-    tag: v0.0.1-8-g33dadfc
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
     initScript: /init.sh
   - name: magnolia-rest-security-core
-    repository: registry.gitlab.com/mironet/magnolia-jar/magnolia-rest-security-core-1.0
-    tag: v0.0.1-7-g9375821
+    repository: registry.gitlab.com/mironet/magnolia-jar/magnolia-rest-security-core-1.0.3
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
     initScript: /init.sh
   - name: magnolia-cloud-bootstrapper
-    repository: registry.gitlab.com/mironet/magnolia-jar/magnolia-cloud-bootstrapper-1.0
-    tag: v0.0.1-5-g217331b
+    repository: registry.gitlab.com/mironet/magnolia-jar/magnolia-cloud-bootstrapper-1.0.2
+    tag: v0.0.2
     env:
       - name: INIT_DEST
         value: /app/magnolia/WEB-INF/lib
@@ -586,6 +586,6 @@ postjob:
   # -- Where to get the bootstrapper from. This should not be changed under
   # normal circumstances.
   image: registry.gitlab.com/mironet/magnolia-bootstrap
-  tag: v0.2.5
+  tag: v0.2.6
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
