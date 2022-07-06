@@ -57,7 +57,7 @@ See [here](CHANGELOG.md).
 | image.pullSecrets | list | `[]` |  |
 | image.tomcat.pullPolicy | string | `"IfNotPresent"` | Tomcat repo pull policy. |
 | image.tomcat.repository | string | `"tomcat"` | The tomcat image we're going to use. |
-| image.tomcat.tag | string | `"9-jre11-slim"` | Tomcat repo tag. |
+| image.tomcat.tag | string | `"9.0-jre11-temurin"` | Tomcat repo tag. |
 | ingress.annotations | object | {} | Additional annotations for the ingress object. |
 | ingress.enabled | bool | `false` | Enable/disable ingress configuration. |
 | ingress.hosts | list | `[]` | Specify hosts here as an array. |
@@ -67,13 +67,43 @@ See [here](CHANGELOG.md).
 | jars[0].initScript | string | `"/init.sh"` | Where to find the init script which copies .jar files into tomcat/lib. |
 | jars[0].name | string | `"postgres-jdbc"` |  |
 | jars[0].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/postgres-42.2.8"` | Example of additional jar, here the Postgres JDBC driver. |
-| jars[0].tag | string | `"v0.0.1"` |  |
+| jars[0].tag | string | `"v0.0.2"` |  |
 | jars[1].env[0].name | string | `"INIT_DEST"` |  |
 | jars[1].env[0].value | string | `"/extraLibs/"` |  |
 | jars[1].initScript | string | `"/init.sh"` |  |
 | jars[1].name | string | `"jmx-exporter"` |  |
-| jars[1].repository | string | `"registry.gitlab.com/mironet/magnolia-jar"` |  |
-| jars[1].tag | string | `"jmx_prometheus_javaagent-0.13.0"` |  |
+| jars[1].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/jmx_prometheus_javaagent-0.13.0"` |  |
+| jars[1].tag | string | `"v0.0.2"` |  |
+| jars[2].env[0].name | string | `"INIT_DEST"` |  |
+| jars[2].env[0].value | string | `"/app/magnolia/WEB-INF/lib"` |  |
+| jars[2].initScript | string | `"/init.sh"` |  |
+| jars[2].name | string | `"jjwt-jackson"` |  |
+| jars[2].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/jjwt-jackson-0.11.2"` |  |
+| jars[2].tag | string | `"v0.0.2"` |  |
+| jars[3].env[0].name | string | `"INIT_DEST"` |  |
+| jars[3].env[0].value | string | `"/app/magnolia/WEB-INF/lib"` |  |
+| jars[3].initScript | string | `"/init.sh"` |  |
+| jars[3].name | string | `"jjwt-impl"` |  |
+| jars[3].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/jjwt-impl-0.11.2"` |  |
+| jars[3].tag | string | `"v0.0.2"` |  |
+| jars[4].env[0].name | string | `"INIT_DEST"` |  |
+| jars[4].env[0].value | string | `"/app/magnolia/WEB-INF/lib"` |  |
+| jars[4].initScript | string | `"/init.sh"` |  |
+| jars[4].name | string | `"jjwt-api"` |  |
+| jars[4].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/jjwt-api-0.11.2"` |  |
+| jars[4].tag | string | `"v0.0.2"` |  |
+| jars[5].env[0].name | string | `"INIT_DEST"` |  |
+| jars[5].env[0].value | string | `"/app/magnolia/WEB-INF/lib"` |  |
+| jars[5].initScript | string | `"/init.sh"` |  |
+| jars[5].name | string | `"magnolia-rest-security-core"` |  |
+| jars[5].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/magnolia-rest-security-core-1.0.3"` |  |
+| jars[5].tag | string | `"v0.0.2"` |  |
+| jars[6].env[0].name | string | `"INIT_DEST"` |  |
+| jars[6].env[0].value | string | `"/app/magnolia/WEB-INF/lib"` |  |
+| jars[6].initScript | string | `"/init.sh"` |  |
+| jars[6].name | string | `"magnolia-cloud-bootstrapper"` |  |
+| jars[6].repository | string | `"registry.gitlab.com/mironet/magnolia-jar/magnolia-cloud-bootstrapper-1.0.2"` |  |
+| jars[6].tag | string | `"v0.0.2"` |  |
 | magnoliaAuthor | object | See values below ... | This is the author's configuration. It should not use H2 data base (the default). |
 | magnoliaAuthor.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
 | magnoliaAuthor.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
@@ -165,12 +195,12 @@ See [here](CHANGELOG.md).
 | nameOverride | string | `""` |  |
 | postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
 | postjob.imagePullPolicy | string | `"IfNotPresent"` |  |
-| postjob.tag | string | `"v0.2.3-rc1"` |  |
+| postjob.tag | string | `"v0.2.6"` |  |
 | postjob.waitFor | string | `"10m"` |  |
 | service.annotations | object | `{}` |  |
 | service.clusterIP | string | `"None"` |  |
-| service.ports[0].name | string | `"http"` | Checkout [Compatibility](#compatibility) |
-| service.ports[0].port | int | `80` | Checkout [Compatibility](#compatibility) |
+| service.ports[0].name | string | `"http"` |  |
+| service.ports[0].port | int | `80` |  |
 | service.ports[0].protocol | string | `"TCP"` |  |
 | service.ports[0].targetPort | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
@@ -353,12 +383,15 @@ magnoliaPublic:
     periodSeconds: 30
 ```
 
-Magnolia is not deemed "ready" before the first of the following conditions are met:
+Magnolia is not deemed "ready" before the following conditions are met:
 
 - Magnolia itself is reporting a good response to a healthcheck.
-- All bootstrap instructions have been executed successfully.
 
-> **Note:** The bootstrap instructions are executed asynchronously after Magnolia itself reports healthy. This allows for a short period of a state during wich not all configuration has been applied but this has proven not to be an issue in production. Having a runtime dependency on it though has been annyoing, hence this is the default behaviour.
+> **Note:** The bootstrapping is executed asynchronously after Magnolia itself
+> reports healthy. This allows for a short period of a state during wich not all
+> configuration has been applied but this has proven not to be an issue in
+> production. Having a runtime dependency on it though has been annyoing, hence
+> this is the default behaviour.
 
 ## TLS
 
@@ -544,7 +577,7 @@ of how to create one:
 ```bash
 # Create files needed for the rest of the example.
 echo -n 's3user' > accesskey.txt
-echo -n 'supersecrets3pass' > secretkey.txt
+ echo -n 'supersecrets3pass' > secretkey.txt
 
 kubectl create secret generic s3-backup-key --from-file=accesskey=./accesskey.txt --from-file=secretkey=./secretkey.txt
 
@@ -700,8 +733,8 @@ Values used with older chart versions should always work with newer chart versio
 >```
 > Error: UPGRADE FAILED: unable to recognize "": no matches for kind "Ingress" in version "networking.k8s.io/v1"
 >```
-> Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced. 
-> 
+> Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced.
+>
 > Also ensure using a [proper ingress port name value](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/#IngressBackend) (_a string, not a number!_) in `service.ports[0].name` rather than a `service.ports[0].number`.
 > As they are mutually exlusive, only using a `service.ports[0].name` will be supported in future releases
 

@@ -192,7 +192,6 @@ magnoliaAuthor:
   rescueModeDX: true
 ```
 
-
 This only takes effect if Magnolia is already installed.
 
 ## Monitoring / Liveness
@@ -212,12 +211,15 @@ magnoliaPublic:
     periodSeconds: 30
 ```
 
-Magnolia is not deemed "ready" before the first of the following conditions are met:
+Magnolia is not deemed "ready" before the following conditions are met:
 
 - Magnolia itself is reporting a good response to a healthcheck.
-- All bootstrap instructions have been executed successfully.
 
-> **Note:** The bootstrap instructions are executed asynchronously after Magnolia itself reports healthy. This allows for a short period of a state during wich not all configuration has been applied but this has proven not to be an issue in production. Having a runtime dependency on it though has been annyoing, hence this is the default behaviour.
+> **Note:** The bootstrapping is executed asynchronously after Magnolia itself
+> reports healthy. This allows for a short period of a state during wich not all
+> configuration has been applied but this has proven not to be an issue in
+> production. Having a runtime dependency on it though has been annyoing, hence
+> this is the default behaviour.
 
 ## TLS
 
@@ -554,6 +556,15 @@ standard and try to maintain backwards compatiblity within major releases.
 Values used with older chart versions should always work with newer chart versions and provide the same results.
 
 > **Note:** This does not mean a certain deployment will upgrade non-disruptively, i.e. without having to remove it first. See the [Upgrade](#upgrade) section about upgrades in general.
+
+> **Note**: Ingress API `extensions/v1beta1` [deprecated for Kuberenetes `v1.22` and above](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes) and has been replaced by `networking.k8s.io/v1`. If you encounter any issues like:
+>```
+> Error: UPGRADE FAILED: unable to recognize "": no matches for kind "Ingress" in version "networking.k8s.io/v1"
+>```
+> Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced.
+>
+> Also ensure using a [proper ingress port name value](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/#IngressBackend) (_a string, not a number!_) in `service.ports[0].name` rather than a `service.ports[0].number`.
+> As they are mutually exlusive, only using a `service.ports[0].name` will be supported in future releases
 
 ## Maintainers
 
