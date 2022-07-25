@@ -139,12 +139,13 @@ See [here](CHANGELOG.md).
 | magnoliaAuthor.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaAuthor.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
 | magnoliaAuthor.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
-| magnoliaAuthor.tomcat | object | `{"activateWebsockets":false,"error":{"showReport":false,"showServerInfo":false},"logArgs":false}` | Tomcat configuration |
+| magnoliaAuthor.tomcat | object | `{"activateWebsockets":false,"error":{"showReport":false,"showServerInfo":false},"logArgs":false,"maxHttpHeaderSize":8192}` | Tomcat configuration |
 | magnoliaAuthor.tomcat.activateWebsockets | bool | `false` | Activate the websockets |
 | magnoliaAuthor.tomcat.error | object | `{"showReport":false,"showServerInfo":false}` | Error valve configuration |
 | magnoliaAuthor.tomcat.error.showReport | bool | `false` | Show error report |
 | magnoliaAuthor.tomcat.error.showServerInfo | bool | `false` | Show server info |
 | magnoliaAuthor.tomcat.logArgs | bool | `false` | Log JVM arguments |
+| magnoliaAuthor.tomcat.maxHttpHeaderSize | int | `8192` | The maximum permitted size of the request line and headers associated with an HTTP request and response |
 | magnoliaAuthor.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
 | magnoliaAuthor.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
 | magnoliaPublic | object | See values below ... | This is the public instance. |
@@ -182,11 +183,13 @@ See [here](CHANGELOG.md).
 | magnoliaPublic.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaPublic.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
 | magnoliaPublic.strategy.type | string | `"Recreate"` | Kubernetes rollout strategy on `helm upgrade ...`. |
-| magnoliaPublic.tomcat | object | `{"error":{"showReport":false,"showServerInfo":false},"logArgs":false}` | Tomcat configuration |
+| magnoliaPublic.tomcat | object | `{"activateWebsockets":false,"error":{"showReport":false,"showServerInfo":false},"logArgs":false,"maxHttpHeaderSize":8192}` | Tomcat configuration |
+| magnoliaPublic.tomcat.activateWebsockets | bool | `false` | Activate the websockets |
 | magnoliaPublic.tomcat.error | object | `{"showReport":false,"showServerInfo":false}` | Error valve configuration |
 | magnoliaPublic.tomcat.error.showReport | bool | `false` | Show error report |
 | magnoliaPublic.tomcat.error.showServerInfo | bool | `false` | Show server info |
 | magnoliaPublic.tomcat.logArgs | bool | `false` | Log JVM arguments |
+| magnoliaPublic.tomcat.maxHttpHeaderSize | int | `8192` | The maximum permitted size of the request line and headers associated with an HTTP request and response |
 | magnoliaPublic.webarchive.repository | string | `"registry.gitlab.com/mironet/magnolia-demo"` | The docker image where to fetch compiled Magnolia libs from. |
 | magnoliaPublic.webarchive.tag | string | `"latest"` | Do not use 'latest' in production. |
 | metrics.enabled | bool | `true` | Enable JMX exporters. |

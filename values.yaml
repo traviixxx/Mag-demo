@@ -309,13 +309,14 @@ magnoliaAuthor:
     logArgs: False
     # -- Activate the websockets
     activateWebsockets: False
+    # -- The maximum permitted size of the request line and headers associated with an HTTP request and response
+    maxHttpHeaderSize: 8192
     # -- Error valve configuration
     error:
       # -- Show error report
       showReport: False
       # -- Show server info
       showServerInfo: False
-
 
 # -- This is the public instance.
 # @default -- See values below ...
@@ -472,6 +473,10 @@ magnoliaPublic:
   tomcat:
     # -- Log JVM arguments
     logArgs: False
+    # -- Activate the websockets
+    activateWebsockets: False
+    # -- The maximum permitted size of the request line and headers associated with an HTTP request and response
+    maxHttpHeaderSize: 8192
     # -- Error valve configuration
     error:
       # -- Show error report
