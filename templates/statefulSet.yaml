@@ -154,28 +154,8 @@ spec:
             name: {{ $.Release.Name }}-configmap-{{ $magnoliaMode }}
             optional: False
 {{- if eq $magnoliaMode "author" }}
-{{- if and (not .activation.useExistingSecret) .activation.privateKey }}
-        - name: activation-keypair
-          secret:
-            secretName: {{ printf "%s-activation-secret" $.Release.Name }}
-            defaultMode: 420
-            optional: false
-            items:
-              - key: magnolia-activation-keypair.properties
-                path: magnolia-activation-keypair.properties
-{{- else if .activation.useExistingSecret }}
-        - name: activation-keypair
-          secret:
-            secretName: {{ .activation.secret.name | quote }}
-            defaultMode: 420
-            optional: false
-            items:
-              - key: {{ .activation.secret.key | quote }}
-                path: magnolia-activation-keypair.properties
-{{- else }}
         - name: activation-keypair
           emptyDir: {}
-{{- end }}
 {{- end }}
       initContainers:
         - name: war
@@ -232,6 +212,34 @@ spec:
             - waitfor
             - --names
             - {{ $dbHost }}-{{ "{{ .Env.HOSTNAME | podordinal }}" }}.{{ $dbHost }}
+{{- if eq $magnoliaMode "author" }}
+        - name: prepare-activation-keypair
+          image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
+          imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
+          command:
+            - /app
+            - activationkey
+            - --activation-keypair-path
+            - "{{ .activation.keyLocation | dir }}"
+          volumeMounts:
+            - name: activation-keypair
+              mountPath: {{ .activation.keyLocation | dir }}
+          env:
+            - name: MGNLBOOT_PUBLIC_SERVICE_NAME
+              value: {{ printf "%s-%s-svc" $fullName "public" }}
+            - name:  MGNLBOOT_ACTIVATION_SECRET_NAME
+            {{- if and (not .activation.useExistingSecret) .activation.privateKey }}
+              value: {{ printf "%s-activation-secret" $.Release.Name }}
+            {{- else if .activation.useExistingSecret }}
+              value: {{ .activation.secret.name | quote }}
+            {{- else }}
+              value: {{ printf "%s-default-activation-secret" $.Release.Name }}
+            {{- end }}
+            - name: MGNLBOOT_ACTIVATION_SECRET_KEY
+            {{- if .activation.useExistingSecret }}
+              value: {{ .activation.secret.key | quote }}
+            {{- end }}
+{{- end }}
         - name: create-auth-key
           image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
           imagePullPolicy: {{ $.Values.postjob.imagePullPolicy }}
@@ -305,12 +313,7 @@ spec:
               subPath: config.yml
 {{- if eq $magnoliaMode "author" }}
             - name: activation-keypair
-              {{- if and (not .activation.useExistingSecret) (empty .activation.privateKey) }}
               mountPath: {{ .activation.keyLocation | dir }}
-              {{- else }}
-              mountPath: {{ .activation.keyLocation }}
-              {{- end}}
-              subPath: magnolia-activation-keypair.properties
 {{- end }}
         - name: bootstrapper
           image: {{ printf "%s:%s" $.Values.postjob.image $.Values.postjob.tag }}
@@ -352,12 +355,17 @@ spec:
           - name: MGNL_DEFAULT_BASE_URL
             value: {{ $value.base_url | quote }}
           {{- end }}
-          {{- if $value.activation.useExistingSecret }}
-          - name: MGNL_ACTIVATION_PUBKEY
-            valueFrom:
-              secretKeyRef:
-                name:  {{ $value.activation.secret.name | quote }}
-                key:  {{ $value.activation.secret.key| quote }}
+          - name: MGNLBOOT_ACTIVATION_SECRET_NAME
+          {{- if and (not .activation.useExistingSecret) .activation.privateKey }}
+            value: {{ printf "%s-activation-secret" $.Release.Name }}
+          {{- else if .activation.useExistingSecret }}
+            value: {{ .activation.secret.name | quote }}
+          {{- else }}
+            value: {{ printf "%s-default-activation-secret" $.Release.Name }}
+          {{- end }}
+          - name: MGNLBOOT_ACTIVATION_SECRET_KEY
+          {{- if .activation.useExistingSecret }}
+            value: {{ .activation.secret.key | quote }}
           {{- end }}
           {{- if $value.bootstrap.extraEnv }}
           {{- toYaml $value.bootstrap.extraEnv | nindent 10 }}
