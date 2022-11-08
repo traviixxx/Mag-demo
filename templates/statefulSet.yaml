@@ -40,7 +40,7 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
-      serviceAccountName: bootstrapper-sa
+      serviceAccountName: {{ $.Release.Name }}-bootstrapper-sa
       securityContext:
         {{- toYaml $.Values.deploy.securityContext | nindent 8 }}
       restartPolicy: {{ $value.restartPolicy | default "Always" }}
