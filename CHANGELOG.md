@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.5.12] - 2022-11-23
+
+### Fixed
+
+- [MR-83](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/83)
+  Activation keypair lost on restart when the magnoliaAuthor.useExistingSecret =
+  false and the activation.privateKey is not specified in the Helm chart values.
+
 ## [v1.5.4] - 2022-04-06
 
 Bugfix release regarding backups and several upgrades of underlying software.
