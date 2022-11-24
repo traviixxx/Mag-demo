@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.5.13] - 2022-11-24
+
+### Added
+
+- [MR-85](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/85)
+  Expose backup metrics.
+
+  * Add service for metrics ports if backup is enabled.
+  * Closed #49
+
+### Changed
+
+  * Also: Bump default memory allocation for Magnolia.
+
 ## [v1.5.12] - 2022-11-23
 
 ### Fixed
