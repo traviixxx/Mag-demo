@@ -1,4 +1,5 @@
 RELEASE=pruning-molly
+NAMESPACE=default
 LOCAL_YAML=temp/local.yml
 LOCAL_YAML_S3=temp/s3-local.yml
 
@@ -17,28 +18,28 @@ values: ## Show generated yaml resources and values.
 	 --generate-name .
 
 clean: ## Clean up environment.
-	helm del $(RELEASE)
+	helm -n $(NAMESPACE) del $(RELEASE)
 
 clean-pvc: ## Clean disks (PVCs) too.
-	kubectl get persistentvolumeclaims -l 'release=$(RELEASE)' -o json | kubectl delete -f -
+	kubectl -n $(NAMESPACE) get persistentvolumeclaims -l 'release=$(RELEASE)' -o json | kubectl -n $(NAMESPACE) delete -f -
 
 gen-doc: ## Generate docs. Install helm-docs for this to work (https://github.com/norwoodj/helm-docs).
 	helm-docs --template-files=docs/README.md.gotmpl
 
 install-local: ## Install helm chart on k8s.
-	helm upgrade --install $(RELEASE) . -f $(LOCAL_YAML)
+	helm -n $(NAMESPACE) upgrade --install $(RELEASE) . -f $(LOCAL_YAML)
 
 install-local-s3: ## Install helm chart on k8s.
-	helm upgrade --install $(RELEASE) . -f $(LOCAL_YAML_S3)
+	helm -n $(NAMESPACE) upgrade --install $(RELEASE) . -f $(LOCAL_YAML_S3)
 
 install-remote: check-env ## Install helm chart on k8s.
-	helm install $(RELEASE) . -f $(REMOTE_YAML)
+	helm -n $(NAMESPACE) install $(RELEASE) . -f $(REMOTE_YAML)
 
 upgrade-local: ## Upgrade locally deployed release.
-	helm upgrade $(RELEASE) . --reuse-values -f $(LOCAL_YAML)
+	helm -n $(NAMESPACE) upgrade $(RELEASE) . --reuse-values -f $(LOCAL_YAML)
 
 upgrade-remote: ## Upgrade remotely deployed release.
-	helm upgrade $(RELEASE) . --reuse-values -f $(REMOTE_YAML)
+	helm -n $(NAMESPACE) upgrade $(RELEASE) . --reuse-values -f $(REMOTE_YAML)
 
 release: ## Release helm repo to chartmuseum
 	helm dep build
