@@ -75,7 +75,7 @@ sharedDb:
         enabled: False
         extraEnv: []
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: "v0.5.7"
+      tag: "v0.5.11"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
@@ -166,11 +166,11 @@ magnoliaAuthor:
   resources:
     requests:
       # -- Minimum amount of memory this pod requests.
-      memory: 512Mi
+      memory: 2Gi
     limits:
       # -- Maximum amount of memory this pod is allowed to use. This is not the
       # heap size, the heap size is smaller, see `setenv.memory` for details.
-      memory: 512Mi
+      memory: 2Gi
   logging:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
@@ -245,7 +245,7 @@ magnoliaAuthor:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.5.7"
+      tag: "v0.5.11"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
@@ -362,11 +362,11 @@ magnoliaPublic:
   resources:
     requests:
       # -- Minimum amount of memory this pod requests.
-      memory: 512Mi
+      memory: 2Gi
     limits:
       # -- Maximum amount of memory this pod is allowed to use. This is not the
       # heap size, the heap size is smaller, see `setenv.memory` for details.
-      memory: 512Mi
+      memory: 2Gi
   logging:
     level: DEBUG
     pattern: "%d %-5p %-50.50c: %m%n"
@@ -439,7 +439,7 @@ magnoliaPublic:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.5.7"
+      tag: "v0.5.11"
       # -- Enable db backup sidecar.
       enabled: False
       pg_wal_archive: "/archive"

@@ -138,9 +138,6 @@ spec:
             - name: PGDATA
               value: {{ printf "%s/%s" .db.persistence.mountPath .db.persistence.subPath }}
 {{- end }}
-          {{- if and .db.restore.enabled (eq .db.type "postgres") }}
-
-          {{- end }}
           volumeMounts:
             - name: data
               mountPath: {{ .db.persistence.mountPath }}
@@ -288,6 +285,10 @@ metadata:
   annotations:
     {{- toYaml $.Values.service.annotations | nindent 4 }}
   {{- end }}
+  labels:
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    component: {{ .db.name }}
+    tier: database
 spec:
   type: "{{ $.Values.service.type }}"
   clusterIP: None
@@ -310,5 +311,37 @@ spec:
     protocol: TCP
     targetPort: 9998
   {{- end }}
+
+  {{- if .db.backup.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $appName }}-backup
+  namespace: {{ $release.Namespace }}
+  {{- if $.Values.service.annotations }}
+  annotations:
+    {{- toYaml $.Values.service.annotations | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    component: {{ .db.name }}
+    target: backup
+    tier: database
+spec:
+  selector:
+    {{- include "magnolia.labels" $ | nindent 4 }}
+    component: {{ .db.name }}
+    tier: database
+  ports:
+  {{- if eq .db.type "postgres" }}
+  - name: backup-metrics
+    port: 9997
+    protocol: TCP
+    targetPort: 9997
+  {{- end }}
+
+  {{- end }}
+
 {{- end }}
 {{- end -}}
