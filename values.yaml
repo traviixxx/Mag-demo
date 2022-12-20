@@ -75,7 +75,7 @@ sharedDb:
         enabled: False
         extraEnv: []
       image: registry.gitlab.com/mironet/magnolia-backup
-      tag: "v0.6.0-rc3"
+      tag: "v0.6.0-rc4"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
@@ -245,7 +245,7 @@ magnoliaAuthor:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.6.0-rc3"
+      tag: "v0.6.0-rc4"
       pg_wal_archive: "/archive"
       pg_wal_archive_size: "50Gi"
       env:
@@ -439,7 +439,7 @@ magnoliaPublic:
         enabled: False
         extraEnv: []
       image: "registry.gitlab.com/mironet/magnolia-backup"
-      tag: "v0.6.0-rc3"
+      tag: "v0.6.0-rc4"
       # -- Enable db backup sidecar.
       enabled: False
       pg_wal_archive: "/archive"
