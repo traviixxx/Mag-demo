@@ -22,3 +22,4 @@
 .vscode/
 .Chart.tpl
 temp/*
+templates/tests/*

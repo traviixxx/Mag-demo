@@ -133,8 +133,8 @@ See [here](CHANGELOG.md).
 | magnoliaAuthor.podAnnotations | object | `{}` | Custom annotations added to pod. |
 | magnoliaAuthor.redeploy | bool | `false` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
 | magnoliaAuthor.rescueMode | bool | `false` | Enable Groovy rescue console. |
-| magnoliaAuthor.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
-| magnoliaAuthor.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
+| magnoliaAuthor.resources.limits.memory | string | `"2Gi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
+| magnoliaAuthor.resources.requests.memory | string | `"2Gi"` | Minimum amount of memory this pod requests. |
 | magnoliaAuthor.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaAuthor.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaAuthor.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
@@ -177,8 +177,8 @@ See [here](CHANGELOG.md).
 | magnoliaPublic.redeploy | bool | `true` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
 | magnoliaPublic.replicas | int | `1` | How many public instances to deploy. |
 | magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console. |
-| magnoliaPublic.resources.limits.memory | string | `"512Mi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
-| magnoliaPublic.resources.requests.memory | string | `"512Mi"` | Minimum amount of memory this pod requests. |
+| magnoliaPublic.resources.limits.memory | string | `"2Gi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
+| magnoliaPublic.resources.requests.memory | string | `"2Gi"` | Minimum amount of memory this pod requests. |
 | magnoliaPublic.setenv.memory.maxPercentage | int | `60` | Maximum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaPublic.setenv.memory.minPercentage | int | `25` | Minimum amount allocated to heap as a percentage of the pod's resources. |
 | magnoliaPublic.setenv.update.auto | string | `"true"` | Auto-update Magnolia if repositories are empty (usually on the first run). |
@@ -198,7 +198,7 @@ See [here](CHANGELOG.md).
 | nameOverride | string | `""` |  |
 | postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
 | postjob.imagePullPolicy | string | `"IfNotPresent"` |  |
-| postjob.tag | string | `"v0.2.6"` |  |
+| postjob.tag | string | `"v0.5.0"` |  |
 | postjob.waitFor | string | `"10m"` |  |
 | service.annotations | object | `{}` |  |
 | service.clusterIP | string | `"None"` |  |
