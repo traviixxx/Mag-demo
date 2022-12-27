@@ -9,6 +9,12 @@ image:
     tag: 9.0-jre11-temurin
     # -- Tomcat repo pull policy.
     pullPolicy: IfNotPresent
+  redirects:
+    repository: registry.gitlab.com/mironet/redirects
+    # -- Tomcat repo tag.
+    tag: v0.0.3
+    # -- Tomcat repo pull policy.
+    pullPolicy: IfNotPresent
   pullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -378,6 +384,9 @@ magnoliaPublic:
     # install".
     instructions: ""
     extraEnv: []
+  redirects:
+    # -- Enable redirect reverse proxy.
+    enabled: False
   activation:
     privateKey: null
     publicKey: null
@@ -557,6 +566,7 @@ service:
     #   port: 9090
     #   protocol: TCP
     #   targetPort: 9090
+  redirectPort: 8081
 
 ingress:
   # -- Enable/disable ingress configuration.
@@ -594,3 +604,6 @@ postjob:
   tag: v0.5.0
   imagePullPolicy: "IfNotPresent"
   waitFor: 10m
+
+nodeSelector:
+tolerations:
