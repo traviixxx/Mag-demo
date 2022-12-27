@@ -21,6 +21,11 @@ metadata:
         helm.sh/chart: {{ printf "%s-%s" $chartName $.Chart.Version }}
         app.kubernetes.io/managed-by: {{ $.Release.Service }}
         app.kubernetes.io/instance: {{ $.Release.Name }}
+        {{- if eq $magnoliaMode "public" }}
+        {{- if .values.redirects.enabled }}
+        magnolia.info/redirects: "enabled"
+        {{- end }}
+        {{- end }}
     name: {{ printf "%s-svc" $name }}
 spec:
     type: "{{ $.Values.service.type }}"
@@ -32,5 +37,5 @@ spec:
         component: {{ printf "%s-instance" $magnoliaMode }}
         tier: app
     ports:
-        {{- toYaml $.Values.service.ports | nindent 4 }}
+      {{- include "magnolia.ports" (list $ $magnoliaMode) | nindent 4 }}
 {{- end }}
