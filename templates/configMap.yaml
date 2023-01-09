@@ -89,8 +89,8 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
 {{- include "magnolia.labels" $ | nindent 4 }}
-binaryData:
-  rules.csv.gz: {{ $.Files.Get "files/empty-csv.tar.gz" | b64enc }}
+data:
+  rules.csv.gz: "Source,Target,Code"
 {{- end }}
 {{- end }}
 {{- end }}
