@@ -166,11 +166,15 @@ spec:
             - {{ .db.contentsync.address | quote }}
             {{- end }}
           env:
-          {{- if .db.backup.autoconfig.enabled }}
             - name: MGNLBACKUP_TAGS_POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: MGNLBACKUP_TAGS_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          {{- if .db.backup.autoconfig.enabled }}
             - name: MGNLBACKUP_TAGS_NODE_NAME
               valueFrom:
                 fieldRef:

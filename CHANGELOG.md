@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.5.15] - 2023-01-10
+
+### Added
+
+* Set env var `MGNLBACKUP_TAGS_NAMESPACE` in backup container.
+
+### Changed
+
+* Always set env var `MGNLBACKUP_TAGS_POD_NAME` in backup container.
+* Upgrade magnolia-backup version from `v0.5.14` to
+  [`v0.6.0`](https://gitlab.com/mironet/magnolia-backup/-/blob/master/CHANGELOG.md#v060-2023-01-10).
+
 ## [v1.5.14] - 2022-12-15
 
 ### Added
