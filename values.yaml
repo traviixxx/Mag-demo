@@ -12,7 +12,7 @@ image:
   redirects:
     repository: registry.gitlab.com/mironet/redirects
     # -- Tomcat repo tag.
-    tag: v0.0.3
+    tag: v0.3.0
     # -- Tomcat repo pull policy.
     pullPolicy: IfNotPresent
   pullSecrets: []

@@ -415,6 +415,7 @@ spec:
             - :{{ $.Values.service.redirectPort }}
             - -upstream
             - http://localhost:8080
+            - -k8s=false
           livenessProbe:
             failureThreshold: 3
             httpGet:
