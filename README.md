@@ -540,9 +540,7 @@ backups of the data bases.
 ### Backup Configuration
 
 You need to set at least the following values according to your environment.
-Please have a look at the
-[magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for
-an explanation of all settings.
+`Please have a look at the [magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for an explanation of all settings.
 
 ```yaml
 magnoliaAuthor:
@@ -595,6 +593,25 @@ are streamed directly to S3 without temporarily storing them locally. Because a 
 
 In case of larger data bases (a few GiBs to several TiBs) we recommend to use
 [the WAL log shipping method](https://gitlab.com/mironet/magnolia-backup#postgresql-wal-archiving).
+
+#### S3-Backup-Key Migration
+
+A bug which has been fixed in [2f2f6c1f](https://gitlab.com/mironet/magnolia-helm/-/commit/bf6e4c3781be32779ab0df2898e4e58c72dc6a12), lead Magnolia Releases prior magnolia-helm `>=v1.5.15` to accidentially bundle a generic `<release>-s3-backup-key` to the helm deployment. This ended up in overwriting the secrets key-values on the next update, if certain `values.yaml` constellations are transmitted.
+
+To migrate those secrets and dereference any Helm-Reference for the secrets, please use the Migrationscript provided in `/docs/migrateS3BackupKeys/migrateS3BackupSecrets.sh`:
+
+```bash
+# Ensure kubectl connection is set up to manage your Magnolia-Helm Deployment 
+# Target release by setting the $RELEASE env
+export RELEASE="mynamespace"
+
+#  Start Migration Script and follow instructions
+cd docs/migrateS3BackupKeys
+chmod +x migrateS3BackupSecrets.sh
+./migrateS3BackupSecrets.sh
+```
+
+The script will recreate the `<release>-s3-backup-key` and backup the exisiting one to the local folder in case you need to recover.
 
 ### Backup inspection
 

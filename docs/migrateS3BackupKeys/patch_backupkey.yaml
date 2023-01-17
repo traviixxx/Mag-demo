@@ -1,0 +1,9 @@
+- op: remove
+  path: /metadata/annotations/meta.helm.sh~1release-name
+  value: ""
+- op: remove
+  path: /metadata/annotations/meta.helm.sh~1release-namespace
+  value: ""
+- op: remove
+  path: /metadata/labels/app.kubernetes.io~1managed-by
+  value: ""

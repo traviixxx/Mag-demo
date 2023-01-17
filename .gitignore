@@ -5,3 +5,4 @@ charts/*
 .idea
 *.tgz
 secret.yml
+docs/migrateS3BackupKeys/*.tmp

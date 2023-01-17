@@ -1,0 +1,8 @@
+resources:
+- ./s3-backup-key.yaml.tmp
+
+patches:
+- path: patch_backupkey.yaml
+  target:
+    kind: Secret
+    labelSelector: "app.kubernetes.io/managed-by=Helm"
