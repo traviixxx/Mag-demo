@@ -75,6 +75,23 @@ data:
   MGNLBACKUP_CRON: "@every 720h" # ~1 month.
   MGNLBACKUP_TAGS_NAMESPACE: {{ quote $.Release.Namespace }}
   MGNLBACKUP_TAGS_RELEASE: {{ quote $.Release.Name }}
+{{- end }}
+{{- if eq $magnoliaMode "public" }}
+{{- if .values.redirects.enabled }}
+{{- $redirectsConfigMapName := printf "%s-magnolia-redirects" $.Release.Name }}
+{{- $redirectsConfigMap := lookup "v1" "ConfigMap" $.Release.Namespace $redirectsConfigMapName }}
+{{- if not $redirectsConfigMap }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-magnolia-redirects" $.Release.Name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+{{- include "magnolia.labels" $ | nindent 4 }}
+data:
+  rules.csv.gz: "Source,Target,Code"
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

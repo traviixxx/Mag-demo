@@ -40,3 +40,25 @@ chart: {{ template "magnolia.chart" . }}
 release: {{ .Release.Name }}
 heritage: {{ .Release.Service }}
 {{- end -}}
+
+{{/*
+Port list for the magnolia service. Takes the redirect server into consideration.
+*/}}
+{{- define "magnolia.ports" -}}
+{{- $dollar := index . 0 }}
+{{- $magnoliaMode := index . 1 }}
+{{- if and (eq $magnoliaMode "public") ($dollar.Values.magnoliaPublic.redirects.enabled) }}
+{{- range $key, $value := $dollar.Values.service.ports }}
+{{- if eq $value.name "http" -}}
+- name: http
+  port: {{ $value.port }}
+  protocol: {{ $value.protocol }}
+  targetPort: {{ $dollar.Values.service.redirectPort }}
+{{ else -}}
+- {{ toYaml $value | nindent 2 | trimPrefix "\n  " }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- toYaml $dollar.Values.service.ports }}
+{{- end }}
+{{- end -}}

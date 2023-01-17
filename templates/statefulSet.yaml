@@ -56,6 +56,10 @@ spec:
                   tier: database
                   component: {{ $value.db.name }}
       volumes:
+        - name: redirects-volume
+          configMap:
+            defaultMode: 420
+            name: {{ $.Release.Name }}-magnolia-redirects
         - name: temp
           emptyDir: {}
         - name: magnolia-home
@@ -160,7 +164,7 @@ spec:
       initContainers:
         - name: war
           image: {{ $value.webarchive.repository }}:{{ $value.webarchive.tag }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          imagePullPolicy: {{ $.Values.image.tomcat.pullPolicy }}
           command: ["sh", "-c", "cp -a /magnolia /app/"]
           volumeMounts:
             - name: tz-config
@@ -397,6 +401,43 @@ spec:
             successThreshold: 1
         {{- with $value.extraContainers }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if eq $magnoliaMode "public" }}
+        {{- if $value.redirects.enabled }}
+        - name: redirects
+          image: {{ $.Values.image.redirects.repository }}:{{ $.Values.image.redirects.tag }}
+          imagePullPolicy: {{ $.Values.image.redirects.pullPolicy }}
+          command:
+            - /redirects
+            - -file
+            - /src/rules.csv.gz
+            - -l
+            - :{{ $.Values.service.redirectPort }}
+            - -upstream
+            - http://localhost:8080
+            - -k8s=false
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: {{ $.Values.service.redirectPort }}
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - containerPort: {{ $.Values.service.redirectPort }}
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          volumeMounts:
+            - mountPath: src
+              name: redirects-volume
+        {{- end }}
         {{- end }}
     {{- if $.Values.image.pullSecrets }}
       imagePullSecrets:
