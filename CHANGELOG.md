@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.6.0] - 2023-01-17
+
+### Added
+
+- Helm value to activate redirects server for public instances.
+- Create empty redirects config map if it does not already exists.
+- s3-backup-key migration script.
+
 ## [v1.5.15] - 2023-01-10
 
 ### Added
