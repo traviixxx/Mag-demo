@@ -55,6 +55,9 @@ See [here](CHANGELOG.md).
 | deploy.tempDir | string | `"/usr/local/tomcat/temp"` |  |
 | fullnameOverride | string | `""` |  |
 | image.pullSecrets | list | `[]` |  |
+| image.redirects.pullPolicy | string | `"IfNotPresent"` | Tomcat repo pull policy. |
+| image.redirects.repository | string | `"registry.gitlab.com/mironet/redirects"` |  |
+| image.redirects.tag | string | `"v0.3.0"` | Tomcat repo tag. |
 | image.tomcat.pullPolicy | string | `"IfNotPresent"` | Tomcat repo pull policy. |
 | image.tomcat.repository | string | `"tomcat"` | The tomcat image we're going to use. |
 | image.tomcat.tag | string | `"9.0-jre11-temurin"` | Tomcat repo tag. |
@@ -175,6 +178,7 @@ See [here](CHANGELOG.md).
 | magnoliaPublic.persistence.storageClassName | string | `""` | Empty string means: Use the default storage class. |
 | magnoliaPublic.podAnnotations | object | `{}` | Custom annotations added to pods. |
 | magnoliaPublic.redeploy | bool | `true` | If true, redeploy on "helm upgrade/install" even if no changes were made. |
+| magnoliaPublic.redirects.enabled | bool | `false` | Enable redirect reverse proxy. |
 | magnoliaPublic.replicas | int | `1` | How many public instances to deploy. |
 | magnoliaPublic.rescueMode | bool | `false` | Enable Groovy rescue console. |
 | magnoliaPublic.resources.limits.memory | string | `"2Gi"` | Maximum amount of memory this pod is allowed to use. This is not the heap size, the heap size is smaller, see `setenv.memory` for details. |
@@ -196,6 +200,7 @@ See [here](CHANGELOG.md).
 | metrics.metricsServerPort | int | `8000` |  |
 | metrics.setPrometheusAnnotations | bool | `true` |  |
 | nameOverride | string | `""` |  |
+| nodeSelector | string | `nil` |  |
 | postjob.image | string | `"registry.gitlab.com/mironet/magnolia-bootstrap"` | Where to get the bootstrapper from. This should not be changed under normal circumstances. |
 | postjob.imagePullPolicy | string | `"IfNotPresent"` |  |
 | postjob.tag | string | `"v0.5.0"` |  |
@@ -206,6 +211,7 @@ See [here](CHANGELOG.md).
 | service.ports[0].port | int | `80` |  |
 | service.ports[0].protocol | string | `"TCP"` |  |
 | service.ports[0].targetPort | int | `8080` |  |
+| service.redirectPort | int | `8081` |  |
 | service.type | string | `"ClusterIP"` |  |
 | sharedDb | object | See values below ... | Shared database (jackrabbit "clustering"). |
 | sharedDb.db.contentsync.address | string | `":9998"` | TLS port of the backup sidecar. |
@@ -214,12 +220,14 @@ See [here](CHANGELOG.md).
 | sharedDb.db.jackrabbit.extraSearchIndexParameters | object | `{}` | Extra search index parameters for jackrabbit configuration (e.g. overwrite search excerpt provider class with `excerptProviderClass`) |
 | sharedDb.db.jackrabbit.forceConsistencyCheck | bool | `false` | Runs a consistency check on every startup. If false, a consistency check is only performed when the search index detects a prior forced shutdown. |
 | sharedDb.db.jackrabbit.onWorkspaceInconsistency | string | `"log"` | If set to log, the process will just log the inconsistency during the re-indexing on startup. If set to fail, the process will fail the re-indexing on startup. |
+| sharedDb.db.persistence.mountPath | string | `"/db"` | Mount point is /db, PGDATA=/db/data |
 | sharedDb.db.persistence.subPath | string | `"data"` | Mount point is /db, PGDATA=/db/data |
 | sharedDb.db.podAnnotations | object | `{}` | Custom annotations added to db pods. |
 | sharedDb.db.restore.bundle_url | string | `"https://s3..."` | URL to backup bundle JSON file to use for restore. |
 | sharedDb.db.restore.enabled | bool | `false` | Enable restore operations. |
 | sharedDb.enabled | bool | `false` | Enable shared db |
 | timezone | string | `"Europe/Zurich"` | Timezone for Magnolia. |
+| tolerations | string | `nil` |  |
 
 ## Configuration
 
@@ -357,11 +365,14 @@ To enable the
 deploy your Helm release with the following flag
 
 for CE projects:
+
 ```yaml
 magnoliaAuthor:
   rescueMode: true
 ```
+
 for DX Core projects:
+
 ```yaml
 magnoliaAuthor:
   rescueModeDX: true
@@ -540,7 +551,9 @@ backups of the data bases.
 ### Backup Configuration
 
 You need to set at least the following values according to your environment.
-`Please have a look at the [magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for an explanation of all settings.
+Please have a look at the
+[magnolia-backup documentation](https://gitlab.com/mironet/magnolia-backup) for
+an explanation of all settings.
 
 ```yaml
 magnoliaAuthor:
@@ -601,7 +614,7 @@ A bug which has been fixed in [2f2f6c1f](https://gitlab.com/mironet/magnolia-hel
 To migrate those secrets and dereference any Helm-Reference for the secrets, please use the Migrationscript provided in `/docs/migrateS3BackupKeys/migrateS3BackupSecrets.sh`:
 
 ```bash
-# Ensure kubectl connection is set up to manage your Magnolia-Helm Deployment 
+# Ensure kubectl connection is set up to manage your Magnolia-Helm Deployment
 # Target release by setting the $RELEASE env
 export RELEASE="mynamespace"
 
@@ -645,7 +658,7 @@ For this to work a few things need to be configured correctly:
 When spinning up new public databases by setting the `replica: n` value and if
 `contentsync.enabled == true`, the new database will try to sync the content
 from an already running public database. It will copy the whole database using a
-*base backup*. This feature thus only works with PostgreSQL.
+_base backup_. This feature thus only works with PostgreSQL.
 
 After starting the database it is safe to start a new public instance too by
 setting `replica: n` of the public `StatefulSet`. It will match the ordinal
@@ -738,6 +751,42 @@ magnoliaPublic:
       key: activation-secret
 ```
 
+## Redirects servers in public instances
+
+Starting from `v1.6.0` redirects server responding with redirects defined in a
+config map can be activated for all public Magnolia instances. Requests not
+found in the redirect list are proxied to the redirects server's respective
+public magnolia instance.
+
+To activate the feature set helm value `magnoliaPublic.redirects.enabled` to
+`True`.
+
+The redirects are defined in a config map which must be named
+`<release-name>-magnolia-redirects` and be located in the namespace of the
+release. It is used for all public instances at the same time, i.e. all public
+instances are automatically configured to respond with the same redirects.
+
+If there exists no redirects map for a release yet, an empty redirects config
+map will be created by helm.
+
+The redirects config map must follow the following structure:
+
+```yaml
+apiVersion: v1
+data:
+  rules.csv.gz: |-
+    Source,Target,Code
+    <1 to n lines of redirect rules>
+kind: ConfigMap
+metadata:
+  name: <release-name>-magnolia-redirects
+  namespace: <release-namespace>
+```
+
+Refer to the [redirects server
+readme](https://gitlab.com/mironet/redirects#regex) to see how the redirect
+rules must be formatted.
+
 ## Status
 
 This chart is currently used in production. We will adhere to the semver
@@ -748,11 +797,13 @@ standard and try to maintain backwards compatiblity within major releases.
 Values used with older chart versions should always work with newer chart versions and provide the same results.
 
 > **Note:** This does not mean a certain deployment will upgrade non-disruptively, i.e. without having to remove it first. See the [Upgrade](#upgrade) section about upgrades in general.
-
+>
 > **Note**: Ingress API `extensions/v1beta1` [deprecated for Kuberenetes `v1.22` and above](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes) and has been replaced by `networking.k8s.io/v1`. If you encounter any issues like:
->```
+>
+>```text
 > Error: UPGRADE FAILED: unable to recognize "": no matches for kind "Ingress" in version "networking.k8s.io/v1"
 >```
+>
 > Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced.
 >
 > Also ensure using a [proper ingress port name value](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/#IngressBackend) (_a string, not a number!_) in `service.ports[0].name` rather than a `service.ports[0].number`.
@@ -762,8 +813,8 @@ Values used with older chart versions should always work with newer chart versio
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| MiroNet AG | mathias.seiler@mironet.ch | https://www.mironet.ch/ |
-| fastforward websolutions | pzingg@fastforward.ch | https://www.fastforward.ch/ |
+| MiroNet AG | <mathias.seiler@mironet.ch> | <https://www.mironet.ch/> |
+| fastforward websolutions | <pzingg@fastforward.ch> | <https://www.fastforward.ch/> |
 
 ## Legal Notes
 

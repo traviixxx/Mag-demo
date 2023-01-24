@@ -182,11 +182,14 @@ To enable the
 deploy your Helm release with the following flag
 
 for CE projects:
+
 ```yaml
 magnoliaAuthor:
   rescueMode: true
 ```
+
 for DX Core projects:
+
 ```yaml
 magnoliaAuthor:
   rescueModeDX: true
@@ -421,6 +424,25 @@ are streamed directly to S3 without temporarily storing them locally. Because a 
 In case of larger data bases (a few GiBs to several TiBs) we recommend to use
 [the WAL log shipping method](https://gitlab.com/mironet/magnolia-backup#postgresql-wal-archiving).
 
+#### S3-Backup-Key Migration
+
+A bug which has been fixed in [2f2f6c1f](https://gitlab.com/mironet/magnolia-helm/-/commit/bf6e4c3781be32779ab0df2898e4e58c72dc6a12), lead Magnolia Releases prior magnolia-helm `>=v1.5.15` to accidentially bundle a generic `<release>-s3-backup-key` to the helm deployment. This ended up in overwriting the secrets key-values on the next update, if certain `values.yaml` constellations are transmitted.
+
+To migrate those secrets and dereference any Helm-Reference for the secrets, please use the Migrationscript provided in `/docs/migrateS3BackupKeys/migrateS3BackupSecrets.sh`:
+
+```bash
+# Ensure kubectl connection is set up to manage your Magnolia-Helm Deployment 
+# Target release by setting the $RELEASE env
+export RELEASE="mynamespace"
+
+#  Start Migration Script and follow instructions
+cd docs/migrateS3BackupKeys
+chmod +x migrateS3BackupSecrets.sh
+./migrateS3BackupSecrets.sh
+```
+
+The script will recreate the `<release>-s3-backup-key` and backup the exisiting one to the local folder in case you need to recover.
+
 ### Backup inspection
 
 You can port-forward the backup service and see a list of current backups and
@@ -453,7 +475,7 @@ For this to work a few things need to be configured correctly:
 When spinning up new public databases by setting the `replica: n` value and if
 `contentsync.enabled == true`, the new database will try to sync the content
 from an already running public database. It will copy the whole database using a
-*base backup*. This feature thus only works with PostgreSQL.
+_base backup_. This feature thus only works with PostgreSQL.
 
 After starting the database it is safe to start a new public instance too by
 setting `replica: n` of the public `StatefulSet`. It will match the ordinal
@@ -546,6 +568,42 @@ magnoliaPublic:
       key: activation-secret
 ```
 
+## Redirects servers in public instances
+
+Starting from `v1.6.0` redirects server responding with redirects defined in a
+config map can be activated for all public Magnolia instances. Requests not
+found in the redirect list are proxied to the redirects server's respective
+public magnolia instance.
+
+To activate the feature set helm value `magnoliaPublic.redirects.enabled` to
+`True`.
+
+The redirects are defined in a config map which must be named
+`<release-name>-magnolia-redirects` and be located in the namespace of the
+release. It is used for all public instances at the same time, i.e. all public
+instances are automatically configured to respond with the same redirects.
+
+If there exists no redirects map for a release yet, an empty redirects config
+map will be created by helm.
+
+The redirects config map must follow the following structure:
+
+```yaml
+apiVersion: v1
+data:
+  rules.csv.gz: |-
+    Source,Target,Code
+    <1 to n lines of redirect rules>
+kind: ConfigMap
+metadata:
+  name: <release-name>-magnolia-redirects
+  namespace: <release-namespace>
+``` 
+
+Refer to the [redirects server
+readme](https://gitlab.com/mironet/redirects#regex) to see how the redirect
+rules must be formatted.
+
 ## Status
 
 This chart is currently used in production. We will adhere to the semver
@@ -556,11 +614,13 @@ standard and try to maintain backwards compatiblity within major releases.
 Values used with older chart versions should always work with newer chart versions and provide the same results.
 
 > **Note:** This does not mean a certain deployment will upgrade non-disruptively, i.e. without having to remove it first. See the [Upgrade](#upgrade) section about upgrades in general.
-
+>
 > **Note**: Ingress API `extensions/v1beta1` [deprecated for Kuberenetes `v1.22` and above](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes) and has been replaced by `networking.k8s.io/v1`. If you encounter any issues like:
->```
+>
+>```text
 > Error: UPGRADE FAILED: unable to recognize "": no matches for kind "Ingress" in version "networking.k8s.io/v1"
 >```
+>
 > Please ensure to use `magnolia-helm v1.5.1` with [`Kubernetes v1.19` or higher](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/#api-changes), where using `networking.k8s.io/v1` was introduced.
 >
 > Also ensure using a [proper ingress port name value](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/ingress-v1/#IngressBackend) (_a string, not a number!_) in `service.ports[0].name` rather than a `service.ports[0].number`.
