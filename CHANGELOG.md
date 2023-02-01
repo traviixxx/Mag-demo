@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.6.3] - 2023-01-25
+
+### Changed
+
+* Upgrade magnolia-backup version from `v0.3.0` to
+  [`v0.3.1`](https://gitlab.com/mironet/redirects/-/blob/main/CHANGELOG.md#v031-2023-01-23).
+
 ## [v1.6.2] - 2023-01-25
 
 ### Changed
