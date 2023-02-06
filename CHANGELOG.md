@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.6.4] - 2023-02-06
+
+### Changed
+
+* Don't reference patch version in image tags.
+
+  Use release train tags instead.
+
+  This is done for images:
+  * magnolia-backup (uses `v0.7-mainline` now)
+  * magnolia-bootstrap (uses `v0.5-mainline` now)
+  * redirects (uses `v0.3-mainline` now)
+  
+  By using release train tags, no more new helm versions are required for simple
+  bugfix releases. Instead the release train tag will always point to the latest
+  bugfix version.
+
+  > Note: But one might still need to remove and re-pull the image on the
+  > cluster on which the helm release resides.
+
 ## [v1.6.3] - 2023-02-01
 
 ### Changed
