@@ -75,6 +75,7 @@ data:
   MGNLBACKUP_CRON: "@every 720h" # ~1 month.
   MGNLBACKUP_TAGS_NAMESPACE: {{ quote $.Release.Namespace }}
   MGNLBACKUP_TAGS_RELEASE: {{ quote $.Release.Name }}
+---
 {{- end }}
 {{- if eq $magnoliaMode "public" }}
 {{- if .values.redirects.enabled }}
@@ -95,3 +96,4 @@ data:
 {{- end }}
 {{- end }}
 {{- end }}
+---

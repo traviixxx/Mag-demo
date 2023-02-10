@@ -5,19 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.6.5] - 2023-02-10
+
+### Fixed
+
+- [MR-94](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/94)
+  Fix configMap syntax error on some values.yml combinations.
+
 ## [v1.6.4] - 2023-02-06
 
 ### Changed
 
-* Don't reference patch version in image tags.
+- Don't reference patch version in image tags.
 
   Use release train tags instead.
 
   This is done for images:
-  * magnolia-backup (uses `v0.7-mainline` now)
-  * magnolia-bootstrap (uses `v0.5-mainline` now)
-  * redirects (uses `v0.3-mainline` now)
-  
+  - magnolia-backup (uses `v0.7-mainline` now)
+  - magnolia-bootstrap (uses `v0.5-mainline` now)
+  - redirects (uses `v0.3-mainline` now)
+
   By using release train tags, no more new helm versions are required for simple
   bugfix releases. Instead the release train tag will always point to the latest
   bugfix version.
@@ -29,21 +36,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-* Upgrade redirects server version from `v0.3.0` to
+- Upgrade redirects server version from `v0.3.0` to
   [`v0.3.1`](https://gitlab.com/mironet/redirects/-/blob/main/CHANGELOG.md#v031-2023-01-23).
 
 ## [v1.6.2] - 2023-01-25
 
 ### Changed
 
-* Upgrade magnolia-backup version from `v0.7.3` to
+- Upgrade magnolia-backup version from `v0.7.3` to
   [`v0.7.4`](https://gitlab.com/mironet/magnolia-backup/-/blob/master/CHANGELOG.md#v074-2023-01-25).
 
 ## [v1.6.1] - 2023-01-23
 
 ### Changed
 
-* Upgrade magnolia-backup version from `v0.6.0` to
+- Upgrade magnolia-backup version from `v0.6.0` to
   [`v0.7.3`](https://gitlab.com/mironet/magnolia-backup/-/blob/master/CHANGELOG.md#v073-2023-01-19).
 
 ## [v1.6.0] - 2023-01-17
@@ -58,20 +65,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-* Set env var `MGNLBACKUP_TAGS_NAMESPACE` in backup container.
+- Set env var `MGNLBACKUP_TAGS_NAMESPACE` in backup container.
 
 ### Changed
 
-* Always set env var `MGNLBACKUP_TAGS_POD_NAME` in backup container.
-* Upgrade magnolia-backup version from `v0.5.14` to
+- Always set env var `MGNLBACKUP_TAGS_POD_NAME` in backup container.
+- Upgrade magnolia-backup version from `v0.5.14` to
   [`v0.6.0`](https://gitlab.com/mironet/magnolia-backup/-/blob/master/CHANGELOG.md#v060-2023-01-10).
 
 ## [v1.5.14] - 2022-12-15
 
 ### Added
 
-* Upgrade magnolia-backup version from `v0.5.11` to `v0.5.14`.
-
+- Upgrade magnolia-backup version from `v0.5.11` to `v0.5.14`.
 
 ## [v1.5.13] - 2022-11-24
 
@@ -80,12 +86,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [MR-85](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/85)
   Expose backup metrics.
 
-  * Add service for metrics ports if backup is enabled.
-  * Closed #49
+  - Add service for metrics ports if backup is enabled.
+  - Closed #49
 
 ### Changed
 
-  * Also: Bump default memory allocation for Magnolia.
+- Also: Bump default memory allocation for Magnolia.
 
 ## [v1.5.12] - 2022-11-23
 
