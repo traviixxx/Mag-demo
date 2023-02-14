@@ -492,6 +492,8 @@ magnoliaPublic:
       showReport: False
       # -- Show server info
       showServerInfo: False
+  podDistributionBudget:
+    enabled: True
 
 # Additional jars which should be loaded into tomcat can be specified here.
 jars:

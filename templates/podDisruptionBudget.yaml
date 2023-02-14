@@ -1,0 +1,17 @@
+{{- $fullName := include "magnolia.fullname" . -}}
+{{- $name := printf "%s-public" $fullName }}
+{{ if $.Values.magnoliaPublic.podDistributionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $name }}-pdb
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "magnolia.labels" $ | nindent 6 }}
+      tier: app
+      component: public-instance
+{{- end }}
+---
