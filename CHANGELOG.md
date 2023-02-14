@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.7.0] - 2023-02-14
+
+### Added
+
+- [MR-95](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/95)
+  PodDisruptionBudget for magnolia publics.
+
+### Changed
+
+- Upgrade magnolia-backup mainline from `v0.7-mainline` to
+  [`v0.8-mainline`](https://gitlab.com/mironet/magnolia-backup/-/blob/master/CHANGELOG.md)
+  (adding Azure Blob Storage support).
+
 ## [v1.6.5] - 2023-02-10
 
 ### Fixed
