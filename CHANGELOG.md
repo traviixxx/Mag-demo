@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [MR-95](https://gitlab.com/mironet/magnolia-helm/-/merge_requests/95)
   PodDisruptionBudget for magnolia publics.
+  ⚠️ This will break compatibility with Kubernetes <= 1.20. You will need at least Kubernetes 1.21 going onward from here.
 
 ### Changed
 
