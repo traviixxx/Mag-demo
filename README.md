@@ -110,6 +110,7 @@ See [here](CHANGELOG.md).
 | magnoliaAuthor | object | See values below ... | This is the author's configuration. It should not use H2 data base (the default). |
 | magnoliaAuthor.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
 | magnoliaAuthor.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
+| magnoliaAuthor.base_url | string | `""` | Pass URL to be set as Magnolia `defaultBaseUrl`. Setting is done on runtime via `magnolia-bootrapper` |
 | magnoliaAuthor.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaAuthor.contextPath | string | `"/author"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaAuthor.db.backup.autoconfig.enabled | bool | `false` | Configures the backup for pg_wal automatically in a k8s environment. It does this by including a configmap via the envFrom: directive which will be injected into the pod. You can override or pass other environment variables via the env: or the extraEnv: directive below. |
@@ -154,6 +155,7 @@ See [here](CHANGELOG.md).
 | magnoliaPublic | object | See values below ... | This is the public instance. |
 | magnoliaPublic.activation.useExistingSecret | bool | `false` | Set this to `true` in case you want to use an existing activation key stored as a secret and provide its name. |
 | magnoliaPublic.bootstrap.instructions | string | `""` | Verbatim content of the instructions for this instance. If empty use a default. This is intended to be used with the --set-file flag of "helm install". |
+| magnoliaPublic.base_url | string | `""` | Pass URL to be set as Magnolia `defaultBaseUrl`. Setting is done on runtime via `magnolia-bootrapper` |
 | magnoliaPublic.catalinaExtraEnv | object | `{}` | These key/value pairs will be added to CATALINA_OPTS. |
 | magnoliaPublic.contextPath | string | `"/"` | The context path of this Magnolia instance. Always use a leading slash. |
 | magnoliaPublic.db.backup.autoconfig.enabled | bool | `false` | Configures the backup for pg_wal automatically in a k8s environment. It does this by including a configmap via the envFrom: directive which will be injected into the pod. You can override or pass other environment variables via the env: or the extraEnv: directive below. |
