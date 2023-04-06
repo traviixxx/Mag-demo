@@ -40,6 +40,18 @@ bootstrap:
   # -- Do enable bootstrapping via REST.
   enabled: True
 
+# -- MultiRegion (Multicluster based on Linkerd)
+multiregion:
+  # -- Enable to inject Linkerd for MultiRegion (requires Linkerd Installed and set up)
+  enabled: False
+  # -- Set Role either to "Primary" or "Satellite" Cluster
+  role: "Primary"
+  # -- Local Linkerd Clustername
+  localclustername: ""
+  # -- Remote Clusternames
+  ### -- TBD MultiCluster via List?
+  remotenclustername: ""
+
 # -- Shared database (jackrabbit "clustering").
 # @default -- See values below ...
 sharedDb:

@@ -26,6 +26,9 @@ metadata:
         magnolia.info/redirects: "enabled"
         {{- end }}
         {{- end }}
+        {{- if .Values.multiregion.enabled }}
+        mirror.linkerd.io/exported: true
+        {{- end }}
     name: {{ printf "%s-svc" $name }}
 spec:
     type: "{{ $.Values.service.type }}"
