@@ -7,6 +7,9 @@
 {{- if and .db.contentsync.enabled .db.enabled -}}
 {{- $appName := printf "%s-%s-db" $fullName .db.name -}}
 {{- $dbName := printf "%s-db" .db.name }}
+{{- if and $.Values.multiregion.enabled $.Values.multiregion.localclustername  }}
+{{- $localclustername := printf "%s" $.Values.multiregion.localclustername -}}
+{{- end }}
 ---
 # This is our client cert used for all magnolia-backup clients to request new
 # base backups on-demand.
@@ -24,6 +27,9 @@ spec:
     - server auth
     - client auth
   dnsNames:
+  {{- if $.Values.multiregion.enabled }}
+  - "*.{{ $appName }}-{{ $.Values.multiregion.localclustername }}.{{ $.Release.Namespace }}." 
+  {{- end }}
   - "*.{{ $appName }}.{{ $.Release.Namespace }}.svc.cluster.local"
   - "*.{{ $appName }}.{{ $.Release.Namespace }}"
   - "*.{{ $appName }}"

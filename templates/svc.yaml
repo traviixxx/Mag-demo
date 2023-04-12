@@ -25,9 +25,9 @@ metadata:
         {{- if .values.redirects.enabled }}
         magnolia.info/redirects: "enabled"
         {{- end }}
-        {{- end }}
-        {{- if .Values.multiregion.enabled }}
+        {{- if $.Values.multiregion.enabled }}
         mirror.linkerd.io/exported: true
+        {{- end }}
         {{- end }}
     name: {{ printf "%s-svc" $name }}
 spec:

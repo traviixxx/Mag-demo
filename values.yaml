@@ -43,7 +43,7 @@ bootstrap:
 # -- MultiRegion (Multicluster based on Linkerd)
 multiregion:
   # -- Enable to inject Linkerd for MultiRegion (requires Linkerd Installed and set up)
-  enabled: False
+  enabled: false
   # -- Set Role either to "Primary" or "Satellite" Cluster
   role: "Primary"
   # -- Local Linkerd Clustername
