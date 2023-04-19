@@ -164,7 +164,11 @@ spec:
       initContainers:
         - name: war
           image: {{ $value.webarchive.repository }}:{{ $value.webarchive.tag }}
+{{- if $.Values.image.pullPolicy }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+{{- else }}
           imagePullPolicy: {{ $.Values.image.tomcat.pullPolicy }}
+{{- end }}
           command: ["sh", "-c", "cp -a /magnolia /app/"]
           volumeMounts:
             - name: tz-config
