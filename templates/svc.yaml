@@ -41,4 +41,7 @@ spec:
         tier: app
     ports:
       {{- include "magnolia.ports" (list $ $magnoliaMode) | nindent 4 }}
+{{- if $.Values.multiregion.enabled }}
+---
+{{- end }}
 {{- end }}
