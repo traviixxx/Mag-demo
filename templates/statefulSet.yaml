@@ -4,8 +4,6 @@
 {{- range $magnoliaMode, $value := $instances }}
 {{- if $value.enabled }}
 {{- $name := printf "%s-%s" $fullName $magnoliaMode }}
-{{- if $.Values.multiregion.author.enabled }}
-{{- $cluster := index $.Values.multiregion.author.remoteclusternames 0 }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -357,7 +355,8 @@ spec:
             value: {{ printf "%s-%s-svc" $fullName "public" }}
           {{- if and (eq $magnoliaMode "author") $.Values.multiregion.author.enabled }}
           # TODO: Add ClusterList to Bootstrapper, only single Cluster supported yet
-          - name: MGNLBOOT_MULTI_PUBLIC_SERVICE_NAME
+          {{- $cluster := index $.Values.multiregion.author.remoteclusternames 0 }}
+          - name: MGNLBOOT_MULTI_PUBLIC_SERVICE_NAMES
             value: {{ printf "%s-%s-svc-%s" $fullName "public" $cluster }}
           {{- end }}
           - name: MGNL_PODNAME
@@ -474,6 +473,5 @@ spec:
           tier: app
           component: {{ $magnoliaMode }}-instance
     {{- end }}
-{{- end }}
 {{- end }}
 {{- end }}
