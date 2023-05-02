@@ -354,10 +354,13 @@ spec:
           - name: MGNLBOOT_PUBLIC_SERVICE_NAME
             value: {{ printf "%s-%s-svc" $fullName "public" }}
           {{- if and (eq $magnoliaMode "author") $.Values.multiregion.author.enabled }}
-          # TODO: Add ClusterList to Bootstrapper, only single Cluster supported yet
-          {{- $cluster := index $.Values.multiregion.author.remoteclusternames 0 }}
+          {{- $remotesvc := list }}
+          {{- range $remote :=  $.Values.multiregion.author.remoteclusternames }}
+          {{- $var := printf "%s-%s-svc-%s" $fullName "public" $remote }}
+          {{- $remotesvc = append $remotesvc $var }}
+          {{- end }}
           - name: MGNLBOOT_MULTI_PUBLIC_SERVICE_NAMES
-            value: {{ printf "%s-%s-svc-%s" $fullName "public" $cluster }}
+            value: {{ join "," $remotesvc }}
           {{- end }}
           - name: MGNL_PODNAME
             value: {{ $name }}
