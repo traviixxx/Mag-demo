@@ -25,8 +25,8 @@ metadata:
         {{- if .values.redirects.enabled }}
         magnolia.info/redirects: "enabled"
         {{- end }}
-        {{- if $.Values.multiregion.enabled }}
-        mirror.linkerd.io/exported: true
+        {{- if and $.Values.multiregion.enabled (not $.Values.multiregion.author.enabled ) }}
+        mirror.linkerd.io/exported: "true"
         {{- end }}
         {{- end }}
     name: {{ printf "%s-svc" $name }}
@@ -41,7 +41,4 @@ spec:
         tier: app
     ports:
       {{- include "magnolia.ports" (list $ $magnoliaMode) | nindent 4 }}
-{{- if $.Values.multiregion.enabled }}
----
-{{- end }}
 {{- end }}
