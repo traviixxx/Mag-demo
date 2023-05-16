@@ -27,6 +27,7 @@ metadata:
         {{- end }}
         {{- if and $.Values.multiregion.enabled (not $.Values.multiregion.author.enabled ) }}
         mirror.linkerd.io/exported: "true"
+        mirror.linkerd.io/mirrored-service: "true"
         {{- end }}
         {{- end }}
     name: {{ printf "%s-svc" $name }}
