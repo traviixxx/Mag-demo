@@ -42,4 +42,10 @@ spec:
         tier: app
     ports:
       {{- include "magnolia.ports" (list $ $magnoliaMode) | nindent 4 }}
+      {{- if and $.Values.multiregion.enabled (not $.Values.multiregion.author.enabled ) }}
+    - name: bootstrap
+      port: 8765
+      protocol: TCP
+      targetPort: 8765
+      {{- end }}
 {{- end }}
