@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "uhre-worker.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+{{ toYaml .Values.updateStrategy | indent 4 }}
+  selector:
+    matchLabels:
+      app: {{ include "uhre-worker.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "uhre-worker.name" . }}
+    spec:
+      imagePullSecrets:
+        - name: artifactory-reader
+      #volumes:
+      #  - name: cron-config-volume
+      #    configMap:
+      #      name: cron-config
+      #  - name: celery-config-volume
+      #    configMap:
+      #      name: celery-config
+      containers:
+        - name: uhre-worker
+          image: geocomply.jfrog.io/apps-uhre-bo-docker-dev-local/uhre-worker:{{ .Values.workerimage.tag }}
+          imagePullPolicy: {{ .Values.workerimage.pullPolicy }}
+          command: ["/bin/sh"]
+          # args: ["-c", "while true; do echo 1234567890; sleep 3600;done"]
+          args: ["-c", "/worker-start.sh"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "uhre-worker.name" . }}-env
+          #volumeMounts:
+          #  - name: cron-config-volume
+          #    mountPath: "/app/config.yaml"
+          #    subPath: "config.yaml"
+          #  - name: celery-config-volume
+          #    mountPath: "/app/celery_config.py"
+          #    subPath: "celery_config.py"

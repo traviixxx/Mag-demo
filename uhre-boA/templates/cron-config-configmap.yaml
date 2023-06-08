@@ -1,0 +1,8 @@
+{{- if .Values.cronconfigConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cron-config
+data:
+{{ toYaml .Values.cronconfigConfigMap | indent 2 }}
+{{- end }}

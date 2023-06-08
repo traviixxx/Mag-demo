@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "uhre-bo.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+{{ toYaml .Values.updateStrategy | indent 4 }}
+  selector:
+    matchLabels:
+      app: {{ include "uhre-bo.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "uhre-bo.fullname" . }}
+    spec:
+      containers:
+        - name: uhre-bo
+          image: traviixxx/uhreqat:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          # args: ["-c", "while true; do echo 1234567890; sleep 3600;done"]
+          args: ["-c", "/app-start.sh"]
+          volumeMounts:
+            - name: static-volume
+              mountPath: /app/content/static
+            - name: media-volume
+              mountPath: /app/content/media
+          envFrom:
+            - configMapRef:
+                name: {{ include "uhre-bo.fullname" . }}-env
+      volumes:
+        - name: static-volume
+          emptyDir: {}
+        - name: media-volume
+          emptyDir: {}

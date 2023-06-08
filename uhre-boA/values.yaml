@@ -1,0 +1,195 @@
+replicaCount: 1
+
+mysql:
+  enabled: true
+  image:
+    repository: traviixxx/uhreqat
+    tag: mysql-qat1.1.0
+  auth:
+    rootPassword: password
+    createDatabase: true
+    database: universal_hre
+    username: user
+    password: password
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    password: password1
+
+rabbitmq:
+  enabled: true
+  image:
+    tag: 3.11.9-debian-11-r1
+  auth:
+    username: user
+    password: password
+  extraConfiguration: |-
+    default_vhost = universal_hre
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+image:
+  repository: traviixxx/uhreqat
+  pullPolicy: Always
+  tag: app-qat1.1.0
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+service:
+  type: ClusterIP
+  serverPort: 8000
+  targetPort: 8000
+  protocol: TCP
+
+configMap:
+  DEBUG: "False"
+  SECRET_KEY: "replace_this_secret_key"
+  SERVER: "qat-uhre.geocomply.net"
+  DB_NAME: "universal_hre"
+  DB_USER: "user"
+  DB_PASSWORD: "password"
+  DB_HOST: "qat-uhre-1-uhre-bo-mysql.qat-uhre-1.svc.cluster.local"
+  DB_PORT: "3306"
+  REDBEAT_REDIS_URI: "redis://:password1@qat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/1"
+  REDBEAT_KEY_PREFIX: "redbeat"
+  REDBEAT_DISTRIBUTOR_TASK_NAME: "interval_tasks_distributor"
+  DJANGO_SUPERUSER_USERNAME: "developer"
+  DJANGO_SUPERUSER_EMAIL: "developer@geocomply.com"
+  DJANGO_SUPERUSER_PASSWORD: "Geocomply123@"
+
+
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 128m
+    # haproxy-ingress.github.io/whitelist-source-range: 118.69.35.205/32,27.65.195.158/32,184.69.72.190/32,24.234.166.179/32,54.173.212.103/32,18.162.78.188/32,10.0.0.0/8
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  path: /
+  pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+    
+
+# Values for beat
+beatimage:
+  repository: geocomply.jfrog.io/apps-uhre-bo-docker-dev-local/uhre-beat
+  pullPolicy: Always
+  tag: 1.1.1
+
+beatConfigMap:
+  DB_NAME: "universal_hre"
+  DB_USER: "user"
+  DB_PASSWORD: "password"
+  DB_HOST: "qat-uhre-1-uhre-bo-mysql.qat-uhre-1.svc.cluster.local"
+  DB_PORT: "3306"
+
+  TASK_TIME_LIMIT: "300"
+  WORKER_MAX_TASKS_PER_CHILD: "100"
+  WORKER_MAX_MEMORY_PER_CHILD: "1572864"
+
+  ELASTICSEARCH_HOST: "uh-elk.geocomply.net"
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_USER: "elastic"
+  ELASTICSEARCH_PASSWORD: "elastic"
+
+  LOGGING_FILENAME: "/tmp/manager.log"
+  LOGGING_LEVEL: "INFO"
+
+  SMTP_USER: "AKIAW3XMXTBD2LY5M3YY"
+  SMTP_PASSWORD: "BP7GnZUsHQLozx1ipTrMAhXAymwWg43KDDRDqEloE6aN"
+
+  REDIS_URI: "redis://:password1@qat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/0"
+  REDBEAT_REDIS_URI: "redis://:password1@qat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/1"
+
+  RABBITMQ_HOST: "qat-uhre-1-uhre-bo-rabbitmq-headless.qat-uhre-1.svc.cluster.local"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_DEFAULT_USER: "user"
+  RABBITMQ_DEFAULT_PASS: "password"
+  RABBITMQ_DEFAULT_VHOST: "universal_hre"
+
+# Values for cron
+cronimage:
+  repository: geocomply.jfrog.io/apps-uhre-bo-docker-dev-local/uhre-cron
+  pullPolicy: Always
+  tag: 1.1.1
+
+cronConfigMap:
+  DB_NAME: "universal_hre"
+  DB_USER: "user"
+  DB_PASSWORD: "password"
+  DB_HOST: "qat-uhre-1-uhre-bo-mysql.qat-uhre-1.svc.cluster.local"
+  DB_PORT: "3306"
+
+  TASK_TIME_LIMIT: "300"
+  WORKER_MAX_TASKS_PER_CHILD: "100"
+  WORKER_MAX_MEMORY_PER_CHILD: "1572864"
+
+  ELASTICSEARCH_HOST: "uh-elk.geocomply.net"
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_USER: "elastic"
+  ELASTICSEARCH_PASSWORD: "elastic"
+
+  LOGGING_FILENAME: "/tmp/cron.log"
+  LOGGING_LEVEL: "INFO"
+
+  SMTP_USER: "AKIAW3XMXTBD2LY5M3YY"
+  SMTP_PASSWORD: "BP7GnZUsHQLozx1ipTrMAhXAymwWg43KDDRDqEloE6aN"
+
+  REDIS_URI: "redis://:password1@qat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/0"
+  REDBEAT_REDIS_URI: "redis://:password1@qat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/1"
+
+  RABBITMQ_HOST: "qat-uhre-1-uhre-bo-rabbitmq-headless.qat-uhre-1.svc.cluster.local"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_DEFAULT_USER: "user"
+  RABBITMQ_DEFAULT_PASS: "password"
+  RABBITMQ_DEFAULT_VHOST: "universal_hre"
+
+# Values for worker
+workerimage:
+  repository: geocomply.jfrog.io/apps-uhre-bo-docker-dev-local/uhre-worker
+  pullPolicy: Always
+  tag: 1.1.1
+
+workerConfigMap:
+  DB_NAME: "universal_hre"
+  DB_USER: "user"
+  DB_PASSWORD: "password"
+  DB_HOST: "qat-uhre-1-uhre-bo-mysql.qat-uhre-1.svc.cluster.local"
+  DB_PORT: "3306"
+
+  TASK_TIME_LIMIT: "300"
+  WORKER_MAX_TASKS_PER_CHILD: "100"
+  WORKER_MAX_MEMORY_PER_CHILD: "1572864"
+
+  ELASTICSEARCH_HOST: "uh-elk.geocomply.net"
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_USER: "elastic"
+  ELASTICSEARCH_PASSWORD: "elastic"
+
+  LOGGING_FILENAME: "/tmp/manager.log"
+  LOGGING_LEVEL: "INFO"
+
+  SMTP_USER: "AKIAW3XMXTBD2LY5M3YY"
+  SMTP_PASSWORD: "BP7GnZUsHQLozx1ipTrMAhXAymwWg43KDDRDqEloE6aN"
+
+  REDIS_URI: "redis://:password1@qqat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/0"
+  REDBEAT_REDIS_URI: "redis://:password1@qat-uhre-1-uhre-bo-redis-headless.qat-uhre-1.svc.cluster.local:6379/1"
+
+  RABBITMQ_HOST: "qat-uhre-1-uhre-bo-rabbitmq-headless.qat-uhre-1.svc.cluster.local"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_DEFAULT_USER: "user"
+  RABBITMQ_DEFAULT_PASS: "password"
+  RABBITMQ_DEFAULT_VHOST: "universal_hre"
+

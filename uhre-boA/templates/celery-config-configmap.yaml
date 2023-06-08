@@ -1,0 +1,8 @@
+{{- if .Values.celeryconfigConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: celery-config
+data:
+{{ toYaml .Values.celeryconfigConfigMap | indent 2 }}
+{{- end }}
