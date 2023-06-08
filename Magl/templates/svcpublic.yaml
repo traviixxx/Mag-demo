@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "Maglpublic.fullname" . }}
+  labels:
+    {{- include "Magl.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  Nodeports: {{ $.Values.service.NodePort }}
+    - port: {{ .Values.service.port }}
+      targetPort: 8081
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "Magl.selectorLabels" . | nindent 4 }}

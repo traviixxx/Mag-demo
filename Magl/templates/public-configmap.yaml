@@ -1,0 +1,8 @@
+{{- if .Values.magnoliaPublic }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "Maglpublic.name" . }}-env
+data:
+{{ toYaml .Values.magnoliaPublic | indent 2 }}
+{{- end }}

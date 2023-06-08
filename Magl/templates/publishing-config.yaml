@@ -1,0 +1,8 @@
+{{- if .Values.authorConfigmap.publishingcore }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: publishing-config
+data:
+{{ toYaml .Values.authorConfigmap.publishingcore | indent 2 }}
+{{- end }}

@@ -1,0 +1,8 @@
+{{- if .Values.authorConfigmap.jackrabbit }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jackrabbit-config
+data:
+{{ toYaml .Values.authorConfigmap.jackrabbit | indent 2 }}
+{{- end }}
