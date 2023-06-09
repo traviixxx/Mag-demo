@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>info.magnolia.cloud</groupId>
+  <artifactId>demo</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>demo custom cloud project</name>
+  <description>demo custom cloud project</description>
+  <packaging>pom</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <javaVersion>11</javaVersion>
+    <magnolia.version>6.2.20</magnolia.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- DX Core custom cloud dependency management -->
+      <dependency>
+        <groupId>info.magnolia.dx</groupId>
+        <artifactId>magnolia-dx-core-custom-cloud-parent</artifactId>
+        <version>${magnolia.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <modules>
+    <module>demo-webapp</module>
+    <module>demo-module</module>
+  </modules>
+
+</project>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>info.magnolia.cloud</groupId>
+    <artifactId>demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>demo-webapp</artifactId>
+  <name>demo custom cloud webapp</name>
+  <description>demo custom cloud webapp</description>
+  <packaging>war</packaging>
+
+  <dependencies>
+    <!-- Inherits Magnolia DX Core custom cloud webapp  -->
+    <dependency>
+      <groupId>info.magnolia.dx</groupId>
+      <artifactId>magnolia-dx-core-custom-cloud-webapp</artifactId>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>info.magnolia.dx</groupId>
+      <artifactId>magnolia-dx-core-custom-cloud-webapp</artifactId>
+      <type>pom</type>
+      <exclusions>
+        <exclusion>
+          <groupId>info.magnolia.templating</groupId>
+          <artifactId>magnolia-templating-kit</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- custom modules -->
+    <dependency>
+      <groupId>info.magnolia.cloud.demo</groupId>
+      <artifactId>demo-module</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- DB Connector -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.2.25</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.3.2</version>
+        <configuration>
+          <!-- exclude jars copied "physically" from the webapp overlay - so we only get those resolved by Maven's dependency management -->
+          <dependentWarExcludes>WEB-INF/lib/*.jar</dependentWarExcludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
