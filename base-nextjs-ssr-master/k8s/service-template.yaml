@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Env.DEPLOYMENT }}-magnolia-helm-frontend-author-svc
+  labels:
+    component: author-instance
+    tier: frontend
+spec:
+  clusterIP: None
+  type: ClusterIP
+  selector:
+    component: author-instance
+    tier: frontend
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+      targetPort: {{ .Env.MAGNOLIA_FRONTEND_PORT }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Env.DEPLOYMENT }}-magnolia-helm-frontend-public-svc
+  labels:
+    component: public-instance
+    tier: frontend
+spec:
+  clusterIP: None
+  type: ClusterIP
+  selector:
+    component: public-instance
+    tier: frontend
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+      targetPort: {{ .Env.MAGNOLIA_FRONTEND_PORT }}

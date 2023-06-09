@@ -1,0 +1,14 @@
+'i18n':
+  'class': 'info.magnolia.cms.i18n.DefaultI18nContentSupport'
+  'enabled': true
+  'fallbackLocale': 'en'
+  'mgnl:checksum': '522244337EBCF206A2EEBDD7043EEFA9'
+  'locales':
+    'en':
+      'enabled': true
+      'language': 'en'
+      'country': {}
+    'de':
+      'enabled': true
+      'language': 'de'
+      'country': {}

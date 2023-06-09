@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Env.DEPLOYMENT }}-magnolia-helm-frontend-author
+  labels:
+    component: author-instance
+    tier: frontend
+spec:
+  replicas: {{ .Env.MAGNOLIA_FRONTEND_AUTHOR_REPLICAS }}
+  selector:
+    matchLabels:
+      component: author-instance
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        component: author-instance
+        tier: frontend
+    spec:
+      containers:
+        - env:
+          - name: PUBLIC_MGNL_HOST
+            value: "{{ .Env.AUTHOR_MGNL_HOST }}"
+          name: magnolia-frontend
+          image: {{ .Env.MAGNOLIA_DOCKER_SPA }}
+          resources:
+            limits:
+              memory: "{{ .Env.MAGNOLIA_FRONTEND_MEMORY }}"
+              cpu: "{{ .Env.MAGNOLIA_FRONTEND_CPU }}"
+          ports:
+            - containerPort: {{ .Env.MAGNOLIA_FRONTEND_PORT }}
+      imagePullSecrets:
+        - name: {{ .Env.MAGNOLIA_PULLSECRET_NAME }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Env.DEPLOYMENT }}-magnolia-helm-frontend-public
+  labels:
+    component: public-instance
+    tier: frontend
+spec:
+  replicas: {{ .Env.MAGNOLIA_FRONTEND_PUBLIC_REPLICAS }}
+  selector:
+    matchLabels:
+      component: public-instance
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        component: public-instance
+        tier: frontend
+    spec:
+      containers:
+        - env:
+            - name: PUBLIC_MGNL_HOST
+              value: "{{ .Env.PUBLIC_MGNL_HOST }}"
+          name: magnolia-frontend
+          image: {{ .Env.MAGNOLIA_DOCKER_SPA }}
+          resources:
+            limits:
+              memory: "{{ .Env.MAGNOLIA_FRONTEND_MEMORY }}"
+              cpu: "{{ .Env.MAGNOLIA_FRONTEND_CPU }}"
+          ports:
+            - containerPort: {{ .Env.MAGNOLIA_FRONTEND_PORT }}
+      imagePullSecrets:
+        - name: {{ .Env.MAGNOLIA_PULLSECRET_NAME }}
