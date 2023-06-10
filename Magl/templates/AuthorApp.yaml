@@ -1,61 +1,52 @@
+{{- $fullName := include "Magl.fullname" . -}}
+{{- $instances := dict "author" .Values.magnoliaAuthor "public" .Values.magnoliaPublic }}
+{{- if $value.enabled }}
+
 apiVersion: apps/v1
-kind: StatefullSet
+kind: StatefulSet
 metadata:
-  name: {{ include "Magl-author.fullname" . }}
-  labels:
-    {{- include "Magl.labels" . | nindent 4 }}
+  name: {{ include "Magl.fullname" . }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  strategy:
+{{ toYaml .Values.updateStrategy | indent 4 }}
   selector:
     matchLabels:
-      {{- include "Magl.selectorLabels" . | nindent 6 }}
+      app: {{ include "Magl.fullname" . }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "Magl.selectorLabels" . | nindent 8 }}
+        app: {{ include "Magl.fullname" . }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "Magl.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: server-config-volume
+          configMap:
+            name: server-config
+        - name: setenv-config-volume
+          configMap:
+            name: setenv-config
+        - name: publishing-volume
+          configMap:
+            name: publishing-config
+        - name: jackcrx-config-volume
+          configMap:
+            name: jackrabbit-config
+        
+      initcontainer:
+
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: author
+          image: :{{ .Values.magnoliaAuthor.tag }}
+          imagePullPolicy: {{ .Values.magnoliaAuthor.pullPolicy }}
+          command: ["/bin/sh"]
+          # args: ["-c", "while true; do echo 1234567890; sleep 3600;done"]
+          args: ["-c", "/beat-start.sh"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "Magl.fullname" . }}-env
+          #volumeMounts:
+          #  - name: cron-config-volume
+          #    mountPath: "/app/config.yaml"
+          #    subPath: "config.yaml"
+          #  - name: celery-config-volume
+          #    mountPath: "/app/celery_config.py"
+          #    subPath: "celery_config.py"

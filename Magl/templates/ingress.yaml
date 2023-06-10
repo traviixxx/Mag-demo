@@ -7,7 +7,7 @@ metadata:
   name: {{ $fullName }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "Magl.labels" . | indent 4 }}
+{{ include "Magl.labels" . | indent 4 }}.   
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -20,7 +20,6 @@ spec:
       {{- range .hosts }}
         - {{ . | quote }}
       {{- end }}
-      secretName: {{ .secretName | default (printf "%s-cert" $fullName) }}
   {{- end }}
 {{- end }}
   rules:
