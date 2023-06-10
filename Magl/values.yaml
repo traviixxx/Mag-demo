@@ -49,11 +49,8 @@ magnoliaAuthor:
     size: 10Gi
     mountPath: /mgnl-home
     storageClassName: ""
-  db:
-    enabled: True
-    repository: postgres
-    tag: 11.9-alpine
-    type: postgres
+  postgres:
+    enabled: true
     name: author
     persistence:
       enabled: True
@@ -343,11 +340,8 @@ magnoliaPublic:
     size: 10Gi
     mountPath: /mgnl-home
     storageClassName: ""
-  db:
-    enabled: True
-    repository: postgres
-    tag: 11.9-alpine
-    type: postgres
+  postgres:
+    enabled: true
     name: author
     persistence:
       enabled: True

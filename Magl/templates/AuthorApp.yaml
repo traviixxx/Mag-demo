@@ -8,6 +8,7 @@ metadata:
   name: {{ include "Magl.fullname" . }}
 spec:
   strategy:
+  replicas: 1
 {{ toYaml .Values.updateStrategy | indent 4 }}
   selector:
     matchLabels:
@@ -30,9 +31,9 @@ spec:
         - name: jackcrx-config-volume
           configMap:
             name: jackrabbit-config
-        
+# Phan source va Configuration Mgt
       initcontainer:
-
+# deploy app voi JVM(tomcat)
       containers:
         - name: author
           image: :{{ .Values.magnoliaAuthor.tag }}
