@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  author-war:
+    image: registry.magnolia-platform.com/developers-artifact/blueprints/demo-dx/magnolia-webapp:6.2.30
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cp -a /magnolia /app-author && touch /app-author/magnolia/deployed
+    volumes:
+      - app-author:/app-author
+
+  author-db:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: author
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    restart: unless-stopped
+    networks:
+      mgnl-net:
+    volumes:
+      - ./volumes/db-author:/var/lib/postgresql/data
+
+  author:
+    image: tomcat:9-jdk11-corretto
+    depends_on:
+      - author-db
+      - author-war
+    ports:
+      - "8080:8080"
+    networks:
+      mgnl-net:
+    volumes:
+      - app-author:/usr/local/tomcat/webapps
+      - ${PWD}/volumes/mgnl-author:/mgnl-home
+      - ${PWD}/config/author/server.xml:/usr/local/tomcat/conf/server.xml
+      - ${PWD}/config/author/setenv.sh:/usr/local/tomcat/bin/setenv.sh
+      - ${PWD}/config/author/jackrabbit.xml:/mgnl-home/jackrabbit.xml
+      - ${PWD}/config/author/config.modules.publishing-core.config.receivers.magnoliaPublic8080.xml:/usr/local/tomcat/webapps/magnolia/WEB-INF/bootstrap/author/config.modules.publishing-core.config.receivers.magnoliaPublic8080.xml
+      - ${PWD}/config/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until [ -f /usr/local/tomcat/webapps/magnolia/deployed ]; do sleep 5; done
+        wait-for-it.sh author-db:5432 --timeout=240 --strict -- /usr/local/tomcat/bin/catalina.sh run
+
+networks:
+  mgnl-net:
+    name: mgnl-net
+
+volumes:
+  app-author:

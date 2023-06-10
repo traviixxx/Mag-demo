@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  public-war:
+    image: registry.magnolia-platform.com/developers-artifact/blueprints/demo-dx/magnolia-webapp:6.2.30
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cp -a /magnolia /app-public && touch /app-public/magnolia/deployed;
+    volumes:
+      - app-public:/app-public
+
+  public-db:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: public
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    restart: unless-stopped
+    networks:
+      mgnl-net:
+    volumes:
+      - ./volumes/db-public:/var/lib/postgresql/data
+
+  public:
+    image: tomcat:9-jdk11-corretto
+    depends_on:
+      - public-db
+      - public-war
+    ports:
+      - "8081:8080"
+    networks:
+      mgnl-net:
+    volumes:
+      - app-public:/usr/local/tomcat/webapps
+      - ${PWD}/volumes/mgnl-public:/mgnl-home
+      - ${PWD}/config/public/server.xml:/usr/local/tomcat/conf/server.xml
+      - ${PWD}/config/public/setenv.sh:/usr/local/tomcat/bin/setenv.sh
+      - ${PWD}/config/public/jackrabbit.xml:/mgnl-home/jackrabbit.xml
+      - ${PWD}/config/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until [ -f /usr/local/tomcat/webapps/magnolia/deployed ]; do sleep 5; done
+        wait-for-it.sh public-db:5432 --timeout=240 --strict -- /usr/local/tomcat/bin/catalina.sh run
+
+networks:
+  mgnl-net:
+    name: mgnl-net
+
+volumes:
+  app-public:
