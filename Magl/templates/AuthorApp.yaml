@@ -31,23 +31,62 @@ spec:
         - name: jackcrx-config-volume
           configMap:
             name: jackrabbit-config
+        - name: temp
+          emptyDir: {}
+        - name: magnolia-home
+        {{- if and $value.persistence.enabled $value.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $value.persistence.existingClaim }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: app
+          emptyDir: {}
 # Phan source va Configuration Mgt
       initcontainer:
-# deploy app voi JVM(tomcat)
+        - name: war
+          image: {{ $value.webarchive.repository }}:{{ $value.webarchive.tag }}
+{{- if $.Values.image.pullPolicy }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+{{- else }}
+          imagePullPolicy: {{ $.Values.image.tomcat.pullPolicy }}
+{{- end }}
+          command: ["sh", "-c", "cp -a /magnolia /app/"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+  
+# deploy/run app voi JVM(tomcat)
       containers:
         - name: author
           image: :{{ .Values.magnoliaAuthor.tag }}
           imagePullPolicy: {{ .Values.magnoliaAuthor.pullPolicy }}
+        - name: {{ $.Release.Name }}
+          image: {{ $.Values.image.tomcat.repository }}:{{ $.Values.image.tomcat.tag }}
+          imagePullPolicy: {{ $.Values.image.tomcat.pullPolicy }}
+
           command: ["/bin/sh"]
           # args: ["-c", "while true; do echo 1234567890; sleep 3600;done"]
-          args: ["-c", "/beat-start.sh"]
+            args: ["-c", "until [ -f /usr/local/tomcat/webapps/magnolia/deployed ]; sleep 5; done"]
+            args: ["-c", "/wait-for-it.sh author-db:5432 --timeout=240 --strict -- && /usr/local/tomcat/bin/catalina.sh"]
           envFrom:
             - configMapRef:
                 name: {{ include "Magl.fullname" . }}-env
-          #volumeMounts:
-          #  - name: cron-config-volume
-          #    mountPath: "/app/config.yaml"
-          #    subPath: "config.yaml"
-          #  - name: celery-config-volume
-          #    mountPath: "/app/celery_config.py"
-          #    subPath: "celery_config.py"
+          volumeMounts:
+            - name: magnolia-home
+              mountPath: {{ $value.persistence.mountPath | default "/mgnl-home" }}
+            - name: app
+              mountPath: {{ $.Values.deploy.directory }}
+            - name: setenv-config-volume
+              mountPath: /usr/local/tomcat/bin/setenv.sh
+              subPath: setenv.sh
+            - name: setenv-config-volume
+              mountPath: /usr/local/tomcat/conf/server.xml
+              subPath: server.xml
+            - name: jackcrx-config-volume
+              mountPath: /mgnl-home/jackrabbit.xml
+              subPath: jackrabbit.xml
+            - name: publishing-volume
+              mountPath: /usr/local/tomcat/webapps/magnolia/WEB-INF/bootstrap/author/config.modules.publishing-core.config.receivers.magnoliaPublic8080.xml
+              subPath: config.modules.publishing-core.config.receivers.magnoliaPublic8080.xml
+            

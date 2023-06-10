@@ -1,0 +1,4 @@
+1. This sample chart based on docker-compose file
+
+2. For Template code and Organizing... You should clarify how this platform processes. Once client init a workspace on GUI. And decide to "submit" and create an instance:
+   ++ Plz! list down all Java's k8s Operator | Java's k8s controller
